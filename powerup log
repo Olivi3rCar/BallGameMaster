@@ -14,3 +14,15 @@ Made a fast fall powerup (still in testing area still imperfect) press e to acti
 modify it accordingly.
 
 slightly tweaked the physics because the ball was way too bouncy for a golf ball so i changed it a bit
+
+
+
+imported and slightly tweaked the fast fall and sticky ball powerups to work with the new physics (collisions/tiles)
+
+made the bouncy ball powerup but still need some work as the collisions are still a mess as of now
+(the ball goes through walls)(press z to use) also added a ball reset keybind (R) so when the ball
+just phases through the walls i can bring it back,it's still far from done because i need to reset it
+depending on the spawn points but because i don't have spawns yet i just made it come back to the center
+of the map
+
+still need to comment most of the code but the hour ended

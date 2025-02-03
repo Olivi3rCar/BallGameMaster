@@ -143,9 +143,9 @@ class Ball:
                     if self.velocity.length() < 0.01:
                         self.velocity = pygame.Vector2(0, 0)
 
-            else:
-                self.velocity += weight
-            self.pos += self.velocity*dt*70 #Framerate independance should now work
+        else:
+            self.velocity += weight
+        self.pos += self.velocity*dt*70 #Framerate independance should now work
 
 
 
