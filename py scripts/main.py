@@ -4,55 +4,52 @@ from pygame.locals import *
 
 pygame.init()
 screen = pygame.display.set_mode((1080,720))
-pygame.display.set_caption('Putt It In')
+pygame.display.set_caption('Ball Game')
 
 FPS = pygame.time.Clock()
 FPS.tick(60)
 
-title_image = pygame.image.load("./sea-slug-3-3956079983.jpg")
-t_w=title_image.get_width()
-t_h=title_image.get_height()
-
+title_image = pygame.image.load("./limace.jpg")
 
 imagerect = title_image.get_rect()
-pos = screen.get_rect().center
 
+posx = screen.get_rect().centerx
+posy= screen.get_rect().centery
 
-def on_play_button(gamestate,pos,t_w,t_h):
-    if gamestate!="Title":
-        return False
-    mouse_x, mouse_y = pygame.mouse.get_pos()
-    print(mouse_x)
-    print(pos[0]+(t_w/2), pos[0]-(t_w/2))
+dutronc=pygame.image.load("./dutronc_cigare.jpg")
+kino=pygame.image.load("kino.jpg")
 
-    print('\n', mouse_y)
-    print(pos[1]+(t_h/2), pos[1]-(t_h/2))
+# program.display.update()
+gamestate = "Title"
 
-    print('\n')
-
-    print((pos[0]+(t_w/2)<=mouse_x<=pos[0]-(t_w/2)),(pos[1]+(t_h/2)<=mouse_y<=pos[1]-(t_h/2)))
-    if (pos[0]+(t_w/2)<=mouse_x<=pos[0]-(t_w/2)) and (pos[1]+(t_h/2)<mouse_y<pos[1]-(t_h/2)):
-        return True
-
-
+first_frame=True
 
 while True:
-    gamestate="Title"
-    # print(gamestate,'\n',pos)
+    pygame.display.flip()
+    if gamestate == "Title":
+        if first_frame:
+            screen.fill((86, 150, 0))
+            screen.blit(title_image, title_image.get_rect(center=(posx,posy)))
+    elif gamestate == "Level Selection":
+        if first_frame:
+            screen.fill((255, 255, 255))
+            kino=pygame.transform.smoothscale(kino, (0.9*kino.get_width(),0.9*kino.get_height()))
+            dutronc = pygame.transform.smoothscale(dutronc, (0.5*dutronc.get_width(),0.1*dutronc.get_height()))
+            screen.blit(dutronc, dutronc.get_rect(center=(posx + 700, posy - 30)))
+            screen.blit(kino, kino.get_rect(center=(posx, posy)))
+            first_frame=False
+
+
     for event in pygame.event.get():
         if event.type == QUIT:
             pygame.quit()
             sys.exit()
-            break
-        elif event.type == MOUSEBUTTONUP :
-            print("click!")
-            if on_play_button(gamestate,pos,t_w,t_h):
-                gamestate="Level Selection"
-                pygame.quit()
-                sys.exit()
-                break
 
-    screen.fill((86,150,0))
-    screen.blit(title_image, title_image.get_rect(center=pos))
-    pygame.display.flip()
-    #program.display.update()
+        elif event.type == MOUSEBUTTONDOWN:
+            if (title_image.get_rect().collidepoint(event.pos)) and (gamestate == "Title"):
+                gamestate="Level Selection"
+                first_frame=True
+
+
+            elif gamestate == "Level Selection" :
+                pass
