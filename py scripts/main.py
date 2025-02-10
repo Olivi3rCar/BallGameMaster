@@ -13,13 +13,12 @@ screen = pygame.display.set_mode((960,720))
 pygame.display.set_caption('Ball Game')
 
 FPS = pygame.time.Clock()
-FPS.tick(60)
+FPS.tick(1)
 
 title_image = pygame.image.load(path+"Title.png")
 splash=pygame.image.load(path+"Putt_it_in.png")
 
 play=pygame.image.load(path+"Let'sPlayButton.png")
-playbuttonreac=pygame.Surface((80,20))
 
 imagerect = title_image.get_rect()
 
@@ -34,32 +33,47 @@ scene = "Title"
 first_frame=True
 
 splashscale=3
-print(splashscale * splash.get_width())
 x=0
 
-playbutton=playbuttonreac.blit(play, (0, 0), (0, 0, 80, 20))
+playoff=(0,0,80*3,20*3)
+playon=(80*3,0,160*3,20*3)
+
+screen_center = screen.get_rect().center
+def on_play_button(gamestate,position,t_w,t_h):
+    if gamestate!="Title":
+        return False
+    mouse_x, mouse_y = pygame.mouse.get_pos()
+    print(mouse_x, mouse_y)
+    print(position[0]+(t_w/2),">",mouse_x,">",position[0]-(t_w/2))
+    print(position[0]+(t_w/2)>int(mouse_x)>position[0]-(t_w/2))
+
+    if (position[0]+(t_w/2)>int(mouse_x)>position[0]-(t_w/2)) and (position[1]+(t_h/2)>int(mouse_y)>position[1]-(t_h/2)):
+        return True
 
 while True:
     if scene == "Title":
         if first_frame:
             screen.fill((86, 150, 0))
             title_image = pygame.transform.scale(title_image,(3*title_image.get_width(),3*title_image.get_height()))
-            screen.blit(title_image, title_image.get_rect(center=(posx,posy)))
-
             splashdisp=pygame.transform.scale(splash,(splashscale*splash.get_width(),splashscale*splash.get_height()))
-            screen.blit(splashdisp, splashdisp.get_rect(center=(posx,posy+75)))
-
-            screen.blit(playbutton, playbutton.get_rect(center=(posx,posy+75)))
-
+            play=pygame.transform.scale(play,(3*play.get_width(),3*play.get_height()))
             first_frame=False
 
         splashscale=0.3*sin(x)+2.5
-        x+=0.1/30
+        x+=0.1/25
 
-        screen.fill((86, 0, 0))
-        screen.blit(title_image, title_image.get_rect(center=(posx,posy)))
+        screen.fill((86, 150, 0))
+        screen.blit(play, play.get_rect(center=(posx+(40*3), posy+180)),playoff)
+
+        screen.blit(title_image, title_image.get_rect(center=(posx,posy-60)))
+
         splashdisp=pygame.transform.scale(splash,(splashscale*splash.get_width(),splashscale*splash.get_height()))
-        screen.blit(splashdisp, splashdisp.get_rect(center=(posx,posy+75)))
+        screen.blit(splashdisp, splashdisp.get_rect(center=(posx,posy+15)))
+
+        if on_play_button(scene,screen_center,play.get_width(),play.get_height()):
+            screen.blit(play, play.get_rect(center=(posx + (40 * 3), posy + 180)), playon)
+            pygame.display.update()
+
 
 
     elif scene == "Level Selection":
@@ -73,7 +87,7 @@ while True:
 
 
     for event in pygame.event.get():
-        if event.type == QUIT:
+        if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
             pygame.quit()
             sys.exit()
 
