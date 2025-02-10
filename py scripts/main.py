@@ -13,7 +13,7 @@ screen = pygame.display.set_mode((960,720))
 pygame.display.set_caption('Ball Game')
 
 FPS = pygame.time.Clock()
-FPS.tick(1)
+FPS.tick(60)
 
 title_image = pygame.image.load(path+"Title.png")
 splash=pygame.image.load(path+"Putt_it_in.png")
@@ -39,14 +39,11 @@ playoff=(0,0,80*3,20*3)
 playon=(80*3,0,160*3,20*3)
 
 screen_center = screen.get_rect().center
+
 def on_play_button(gamestate,position,t_w,t_h):
     if gamestate!="Title":
         return False
     mouse_x, mouse_y = pygame.mouse.get_pos()
-    print(mouse_x, mouse_y)
-    print(position[0]+(t_w/2),">",mouse_x,">",position[0]-(t_w/2))
-    print(position[0]+(t_w/2)>int(mouse_x)>position[0]-(t_w/2))
-
     if (position[0]+(t_w/2)>int(mouse_x)>position[0]-(t_w/2)) and (position[1]+(t_h/2)>int(mouse_y)>position[1]-(t_h/2)):
         return True
 
@@ -70,11 +67,8 @@ while True:
         splashdisp=pygame.transform.scale(splash,(splashscale*splash.get_width(),splashscale*splash.get_height()))
         screen.blit(splashdisp, splashdisp.get_rect(center=(posx,posy+15)))
 
-        if on_play_button(scene,screen_center,play.get_width(),play.get_height()):
+        if on_play_button(scene,(posx, posy + 180),play.get_width()/2,play.get_height()):
             screen.blit(play, play.get_rect(center=(posx + (40 * 3), posy + 180)), playon)
-            pygame.display.update()
-
-
 
     elif scene == "Level Selection":
         if first_frame:
@@ -85,14 +79,13 @@ while True:
             screen.blit(kino, kino.get_rect(center=(posx, posy)))
             first_frame=False
 
-
     for event in pygame.event.get():
         if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
             pygame.quit()
             sys.exit()
 
         elif event.type == MOUSEBUTTONDOWN:
-            if (title_image.get_rect().collidepoint(event.pos)) and (scene == "Title"):
+            if (scene == "Title") and on_play_button(scene,(posx, posy + 180),play.get_width()/2,play.get_height()):
                 scene="Level Selection"
                 first_frame=True
 
