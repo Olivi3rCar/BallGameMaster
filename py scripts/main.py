@@ -1,36 +1,68 @@
 import sys
 import pygame
 from pygame.locals import *
+import os
+from math import sin
 
-pygame.init()
-screen = pygame.display.set_mode((1080,720))
+
+path=(os.path.abspath(os.path.join("./main.py", os.pardir)))
+path=str(path)[:-10]+"Sprites png\\"
+
+#pygame.init()
+screen = pygame.display.set_mode((960,720))
 pygame.display.set_caption('Ball Game')
 
 FPS = pygame.time.Clock()
 FPS.tick(60)
 
-title_image = pygame.image.load("./limace.jpg")
+title_image = pygame.image.load(path+"Title.png")
+splash=pygame.image.load(path+"Putt_it_in.png")
+
+play=pygame.image.load(path+"Let'sPlayButton.png")
+playbuttonreac=pygame.Surface((80,20))
 
 imagerect = title_image.get_rect()
 
 posx = screen.get_rect().centerx
-posy= screen.get_rect().centery
+posy= screen.get_rect().centery-50
 
 dutronc=pygame.image.load("./dutronc_cigare.jpg")
 kino=pygame.image.load("kino.jpg")
 
-# program.display.update()
-gamestate = "Title"
 
+scene = "Title"
 first_frame=True
 
+splashscale=3
+print(splashscale * splash.get_width())
+x=0
+
+playbutton=playbuttonreac.blit(play, (0, 0), (0, 0, 80, 20))
+
 while True:
-    pygame.display.flip()
-    if gamestate == "Title":
+    if scene == "Title":
         if first_frame:
             screen.fill((86, 150, 0))
+            title_image = pygame.transform.scale(title_image,(3*title_image.get_width(),3*title_image.get_height()))
             screen.blit(title_image, title_image.get_rect(center=(posx,posy)))
-    elif gamestate == "Level Selection":
+
+            splashdisp=pygame.transform.scale(splash,(splashscale*splash.get_width(),splashscale*splash.get_height()))
+            screen.blit(splashdisp, splashdisp.get_rect(center=(posx,posy+75)))
+
+            screen.blit(playbutton, playbutton.get_rect(center=(posx,posy+75)))
+
+            first_frame=False
+
+        splashscale=0.3*sin(x)+2.5
+        x+=0.1/30
+
+        screen.fill((86, 0, 0))
+        screen.blit(title_image, title_image.get_rect(center=(posx,posy)))
+        splashdisp=pygame.transform.scale(splash,(splashscale*splash.get_width(),splashscale*splash.get_height()))
+        screen.blit(splashdisp, splashdisp.get_rect(center=(posx,posy+75)))
+
+
+    elif scene == "Level Selection":
         if first_frame:
             screen.fill((255, 255, 255))
             kino=pygame.transform.smoothscale(kino, (0.9*kino.get_width(),0.9*kino.get_height()))
@@ -46,10 +78,12 @@ while True:
             sys.exit()
 
         elif event.type == MOUSEBUTTONDOWN:
-            if (title_image.get_rect().collidepoint(event.pos)) and (gamestate == "Title"):
-                gamestate="Level Selection"
+            if (title_image.get_rect().collidepoint(event.pos)) and (scene == "Title"):
+                scene="Level Selection"
                 first_frame=True
 
 
-            elif gamestate == "Level Selection" :
+            elif scene == "Level Selection" :
                 pass
+            
+    pygame.display.flip()
