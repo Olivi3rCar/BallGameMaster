@@ -1,0 +1,14 @@
+the hardest difficulty was to get the formulas right
+By choice, I decided not to include acceleration variables, but only keep speed and positions
+after finding our classic equations :
+-x = v0 * cos(angle)*t + x0
+-y = -0.5*g*t**2 + v0*sin(angle)*t + y0
+The biggest problem by far was that the origin (0,0) is situated at the left top corner of the screen, thus
+throwing out the window our formula for y
+luckily, after some research, this problem can be fixed by multiplying by -1 our formula
+(in our movement function, we use the formula of vx and vy as we also alter those with gravity and function)
+As for gravity and frictions, we set basic conditions that influence vx and vy:
+-Is the ball in air
+-Is the ball on the ground and does it move?
+
+17/02 SAT algorithm to detect collisions finished
