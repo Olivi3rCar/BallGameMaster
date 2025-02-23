@@ -12,3 +12,4 @@ As for gravity and frictions, we set basic conditions that influence vx and vy:
 -Is the ball on the ground and does it move?
 
 17/02 SAT algorithm to detect collisions finished
+-22/02  frictions on the ground are good and we can "choose v0" by pressing the space bar for a certain amount of time

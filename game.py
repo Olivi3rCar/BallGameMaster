@@ -1,13 +1,15 @@
 import pygame,math
 
 pygame.init()
-SCREEN_HEIGHT = 720 ; SCREEN_WIDTH = 900
+SCREEN_HEIGHT = 480 ; SCREEN_WIDTH = 640
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 clock = pygame.time.Clock()
 active_select = False
 in_jump = False
 bounce = 0.5
 space_pressed = False
+running = True
+t0 = None
 
 screen = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT), pygame.RESIZABLE)
 pygame.display.set_caption("BallMaster")
@@ -47,7 +49,7 @@ class Ball:
             if abs(self.velocity.y) < 0.05:  # Si elle ne rebondit plus (y presque nul)
                 friction_force = -self.friction * self.velocity.x  # Applique une friction proportionnelle
                 self.velocity.x += friction_force
-                if abs(self.velocity.x) < 0.05:  # Seuil plus faible pour un arrêt progressif
+                if abs(self.velocity.x) < 0.01:  # Seuil plus faible pour un arrêt progressif
                     self.velocity.x = 0
 
     def moving(self):
@@ -83,55 +85,66 @@ class Ball:
             for i in range(len(pos_x)):
                 pygame.draw.circle(screen, "red", (int(pos_x[i]), int(pos_y[i])), 4)
 
-    def get_v0(self,t0,space_pressed):
-        while space_pressed :
-            pass
-
-class Triangle :
-    def __init__(self,sommet1,sommet2,sommet3,color):
-        self.sommet1 = sommet1
-        self.sommet2 = sommet2
-        self.sommet3 = sommet3
-        self.color = color
-
-    def draw_triangle(self):
-        pygame.draw.polygon(screen,self.color,[self.sommet1,self.sommet2,self.sommet3])
-
-
-triangle1 = Triangle(pygame.math.Vector2(0,SCREEN_HEIGHT),pygame.math.Vector2(100,500),pygame.math.Vector2(400,700),(255,255,255))
-ball = Ball(pygame.math.Vector2(250,250),10,(255,255,255),0.5,0.7,pygame.math.Vector2(0,0),1,0.2)
+    def get_v0(self, t0, event):
+        """Gère l'augmentation de v0 tant que la touche espace est enfoncée."""
+        rate_v0 = 0.02  # Augmentation de la puissance par milliseconde
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+            t0 = pygame.time.get_ticks()  # Démarrer le timer
+            self.v0 =  0 # Réinitialiser v0 à 0
+            return t0  # Retourne t0 pour qu'il soit mis à jour dans la boucle principale
+        elif event.type == pygame.KEYUP and event.key == pygame.K_SPACE and t0 is not None: #Never get in this loop
+            t1 = pygame.time.get_ticks()  # Temps quand on relâche
+            duration = t1 - t0  # Durée d'appui en millisecondes
+            self.v0 = min(duration * rate_v0, 10)  # Limite max de v0 à 20 pour éviter des valeurs extrêmes
+            print(f"Puissance du tir : {self.v0}")  # Debug
+            self.shoot(self.v0)  # Tirer avec la puissance calculée
+            return None  # Réinitialiser t0 après le tir
+        return t0  # Retourner t0 inchangé si aucun événement pertinent
 
 
-running = True
+    def search_collision(self,tiles):
+        pass
+        """look at self.x, and self.y then check until second to last row to search for the good height y, then search for the good x in the first row
+        verify collision for all tiles in the intervall y(being a tile)+-1 and x(being a tile)+-1 """
+
+
+ball = Ball(pygame.math.Vector2(250,250),7,(255,255,255),0.5,0.7,pygame.math.Vector2(0,0),1,0.2)
 while running:
-    ref_v0 = 10
-    ball.moving()
     screen.fill((0, 0, 0))
+    ball.moving()
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        if event.type == pygame.MOUSEBUTTONDOWN :
-            if event.button == 1:
-                if ball.check_select(event.pos) and not active_select:
-                    active_select = True
-                elif ball.check_select(event.pos) and active_select:
-                    active_select = False
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1 and ball.check_select(event.pos):
+                active_select = not active_select
+
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE and not in_jump and active_select:
-                t0 = pygame.time.get_ticks()
                 in_jump = True
-                active_select = False
-                ball.shoot(ref_v0)
-                in_jump = False #so that you cannot jump several times in midair
+                t0 = pygame.time.get_ticks()  # Démarre le timer
+                ball.v0 = 0  # Réinitialise v0
 
-    if active_select :
-        ball.draw_trajectory(ref_v0)
+        elif event.type == pygame.KEYUP:
+            if event.key == pygame.K_SPACE and in_jump:
+                duration = pygame.time.get_ticks() - t0  # Durée d'appui
+                ball.v0 = min(duration * 0.02, 20)  # Limite v0
+                print(f"Puissance du tir : {ball.v0}")  # Debug
+                ball.shoot(ball.v0)  # Tirer avec la puissance calculée
+                in_jump = False  # Réinitialise in_jump
+
+    if active_select:
+        ball.draw_trajectory(10)
+
     ball.draw()
     pygame.display.flip()
     clock.tick(60)
 
 pygame.quit()
 
-"""A faire : -frictions 
+"""A faire : 
 -collisions 
--Trouver un moyen d'obtenir v0"""
+-Revoir toute la logique de la boucle principale
+draw tajectory à améliorer"""
