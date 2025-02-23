@@ -31,15 +31,28 @@ class Ball:
     def draw(self): #Draws the ball
             self.circle = pygame.draw.circle(screen,self.color,(int(self.pos.x),int(self.pos.y)),self.radius)
 
-    def moving(self): #Force is a vector
-        self.velocity += pygame.Vector2(0,0.5*self.mass) #apply the weight
-        #condtion pour ajouter la friction du sol uniquement
+    def weight(self):
+        # Ajuste la gravité pour que la balle tombe plus naturellement (peut-être moins que 0.5 * self.mass)
+        gravity = 0.5  # Ajuste cette valeur pour avoir un effet gravitationnel plus réaliste
+        self.velocity += pygame.Vector2(0, gravity * self.mass)
         self.pos += self.velocity
-        if self.pos.y >=SCREEN_HEIGHT - self.radius :
+        if self.pos.y >= SCREEN_HEIGHT - self.radius:
             self.pos.y = SCREEN_HEIGHT - self.radius
             self.velocity.y *= -self.retention
             if abs(self.velocity.y) <= bounce:
-                self.velocity.y = 0
+                self.velocity.y = 0  # Si la vitesse verticale est très faible, arrête-la complètement
+
+    def ground_frictions(self):
+        if self.pos.y >= SCREEN_HEIGHT - self.radius:  # La balle touche le sol
+            if abs(self.velocity.y) < 0.05:  # Si elle ne rebondit plus (y presque nul)
+                friction_force = -self.friction * self.velocity.x  # Applique une friction proportionnelle
+                self.velocity.x += friction_force
+                if abs(self.velocity.x) < 0.05:  # Seuil plus faible pour un arrêt progressif
+                    self.velocity.x = 0
+
+    def moving(self):
+        self.weight()  # Applique le poids (gravité)
+        self.ground_frictions()  # Applique la friction du sol
 
     def shoot(self,v0):
         angle = self.get_angle()
@@ -86,7 +99,7 @@ class Triangle :
 
 
 triangle1 = Triangle(pygame.math.Vector2(0,SCREEN_HEIGHT),pygame.math.Vector2(100,500),pygame.math.Vector2(400,700),(255,255,255))
-ball = Ball(pygame.math.Vector2(250,250),10,(255,255,255),0.5,0.7,pygame.math.Vector2(0,0),1,10)
+ball = Ball(pygame.math.Vector2(250,250),10,(255,255,255),0.5,0.7,pygame.math.Vector2(0,0),1,0.2)
 
 
 running = True
@@ -113,7 +126,6 @@ while running:
 
     if active_select :
         ball.draw_trajectory(ref_v0)
-    triangle1.draw_triangle()
     ball.draw()
     pygame.display.flip()
     clock.tick(60)
