@@ -1,4 +1,6 @@
-import pygame, math
+import pygame, math,
+from import SAT_algorithm_collision
+from SAT_algorithm_collision import collision_check
 
 pygame.init()
 SCREEN_HEIGHT = 480
@@ -97,6 +99,17 @@ class Ball:
             self.shoot()  # Effectue le tir
             active_select = False
             self.t0 = None  # Réinitialise le chrono
+
+    def near_tiles(self,tilemap):
+        tiles = []
+        return tiles
+
+    def handle_collision(self,tilemap):
+        tiles = self.near_tiles(tilemap)
+        for tile in tiles :
+            if collision_check(tiles.vertices,self.pos,self.radius) :
+                pass
+
 
 
 ball = Ball(pygame.math.Vector2(250, 250), 7, (255, 255, 255), 0.5, 0.7, pygame.math.Vector2(0, 0), 1, 0.2)
