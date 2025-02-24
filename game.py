@@ -91,7 +91,7 @@ class Ball:
             self.t0 = pygame.time.get_ticks()  # Début du chrono
             self.v0 = 0  # Réinitialisation de la puissance
 
-        elif event.type == pygame.KEYUP and event.key == pygame.K_SPACE and self.t0 is not None:
+        elif event.type == pygame.KEYUP and event.key == pygame.K_SPACE and self.t0 is not None and active_select:
             duration = pygame.time.get_ticks() - self.t0  # Durée d'appui
             self.v0 = min(duration * rate_v0, 20)  # Limite de puissance
             self.shoot()  # Effectue le tir
