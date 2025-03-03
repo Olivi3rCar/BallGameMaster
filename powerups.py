@@ -98,7 +98,7 @@ class Ball:
             active_select = False
             self.t0 = None
 
-ball = Ball(pygame.math.Vector2(250, 250), 7, (255, 255, 255), 0.5, 0.7, pygame.math.Vector2(0, 0), 1, 0.2)
+ball = Ball(pygame.math.Vector2(250, 250), 7, (255, 255, 255), 0.5, 0.4, pygame.math.Vector2(0, 0), 1, 0.2)
 
 while running:
     screen.fill((0, 0, 0))
