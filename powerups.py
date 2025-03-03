@@ -24,12 +24,14 @@ class Ball:
         self.v0 = 0
         self.t0 = None
         self.sticky = False
+        self.fast_fall = False
 
     def draw(self):
         pygame.draw.circle(screen, self.color, (int(self.pos.x), int(self.pos.y)), self.radius)
 
     def weight(self):
-        gravity = 0.5
+        base_gravity = 0.5
+        gravity = base_gravity * 3 if self.fast_fall else base_gravity
         self.velocity += pygame.Vector2(0, gravity * self.mass)
         self.pos += self.velocity
         if self.pos.y >= SCREEN_HEIGHT - self.radius:
@@ -55,7 +57,10 @@ class Ball:
 
     def shoot(self):
         angle = self.get_angle()
-        force = pygame.math.Vector2(self.v0 * math.cos(math.radians(angle)), self.v0 * math.sin(math.radians(angle)))
+        force = pygame.math.Vector2(
+            self.v0 * math.cos(math.radians(angle)),
+            self.v0 * math.sin(math.radians(angle))
+        )
         self.velocity += force / self.mass
 
     def check_select(self, pos):
@@ -101,16 +106,27 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1 and ball.check_select(event.pos):
                 active_select = not active_select
+
         ball.handle_shooting(event)
+
         if event.type == pygame.KEYDOWN and event.key == pygame.K_a:
             ball.sticky = not ball.sticky
-            if ball.sticky:
-                ball.color = (0, 255, 0)
+            if ball.fast_fall:
+                ball.color = (0, 0, 255)
             else:
-                ball.color = (255, 255, 255)
+                ball.color = (0, 255, 0) if ball.sticky else (255, 255, 255)
+
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_e:
+            ball.fast_fall = not ball.fast_fall
+            if ball.fast_fall:
+                ball.color = (0, 0, 255)
+            else:
+                ball.color = (0, 255, 0) if ball.sticky else (255, 255, 255)
+
     if active_select:
         ball.draw_trajectory(10)
     ball.draw()
