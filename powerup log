@@ -9,3 +9,6 @@ The main problem i encountered is that if the ball spawned directly with the sti
 launching it became impossible because the ball
 was already stuck to the ground before even hitting it. I then decided to have a key in order to
 turn it off and on so it didn't cause any problem (press the A key).
+
+Made a fast fall powerup (still in testing area still imperfect) i just need to wait until i have the maps ready so i can
+modify it accordingly.
