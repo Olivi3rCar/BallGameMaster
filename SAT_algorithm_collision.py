@@ -1,29 +1,28 @@
 import math
 
 def Axis(A, B):
-    """ Retourne un vecteur normalisé perpendiculaire au segment AB """
+    #return a normal vector of the edge AB
     dx = B[0] - A[0]
     dy = B[1] - A[1]
-    n = [-dy, dx]  # Normal perpendiculaire
+    n = [-dy, dx]
     v = math.sqrt(n[0] ** 2 + n[1] ** 2)
-    return [n[0] / v, n[1] / v] if v != 0 else [0, 0]  # Évite la division par zéro
+    return [n[0] / v, n[1] / v] if v != 0 else [0, 0]
 
 
 def projection(point, axis):
-    """ Retourne la projection scalaire d'un point sur un axe donné """
+    #return the projection of a given point on a given axis
     return point[0] * axis[0] + point[1] * axis[1]
 
 
-def collision_check(vertices, circle_center, circle_radius): #Order of the vertices do not matter
-    """ Vérifie la collision entre un polygone et un cercle via SAT """
-    # Liste des axes normaux à tester (les arêtes du polygone)
+def collision_check(vertices, circle_center, circle_radius): #Order of the vertices does not matter
+    # List of all axis to check
     axes = []
     for i in range(len(vertices)):
         A = vertices[i]
         B = vertices[(i + 1) % len(vertices)]  # Boucle sur les sommets
         axes.append(Axis(A, B))
 
-    # Tester chaque axe
+    # Test each axis
     for axis in axes:
         # Projection du polygone
         min_poly = max_poly = projection(vertices[0], axis)
@@ -39,7 +38,7 @@ def collision_check(vertices, circle_center, circle_radius): #Order of the verti
 
         # Vérifier s'il y a un espace entre les intervalles projetés
         if max_poly < min_circle or max_circle < min_poly:
-            return False  # Pas de collision
+            return False  # No collision
 
-    return True  # Si aucune séparation n'est trouvée, il y a collision
+    return True  # If no separation found, there is collision
 

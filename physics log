@@ -13,3 +13,34 @@ As for gravity and frictions, we set basic conditions that influence vx and vy:
 
 17/02 SAT algorithm to detect collisions finished
 -22/02  frictions on the ground are good and we can "choose v0" by pressing the space bar for a certain amount of time
+
+Now the biggest difficulty by far, is to make all of this work with tiles, including slopes
+We want to be able to distinguish between rectangular tiles, triangular tiles, or other shapes, moreover there will be differentiation
+with the angle with the floor, the material and things like that
+
+Solution : Give a unique ID for each tile, with condition at the creation
+exemple : if the tile's ID is a multiple of 17, then its part of a slope of 30 degrees
+
+if tile_index in [0,1,2,3,5] angle = 0    and vertices = [(x,y),(x+32,y+32),(x+32,y),(x,y+32)]
+if tile_index == 5 angle = 45             and vertices = [(x+32,y+32),(x,y+32),(x+32,y)]
+if tile_index in [6,7] angle = 30           if 6 : vertices = [(x+32,y+32),(x,y+32),(x+32,y+17)]
+                                            if 7 : vertices = [(x+32,y+32),(x+32,y),(x,y+32),(x,y+16)]
+
+if tile_index in [8,9,10] angle = 10      if 8 : vertices = [(x+32,y+32),(x,y+32),(x+32,y+23)]
+                                          if 9 : vertices = [(x+32,y+32),(x+32,y+26),(x,y+32),(x,y+12)]
+                                          if 10 : vertices = [(x+32,y+32),(x+32,y),(x,y+32),(x,y+11)]
+
+
+if tile_index == 16 angle = 135            and vertices = [(x+32,y+32),(x,y),(x,y+32)]
+if tile_index in [17,18] angle = 120        if 17 : vertices = [(x+32,y+32),(x,y+32),(x,y+17)]
+                                            if 18 : vertices = [(x+32,y+32),(x,y),(x,y+32),(x+32,y+16)]
+
+
+if tile_index in [19,20,21] angle = 100   if 19 : vertices = [(x+32,y+32),(x,y+32),(x+32,y+23)]
+                                          if 20 : vertices = [(x+32,y+32),(x+32,y+12),(x,y+32),(x,y+22)]
+                                          if 21 : vertices = [(x+32,y+32),(x,y),(x,y+32),(x+32,y+11)]
+
+
+
+
+
