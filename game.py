@@ -1,5 +1,6 @@
-import pygame, math,
-from import SAT_algorithm_collision
+import pygame, math
+from PIL.FontFile import WIDTH
+
 from SAT_algorithm_collision import collision_check
 
 pygame.init()
@@ -20,7 +21,7 @@ icon = pygame.image.load("Sprites/golf-icon.png")
 pygame.display.set_icon(icon)
 
 
-class Ball:
+class Ball: #Creation of the Ball class
     def __init__(self, pos, radius, color, mass, retention, velocity, id, friction):
         self.pos = pos
         self.radius = radius
@@ -31,12 +32,12 @@ class Ball:
         self.id = id
         self.friction = friction
         self.v0 = 0
-        self.t0 = None  # Stocke le temps de début
+        self.t0 = None  # Store the timer for the jumps
 
-    def draw(self):  # Dessine la balle
+    def draw(self):  # Draw the ball
         self.circle = pygame.draw.circle(screen, self.color, (int(self.pos.x), int(self.pos.y)), self.radius)
 
-    def weight(self):
+    def weight(self): #Apply the weight
         gravity = 0.5
         self.velocity += pygame.Vector2(0, gravity * self.mass)
         self.pos += self.velocity
@@ -46,7 +47,7 @@ class Ball:
             if abs(self.velocity.y) <= 0.5:
                 self.velocity.y = 0
 
-    def ground_frictions(self):
+    def ground_frictions(self): #Apply the frictions : only on the ground
         if self.pos.y >= SCREEN_HEIGHT - self.radius:
             if abs(self.velocity.y) < 0.05:
                 friction_force = -self.friction * self.velocity.x
@@ -54,9 +55,21 @@ class Ball:
                 if abs(self.velocity.x) < 0.01:
                     self.velocity.x = 0
 
-    def moving(self):
+    def wall_collisions(self): #handles the collision with the walls
+        if self.pos.x - self.radius <= 0 and self.velocity.x < 0 or self.pos.x + self.radius >= SCREEN_WIDTH and self.velocity.x > 0 :
+            self.velocity.x *= -self.retention
+            if abs(self.velocity.x) <= 0.5 :
+                self.velocity.x = 0
+        if self.velocity.y == 0 and self.velocity.x != 0:
+            self.velocity.x -= -self.friction * self.velocity.x
+
+
+
+
+    def moving(self): #Moving the ball
         self.weight()
         self.ground_frictions()
+        self.wall_collisions()
 
     def shoot(self):
         angle = self.get_angle()
@@ -135,5 +148,5 @@ pygame.quit()
 
 """A faire : 
 -collisions 
--Revoir toute la logique de la boucle principale, in_jump
+-Revoir toute la logique de la boucle principale,
 draw tajectory à améliorer"""
