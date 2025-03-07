@@ -1,7 +1,7 @@
 import pygame
 import csv
 import os
-
+from pytmx import *
 # Initialisation de Pygame
 pygame.init()
 
@@ -28,6 +28,7 @@ class Spritesheet:
         y = (index // self.columns) * self.tile_size
         return self.spritesheet.subsurface((x, y, self.tile_size, self.tile_size))
 
+#We need to modify the tile creation and get_tile so we can get what we want
 
 # Classe Tile
 class Tile(pygame.sprite.Sprite):
@@ -36,6 +37,77 @@ class Tile(pygame.sprite.Sprite):
         self.image = spritesheet.get_tile(tile_index)  # Extrait la bonne tile
         self.rect = self.image.get_rect()
         self.rect.x, self.rect.y = x, y
+        self.vertices = []
+        self.angle = 0
+
+    def attribution(self):
+        x,y = self.x,self.y
+        if self.index in [1,2,3,4,0] :
+            self.angle = 0
+            self.vertices = [(x,y),(x+32,y+32),(x+32,y),(x,y+32)]
+        elif self.index == 5:
+            self.angle = 45
+            self.vertices = [(x+32,y+32),(x,y+32),(x+32,y)]
+        elif self.index in [6,7] :
+            self.angle = 22.5
+            if self.index == 6:
+                self.vertices = [(x+32,y+32),(x,y+32),(x+32,y+17)]
+            else :
+                self.vertices = [(x+32,y+32),(x+32,y),(x,y+32),(x,y+16)]
+        elif self.index in [8,9,10] :
+            self.angle = 11.25
+            if self.index == 8:
+                self.vertices = [(x+32,y+32),(x,y+32),(x+32,y+23)]
+            elif self.index == 9:
+                self.vertices = [(x+32,y+32),(x+32,y+26),(x,y+32),(x,y+12)]
+            else :
+                self.vertices = [(x+32,y+32),(x+32,y),(x,y+32),(x,y+11)]
+        elif self.index in [11,12] :
+            self.angle = 63.4
+            if self.index == 11 :
+                self.vertices = [(x + 32, y + 32), (x + 32, y), (x + 17, y + 32)]
+            else :
+                self.vertices = [(x+32,y+32),(x+32,y),(x,y+32),(x+15,y)]
+        elif self.index in [13,14,15] :
+            self.angle = 72.6
+            if self.index == 13:
+                self.vertices = [(x+32,y+32),(x+32,y),(x+23,y+32)]
+            elif self.index == 14:
+                self.vertices = [(x+32,y+32),(x+32,y),(x+12,y+32),(x+22,y)]
+            else :
+                self.vertices = [(x+32,y+32),(x+32,y),(x+10,y),(x,y+32)]
+        elif self.index == 16 :
+            self.angle = 135
+            self.vertices = [(x+32,y+32),(x,y),(x,y+32)]
+        elif self.index in [17,18] :
+            self.angle = 157.5
+            if self.index == 17:
+                self.vertices = [(x+32,y+32),(x,y+32),(x,y+17)]
+            else:
+                self.vertices = [(x+32,y+32),(x,y),(x,y+32),(x+32,y+16)]
+        elif self.index in [19,20,21] :
+            self.angle = 101.25
+            if self.index == 19:
+                self.vertices = [(x+32,y+32),(x,y+32),(x+32,y+23)]
+            elif self.index == 20:
+                self.vertices = [(x+32,y+32),(x+32,y+12),(x,y+32),(x,y+22)]
+            else :
+                self.vertices = [(x+32,y+32),(x,y),(x,y+32),(x+32,y+11)]
+        elif self.index in [22,23] :
+            self.angle = 116.6
+            if self.index == 22 :
+                self.vertices = [(x,y),(x,y+32),(x+15,y+32)]
+            else :
+                self.vertices = [(x+32,y+32),(x,y),(x,y+32),(x+17,y)]
+        else : #24,25,26
+            self.angle = 107.4
+            if self.index == 24:
+                self.vertices = [(x,y+32),(x,y),(x+10,y+32)]
+            elif self.index == 25:
+                self.vertices = [(x,y),(x,y+32),(x+11,y),(x+21,y+32)]
+            else :
+                self.vertices = [(x+32,y+32),(x,y),(x+10,y),(x+23,y)]
+
 
 
 # Classe Tilemap
