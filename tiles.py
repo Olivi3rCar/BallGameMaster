@@ -39,9 +39,10 @@ class Tile(pygame.sprite.Sprite):
         self.rect.x, self.rect.y = x, y
         self.vertices = []
         self.angle = 0
+        self.index = tile_index
 
     def attribution(self):
-        x,y = self.x,self.y
+        x,y = self.rect.x,self.rect.y
         if self.index in [1,2,3,4,0] :
             self.angle = 0
             self.vertices = [(x,y),(x+32,y+32),(x+32,y),(x,y+32)]
@@ -135,7 +136,9 @@ class Tilemap:
             for tile in row:
                 tile_index = int(tile)  # Convertir en entier
                 if tile_index != -1:  # -1 = espace vide
-                    tiles.append(Tile(tile_index, x * self.tile_size, y * self.tile_size, spritesheet))
+                    entering_tile = Tile(tile_index, x * self.tile_size, y * self.tile_size, spritesheet)
+                    entering_tile.attribution()
+                    tiles.append(entering_tile)
                 x += 1
             y += 1
         return tiles # Our array of tiles
