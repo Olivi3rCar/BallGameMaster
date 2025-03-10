@@ -17,6 +17,8 @@ def projection(point, axis):
 def collision_check(vertices, circle_center, circle_radius): #Order of the vertices does not matter
     # List of all axis to check
     axes = []
+    min_overlap = float('inf')  # To get the smallest 'touching' axis
+    collision_normal = None
     for i in range(len(vertices)):
         A = vertices[i]
         B = vertices[(i + 1) % len(vertices)]  # Boucle sur les sommets
@@ -40,5 +42,10 @@ def collision_check(vertices, circle_center, circle_radius): #Order of the verti
         if max_poly < min_circle or max_circle < min_poly:
             return False  # No collision
 
-    return True  # If no separation found, there is collision
+        overlap = min(max_poly - min_circle, max_circle - min_poly)
+        if overlap < min_overlap:
+            min_overlap = overlap
+            collision_normal = axis
+
+    return True,collision_normal  # If no separation found, there is collision, gives back the vector
 
