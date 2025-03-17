@@ -9,7 +9,7 @@ path=(os.path.abspath(os.path.join("./main.py", os.pardir)))
 path=str(path)[:-10]+"Sprites png\\"
 
 #pygame.init()
-screen = pygame.display.set_mode((680,480))
+screen = pygame.display.set_mode((640,480))
 pygame.display.set_caption('Ball Game')
 
 FPS = pygame.time.Clock()
@@ -32,17 +32,20 @@ forest_bg_levelselect=pygame.image.load("tout-savoir-sur-la-foret-1690461418.jpg
 desert_bg_levelselect=pygame.image.load("DATA_ART_11302929.JPG-1082602760.JPG")
 icesheet_bg_levelselect=pygame.image.load("cold-fish-441151-35585082.jpg")
 
+bckgroundgrass=pygame.image.load(path+"bckgroundgrass.png")
+
 scene = "Title"
 first_frame=True
 
-splashscale=3
+splashscale=1
 x=0
 
 playoff=(0,0,80*3,20*3)
 playon=(80*3,0,160*3,20*3)
-forest_bg_levelselect_dim=(0,0,680,160)
-desert_bg_levelselect_dim=(0,0,680,160)
-icesheet_bg_levelselect_dim=(0,0,680,160)
+forest_bg_levelselect_dim=(0,0,640,160)
+desert_bg_levelselect_dim=(0,0,640,160)
+icesheet_bg_levelselect_dim=(0,0,640,160)
+bckgroundgrass_dim=(0,0,640,480)
 
 screen_center = screen.get_rect().center
 
@@ -58,34 +61,37 @@ while True:
     if scene == "Title":
         if first_frame:
             screen.fill((86, 150, 0))
-            title_image = pygame.transform.scale(title_image,(3*title_image.get_width(),3*title_image.get_height()))
+            title_image = pygame.transform.scale(title_image,(2*title_image.get_width(),2*title_image.get_height()))
             splashdisp=pygame.transform.scale(splash,(splashscale*splash.get_width(),splashscale*splash.get_height()))
             play=pygame.transform.scale(play,(3*play.get_width(),3*play.get_height()))
             first_frame=False
 
-        splashscale=0.3*sin(x)+2.5
-        x+=0.1/25
+        splashscale=0.4*sin(x)+2.5
+        x+=0.1/40
 
         screen.fill((86, 150, 0))
-        screen.blit(play, play.get_rect(center=(posx+(40*3), posy+180)),playoff)
+        screen.blit(play, play.get_rect(center=(posx+(40*3), posy+190)),playoff)
 
         screen.blit(title_image, title_image.get_rect(center=(posx,posy-60)))
 
         splashdisp=pygame.transform.scale(splash,(splashscale*splash.get_width(),splashscale*splash.get_height()))
-        screen.blit(splashdisp, splashdisp.get_rect(center=(posx,posy+15)))
+        screen.blit(splashdisp, splashdisp.get_rect(center=(posx,posy+2)))
 
-        if on_button(scene, (posx, posy + 180),play.get_width()/2,play.get_height()):
-            screen.blit(play, play.get_rect(center=(posx + (40 * 3), posy + 180)), playon)
+        if on_button(scene, (posx, posy + 190),play.get_width()/2,play.get_height()):
+            screen.blit(play, play.get_rect(center=(posx + (40 * 3), posy + 190)), playon)
 
     elif scene == "World Selection":
         if first_frame:
             screen.fill((255, 255, 255))
 
-            screen.blit(forest_bg_levelselect, forest_bg_levelselect.get_rect(center=(posx+260, posy+125)), forest_bg_levelselect_dim)
-            screen.blit(desert_bg_levelselect, desert_bg_levelselect.get_rect(center=(posx+160,posy+251)), desert_bg_levelselect_dim)
-            screen.blit(icesheet_bg_levelselect, icesheet_bg_levelselect.get_rect(center=(posx+460,posy+708)), icesheet_bg_levelselect_dim)
+            screen.blit(forest_bg_levelselect, forest_bg_levelselect.get_rect(center=(posx+280, posy+125)), forest_bg_levelselect_dim)
+            screen.blit(desert_bg_levelselect, desert_bg_levelselect.get_rect(center=(posx+180,posy+251)), desert_bg_levelselect_dim)
+            screen.blit(icesheet_bg_levelselect, icesheet_bg_levelselect.get_rect(center=(posx+480,posy+708)), icesheet_bg_levelselect_dim)
             first_frame=False
-
+    elif scene == "Forest":
+        if first_frame:
+            screen.fill((255, 255, 255))
+            screen.blit(bckgroundgrass, bckgroundgrass.get_rect(center=(posx+3*640+320, posy+50)), bckgroundgrass_dim)
 
     for event in pygame.event.get():
         if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
@@ -98,13 +104,13 @@ while True:
                 first_frame=True
 
             elif scene == "World Selection":
-                if on_button(scene,(0,0),680,160):
+                if on_button(scene,(0,0),640,160):
                     scene="Forest"
                     first_frame = True
-                elif on_button(scene,(0,160),680,160*2):
+                elif on_button(scene,(0,160),640,160*2):
                     scene="Desert"
                     first_frame = True
-                elif on_button(scene,(0,160*2),680,160*3):
+                elif on_button(scene,(0,160*2),640,160*3):
                     scene="Ice"
                     first_frame = True
 
