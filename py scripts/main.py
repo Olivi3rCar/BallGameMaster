@@ -23,19 +23,14 @@ play=pygame.image.load(path+"Let'sPlayButton.png")
 imagerect = title_image.get_rect()
 
 posx = screen.get_rect().centerx
-posy= screen.get_rect().centery-50
+posy= screen.get_rect().centery
 
-dutronc=pygame.image.load("./dutronc_cigare.jpg")
-kino=pygame.image.load("kino.jpg")
-
-forest_bg_levelselect=pygame.image.load("tout-savoir-sur-la-foret-1690461418.jpg")
-desert_bg_levelselect=pygame.image.load("DATA_ART_11302929.JPG-1082602760.JPG")
-icesheet_bg_levelselect=pygame.image.load("cold-fish-441151-35585082.jpg")
+worldselect=pygame.image.load(path+"stageselect.png")
 
 buttons=pygame.image.load(path+"Buttons.png")
 bckgroundgrass=pygame.image.load(path+"bckgroundgrass.png")
 
-scene = "Forest"
+scene = "Title"
 first_frame=True
 
 splashscale=1
@@ -87,67 +82,60 @@ while True:
         x+=0.1/40
 
         screen.fill((86, 150, 0))
-        screen.blit(play, play.get_rect(center=(posx+(40*3), posy+190)),playoff)
+        screen.blit(play, play.get_rect(center=(posx+(40*3), posy+170)),playoff)
 
         screen.blit(title_image, title_image.get_rect(center=(posx,posy-60)))
 
         splashdisp=pygame.transform.scale(splash,(splashscale*splash.get_width(),splashscale*splash.get_height()))
         screen.blit(splashdisp, splashdisp.get_rect(center=(posx,posy+2)))
 
-        if on_button(scene, (posx, posy + 190),play.get_width()/2,play.get_height()):
-            screen.blit(play, play.get_rect(center=(posx + (40 * 3), posy + 190)), playon)
+        if on_button(scene, (posx, posy + 170),play.get_width()/2,play.get_height()):
+            screen.blit(play, play.get_rect(center=(posx + (40 * 3), posy + 170)), playon)
 
     elif scene == "World Selection":
         if first_frame:
             screen.fill((255, 255, 255))
 
-            screen.blit(forest_bg_levelselect, forest_bg_levelselect.get_rect(center=(posx+280, posy+125)), forest_bg_levelselect_dim)
-            screen.blit(desert_bg_levelselect, desert_bg_levelselect.get_rect(center=(posx+180,posy+251)), desert_bg_levelselect_dim)
-            screen.blit(icesheet_bg_levelselect, icesheet_bg_levelselect.get_rect(center=(posx+480,posy+708)), icesheet_bg_levelselect_dim)
+            screen.blit(worldselect, worldselect.get_rect(center=(posx, posy)), (0,0,680,480))
             first_frame=False
 
     elif scene == "Forest":
         if first_frame:
             screen.fill((255, 255, 255))
-            screen.blit(bckgroundgrass, bckgroundgrass.get_rect(center=(posx+3*640+320, posy+50)), bckgroundgrass_dim)
+            screen.blit(bckgroundgrass, bckgroundgrass.get_rect(center=(posx+3*640+320, posy)), bckgroundgrass_dim)
 
-            screen.blit(buttons, buttons.get_rect(center=(posx+270, posy+300)), lvl1off)
-            screen.blit(buttons, buttons.get_rect(center=(posx+130, posy+280)), lvl2off)
-            screen.blit(buttons, buttons.get_rect(center=(posx-120, posy+268)), lvl3off)
-            screen.blit(buttons, buttons.get_rect(center=(posx-60, posy+180)), lvl4off)
-            screen.blit(buttons, buttons.get_rect(center=(posx+290, posy+40)), lvl5off)
+            screen.blit(buttons, buttons.get_rect(center=(posx+270, posy+320)), lvl1off)
+            screen.blit(buttons, buttons.get_rect(center=(posx+130, posy+300)), lvl2off)
+            screen.blit(buttons, buttons.get_rect(center=(posx-120, posy+288)), lvl3off)
+            screen.blit(buttons, buttons.get_rect(center=(posx-60, posy+200)), lvl4off)
+            screen.blit(buttons, buttons.get_rect(center=(posx+290, posy+60)), lvl5off)
 
             first_frame=False
 
-        if on_button(scene, (493,293), 541, 341):
-            screen.blit(buttons, buttons.get_rect(center=(posx+270, posy+300)), lvl1on)
+        if on_button(scene, (493,298), 541, 346):
+            screen.blit(buttons, buttons.get_rect(center=(posx+270, posy+320)), lvl1on)
         else:
-            screen.blit(buttons, buttons.get_rect(center=(posx + 270, posy + 300)), lvl1off)
+            screen.blit(buttons, buttons.get_rect(center=(posx + 270, posy + 320)), lvl1off)
 
         if on_button(scene, (357,279), 405, 327):
-            screen.blit(buttons, buttons.get_rect(center=(posx + 130, posy + 280)), lvl2on)
+            screen.blit(buttons, buttons.get_rect(center=(posx + 130, posy + 300)), lvl2on)
         else:
-            screen.blit(buttons, buttons.get_rect(center=(posx + 130, posy + 280)), lvl2off)
+            screen.blit(buttons, buttons.get_rect(center=(posx + 130, posy + 300)), lvl2off)
 
         if on_button(scene, (109,268), 157, 316):
-            screen.blit(buttons, buttons.get_rect(center=(posx -120, posy + 268)), lvl3on)
+            screen.blit(buttons, buttons.get_rect(center=(posx -120, posy + 288)), lvl3on)
         else:
-            screen.blit(buttons, buttons.get_rect(center=(posx -120, posy + 268)), lvl3off)
+            screen.blit(buttons, buttons.get_rect(center=(posx -120, posy + 288)), lvl3off)
 
         if on_button(scene, (170, 182), 218, 230):
-            screen.blit(buttons, buttons.get_rect(center=(posx -60, posy + 180)), lvl4on)
+            screen.blit(buttons, buttons.get_rect(center=(posx -60, posy + 200)), lvl4on)
         else:
-            screen.blit(buttons, buttons.get_rect(center=(posx -60, posy + 180)), lvl4off)
+            screen.blit(buttons, buttons.get_rect(center=(posx -60, posy + 200)), lvl4off)
 
         if on_button(scene, (519, 39), 567, 87):
-            screen.blit(buttons, buttons.get_rect(center=(posx + 290, posy + 40)), lvl5on)
+            screen.blit(buttons, buttons.get_rect(center=(posx + 290, posy + 60)), lvl5on)
         else:
-            screen.blit(buttons, buttons.get_rect(center=(posx + 290, posy + 40)), lvl5off)
-
-
-
-        print(pygame.mouse.get_pos())
-
+            screen.blit(buttons, buttons.get_rect(center=(posx + 290, posy + 60)), lvl5off)
 
     for event in pygame.event.get():
         if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
@@ -155,7 +143,7 @@ while True:
             sys.exit()
 
         elif event.type == MOUSEBUTTONDOWN:
-            if (scene == "Title") and on_button(scene, (posx, posy + 180),play.get_width()/2,play.get_height()):
+            if (scene == "Title") and on_button(scene, (posx, posy + 170),play.get_width()/2,play.get_height()):
                 scene="World Selection"
                 first_frame=True
 
