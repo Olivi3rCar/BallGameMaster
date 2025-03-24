@@ -1,6 +1,4 @@
 import pygame, math
-from PIL.FontFile import WIDTH
-
 from SAT_algorithm_collision import collision_check
 
 pygame.init()
@@ -12,6 +10,7 @@ active_select = False
 in_jump = False
 running = True
 t0 = None
+dt = clock.tick(60)/1000
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.RESIZABLE)
 pygame.display.set_caption("BallMaster")
@@ -22,14 +21,13 @@ pygame.display.set_icon(icon)
 
 
 class Ball: #Creation of the Ball class
-    def __init__(self, pos, radius, color, mass, retention, velocity, id, friction):
+    def __init__(self, pos, radius, color, mass, retention, velocity,friction):
         self.pos = pos
         self.radius = radius
         self.color = color
         self.mass = mass
         self.retention = retention
         self.velocity = velocity
-        self.id = id
         self.friction = friction
         self.v0 = 0
         self.t0 = None  # Store the timer for the jumps
@@ -62,8 +60,6 @@ class Ball: #Creation of the Ball class
                 self.velocity.x = 0
         if self.velocity.y == 0 and self.velocity.x != 0:
             self.velocity.x -= -self.friction * self.velocity.x
-
-
 
 
     def moving(self): #Moving the ball
@@ -114,18 +110,17 @@ class Ball: #Creation of the Ball class
             self.t0 = None  # Réinitialise le chrono
 
     def near_tiles(self,tilemap):
-        tiles = []
-        return tiles
+        return [tile for tile in tilemap.tiles if (self.pos.x - tile.x) ** 2 + (self.pos.y - tile.y) ** 2 < (self.radius * 4) ** 2]
 
-    def handle_collision(self,tilemap):
-        tiles = self.near_tiles(tilemap)
-        for tile in tiles :
-            if collision_check(tiles.vertices,self.pos,self.radius) :
-                pass
-
+    def handle_collision(self,tilemap): #Find the tile which is touching the ball
+        for tile in self.near_tiles(tilemap):
+            if collision_check(tile, self.pos, self.radius):
+                return tile
+        return False
 
 
-ball = Ball(pygame.math.Vector2(250, 250), 7, (255, 255, 255), 0.5, 0.7, pygame.math.Vector2(0, 0), 1, 0.2)
+
+ball = Ball(pygame.math.Vector2(250, 250), 7, (255, 255, 255), 0.5, 0.7, pygame.math.Vector2(0, 0),  0.2)
 while running:
     screen.fill((0, 0, 0))
     ball.moving()
@@ -147,6 +142,10 @@ while running:
 pygame.quit()
 
 """A faire : 
--collisions 
 -Revoir toute la logique de la boucle principale,
-draw tajectory à améliorer"""
+draw tajectory à améliorer
+comment gerer la physique:
+-remettre la balle sur la pente si elle s'est enfoncée dedans
+-modification de la vitesse
+-bilan des forces
+"""

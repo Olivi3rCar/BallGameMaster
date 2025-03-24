@@ -57,3 +57,321 @@ if tile_index in [22,23,24,25,26]        if in [22,23] : angle = 116.6
                                          if 26 : vertices = [(x+32,y+32),(x,y),(x+10,y),(x+23,y)]
 
 
+
+
+        def weight(self, tilemap): #remplacer le weight pente par deux vecteurs et simplement les additioner au poids tout le temps
+        gravity = 0.5
+        touching_tile = self.handle_collision(tilemap)[0]
+        if touching_tile:
+            self.apply_surface_angle(touching_tile.angle)
+            if self.pos.y >= touching_tile.y - self.radius:
+                self.pos.y = touching_tile.y - self.radius
+                self.velocity.y *= -self.retention
+                if abs(self.velocity.y) <= 0.5:
+                    self.velocity.y = 0
+        else:
+            self.velocity.y += gravity * self.mass
+        self.pos += self.velocity
+
+    def apply_surface_angle(self, angle):
+        if angle != 0:
+            horizontal_velocity = self.velocity.length() * math.sin(math.radians(angle))
+            vertical_velocity = self.velocity.length() * math.cos(math.radians(angle))
+            self.velocity.x = horizontal_velocity
+            self.velocity.y = vertical_velocity
+
+    def ground_frictions(self, tilemap):
+        friction_force = pygame.math.Vector2(0, 0)
+        touching_tile = self.handle_collision(tilemap)
+        if touching_tile:
+            if touching_tile[0].angle != 0:
+                friction_force.x = -self.friction * self.velocity.x * math.sin(math.radians(touching_tile.angle))
+                friction_force.y = -self.friction * self.velocity.y * math.cos(math.radians(touching_tile.angle))
+        else:
+            if abs(self.velocity.y) < 0.05:
+                friction_force.x = -self.friction * self.velocity.x
+        self.velocity += friction_force
+        if abs(self.velocity.x) < 0.01:
+            self.velocity.x = 0
+        if abs(self.velocity.y) < 0.01:
+            self.velocity.y = 0
+        self.pos += self.velocity
+            self.velocity -= 2*projection(self.velocity,normal_vector)*pygame.Vector2(normal_vector[0],normal_vector[1])
+
+
+
+import pygame
+import math
+import csv
+import os
+from SAT_algorithm_collision import *  # Si tu utilises un module externe, sinon ignorez cette ligne
+
+def collision_check(vertices, circle_center, circle_radius):
+    axes = []
+    min_overlap = float('inf')
+    collision_normal = None
+
+    for i in range(len(vertices)):
+        A = vertices[i]
+        B = vertices[(i + 1) % len(vertices)]
+        axis = Axis(A, B)
+        axes.append(axis)
+
+    for axis in axes:
+        min_poly = max_poly = projection(vertices[0], axis)
+        for v in vertices:
+            proj = projection(v, axis)
+            min_poly = min(min_poly, proj)
+            max_poly = max(max_poly, proj)
+
+        circle_proj = projection(circle_center, axis)
+        min_circle = circle_proj - circle_radius
+        max_circle = circle_proj + circle_radius
+
+        # **Éviter les fausses collisions en ajoutant une tolérance**
+        tolerance = 0.5
+        if max_poly < min_circle - tolerance or max_circle + tolerance < min_poly:
+            return False  # Pas de collision sur cet axe
+
+        overlap = min(max_poly - min_circle, max_circle - min_poly)
+        if overlap < min_overlap:
+            min_overlap = overlap
+            collision_normal = axis
+
+    if collision_normal is not None:
+        return collision_normal, min_overlap
+    return False
+
+
+# ---------------------------
+# Initialization of Pygame window parameters
+# ---------------------------
+pygame.init()
+SCREEN_WIDTH = 640
+SCREEN_HEIGHT = 480
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.RESIZABLE)
+pygame.display.set_caption("BallMaster")
+icon = pygame.image.load("Sprites/golf-icon.png")
+pygame.display.set_icon(icon)
+clock = pygame.time.Clock()
+running = True
+
+# ---------------------------
+# Class Spritesheet
+# ---------------------------
+class Spritesheet:
+    def __init__(self, filename, tile_size=32, columns=9):
+        self.spritesheet = pygame.image.load(filename).convert_alpha()
+        self.tile_size = tile_size
+        self.columns = columns
+
+    def get_tile(self, index):
+        x = (index % self.columns) * self.tile_size
+        y = (index // self.columns) * self.tile_size
+        return self.spritesheet.subsurface((x, y, self.tile_size, self.tile_size))
+
+# ---------------------------
+# Class Tile
+# ---------------------------
+class Tile(pygame.sprite.Sprite):
+    def __init__(self, tile_index, x, y, spritesheet):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = spritesheet.get_tile(tile_index)
+        self.rect = self.image.get_rect()
+        self.rect.x, self.rect.y = x, y
+        self.x, self.y = x, y
+        self.vertices = []
+        self.angle = 0
+        self.index = tile_index
+        self.attribution()
+        self.priority = 0
+
+    def attribution(self):
+        x, y = self.rect.x, self.rect.y
+        tile_vertices = {
+            0: [(x, y), (x + 32, y + 32), (x + 32, y), (x, y + 32)],
+            1: [(x, y), (x + 32, y + 32), (x + 32, y), (x, y + 32)],
+            2: [(x, y), (x + 32, y + 32), (x + 32, y), (x, y + 32)],
+            3: [(x, y), (x + 32, y + 32), (x + 32, y), (x, y + 32)],
+            4: [(x, y), (x + 32, y + 32), (x + 32, y), (x, y + 32)],
+            5: [(x + 32, y + 32), (x, y + 32), (x + 32, y)],
+            6: [(x + 32, y + 32), (x, y + 32), (x + 32, y + 17)],
+            7: [(x + 32, y + 32), (x + 32, y), (x, y + 32), (x, y + 16)],
+            8: [(x + 32, y + 32), (x, y + 32), (x + 32, y + 23)],
+            9: [(x + 32, y + 32), (x + 32, y + 26), (x, y + 32), (x, y + 12)],
+            10: [(x + 32, y + 32), (x + 32, y), (x, y + 32), (x, y + 11)],
+            11: [(x + 32, y + 32), (x + 32, y), (x + 17, y + 32)],
+            12: [(x + 32, y + 32), (x + 32, y), (x, y + 32), (x + 15, y)],
+            13: [(x + 32, y + 32), (x + 32, y), (x + 23, y + 32)],
+            14: [(x + 32, y + 32), (x + 32, y), (x + 12, y + 32), (x + 22, y)],
+            15: [(x + 32, y + 32), (x + 32, y), (x + 10, y), (x, y + 32)],
+            16: [(x + 32, y + 32), (x, y), (x, y + 32)],
+            17: [(x + 32, y + 32), (x, y + 32), (x, y + 17)],
+            18: [(x + 32, y + 32), (x, y), (x, y + 32), (x + 32, y + 16)],
+            19: [(x + 32, y + 32), (x, y + 32), (x + 32, y + 23)],
+            20: [(x + 32, y + 32), (x + 32, y + 12), (x, y + 32), (x, y + 22)],
+            21: [(x + 32, y + 32), (x, y), (x, y + 32), (x + 32, y + 11)],
+            22: [(x, y), (x, y + 32), (x + 15, y + 32)],
+            23: [(x + 32, y + 32), (x, y), (x, y + 32), (x + 17, y)],
+            24: [(x, y + 32), (x, y), (x + 10, y + 32)],
+            25: [(x, y), (x, y + 32), (x + 11, y), (x + 21, y + 32)],
+            26: [(x + 32, y + 32), (x, y), (x + 10, y), (x + 23, y)],
+        }
+        self.vertices = tile_vertices[self.index]
+        if self.vertices != [(x, y), (x + 32, y + 32), (x + 32, y), (x, y + 32)] :
+            self.priority = 1
+        else :
+            self.priority = 0
+
+# ---------------------------
+# Class Tilemap
+# ---------------------------
+class Tilemap:
+    def __init__(self, filename, spritesheet):
+        self.tile_size = 32
+        self.tiles = self.load_tiles(filename, spritesheet)
+
+    def read_csv(self, filename):
+        map_data = []
+        with open(filename) as data:
+            reader = csv.reader(data, delimiter=',')
+            for row in reader:
+                map_data.append(list(row))
+        return map_data
+
+    def load_tiles(self, filename, spritesheet):
+        tiles = []
+        tile_map = self.read_csv(filename)
+        y = 0
+        for row in tile_map:
+            x = 0
+            for tile in row:
+                tile_index = int(tile)
+                if tile_index != -1:
+                    tiles.append(Tile(tile_index, x * self.tile_size, y * self.tile_size, spritesheet))
+                x += 1
+            y += 1
+        return tiles
+
+    def draw(self, surface):
+        for tile in self.tiles:
+            surface.blit(tile.image, (tile.rect.x, tile.rect.y))
+
+# ---------------------------
+# Class Ball
+# ---------------------------
+class Ball:
+    def __init__(self, pos, radius, mass, retention, velocity, id, friction):
+        self.pos = pos
+        self.radius = radius
+        self.mass = mass
+        self.retention = retention
+        self.velocity = velocity
+        self.id = id
+        self.friction = friction
+
+    def draw(self):
+        pygame.draw.circle(screen, (255, 255, 255), (int(self.pos.x), int(self.pos.y)), self.radius)
+
+    def bounce(self, normal_vector):
+        # Composante normale de la vélocité
+        normal_velocity_component = self.velocity.dot(normal_vector) * normal_vector
+        # Inversion et atténuation de la composante normale pour simuler le rebond
+        reflected_velocity = normal_velocity_component * -(1+self.retention)
+        return reflected_velocity
+
+    def weight(self):
+        gravity = pygame.Vector2(0, 0.2)  # Gravité
+        return gravity * self.mass
+
+    def frictions(self, tilemap,i,list_of_tiles):
+        if self.is_on_valid_surface(tilemap,i,list_of_tiles):
+            return self.velocity * -self.friction
+        return pygame.Vector2(0, 0)
+
+    def is_on_valid_surface(self, tilemap,i,list_of_tiles):
+        if list_of_tiles:
+            normal_vector = pygame.Vector2(list_of_tiles[i][0][0], list_of_tiles[0][1])
+            slope_angle = self.getting_slope_angle(normal_vector)
+            return abs(slope_angle) < 75  # WE apply friction if the slope is not 90 degrees (No frictions against a wall)
+        return False
+
+    def moving(self, tilemap):
+        weight = self.weight()
+        collision_info = self.handle_collision(tilemap) #THE LIST CONTAINING INFOS ABOUT THE TILES THAT ARE TOUCHING
+        if collision_info:
+            i = 0
+            for tile in collision_info: #do a range loop for len(collsion_info)
+                normal_vector = pygame.Vector2(tile[0][0], tile[0][1])
+                tangent_vector = pygame.Vector2(-normal_vector.y, normal_vector.x)  # tangeant vector to the normal
+                penetration = tile[1]
+                self.repositioning(normal_vector, penetration)
+                # forces decomposition
+                normal_force = weight.dot(normal_vector) * normal_vector
+                parallel_force = weight.dot(tangent_vector) * tangent_vector
+                self.velocity += parallel_force #TRY THE OPPOSITE
+                self.velocity += self.bounce(normal_vector)
+                if abs(self.velocity.y) < 0.5:
+                    self.velocity.y -= 0.5 * normal_vector.y
+                self.velocity += -self.frictions(tilemap,i,collision_info)
+                print("Collision detected",tile, "Current speed :",self.velocity)
+                i+=1
+        else:
+            self.velocity += weight
+
+        self.pos += self.velocity
+
+    def repositioning(self, normal_vector, penetration):
+        #to reposition the ball, the epsilon is to make sure the ball isn't stuck
+        epsilon = 0.1
+        self.pos += normal_vector * (penetration + epsilon)
+
+    def getting_slope_angle(self, normal_vector):
+        if normal_vector.x == 0:
+            return 90 if normal_vector.y > 0 else -90
+        return math.degrees(math.atan2(normal_vector.y, normal_vector.x))
+
+    def handle_collision(self, tilemap): #Work as intended
+        #Return 2 tiles max which are touching the ball, with a priority for slope tiles
+        collision_tiles = []
+        intermediate_dictionnary = {}
+        for tile in tilemap.tiles:
+            collision = collision_check(tile.vertices, (self.pos.x, self.pos.y), self.radius)
+            if collision:
+                if len(intermediate_dictionnary) == 2: #SOlution : intermediary dictionnary
+                    for key in intermediate_dictionnary.keys():
+                        if key.priority == 0 :#If we find a less important tile
+                            key_to_delete = key
+                    intermediate_dictionnary.pop(key_to_delete) #DELETE THE LESS IMPORTANT TILE
+                intermediate_dictionnary[tile] = collision
+
+        if len(intermediate_dictionnary) > 0:
+            for key in intermediate_dictionnary.keys():
+                collision_tiles.append(intermediate_dictionnary[key])
+            return collision_tiles
+        return False
+
+# ---------------------------
+# Charging the items
+# ---------------------------
+spritesheet = Spritesheet(os.path.join("Sprites png/sandtiles.png"), tile_size=32, columns=9)
+tilemap = Tilemap("tiles_maps/test_map.csv", spritesheet)
+ball = Ball(pygame.math.Vector2(250, 250), 7, 0.5, 0.7, pygame.math.Vector2(0, 0), 1, 0.2)
+
+# ---------------------------
+# Game loop
+# ---------------------------
+while running:
+    screen.fill((0, 0, 0))
+    tilemap.draw(screen)
+    ball.moving(tilemap)
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    ball.draw()
+    pygame.display.flip()
+    clock.tick(60)
+
+pygame.quit()
