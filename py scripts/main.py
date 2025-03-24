@@ -119,8 +119,33 @@ while True:
 
             first_frame=False
 
-        if on_button(scene, (582,482), 598, 498):
+        if on_button(scene, (493,293), 541, 341):
             screen.blit(buttons, buttons.get_rect(center=(posx+270, posy+300)), lvl1on)
+        else:
+            screen.blit(buttons, buttons.get_rect(center=(posx + 270, posy + 300)), lvl1off)
+
+        if on_button(scene, (357,279), 405, 327):
+            screen.blit(buttons, buttons.get_rect(center=(posx + 130, posy + 280)), lvl2on)
+        else:
+            screen.blit(buttons, buttons.get_rect(center=(posx + 130, posy + 280)), lvl2off)
+
+        if on_button(scene, (109,268), 157, 316):
+            screen.blit(buttons, buttons.get_rect(center=(posx -120, posy + 268)), lvl3on)
+        else:
+            screen.blit(buttons, buttons.get_rect(center=(posx -120, posy + 268)), lvl3off)
+
+        if on_button(scene, (170, 182), 218, 230):
+            screen.blit(buttons, buttons.get_rect(center=(posx -60, posy + 180)), lvl4on)
+        else:
+            screen.blit(buttons, buttons.get_rect(center=(posx -60, posy + 180)), lvl4off)
+
+        if on_button(scene, (519, 39), 567, 87):
+            screen.blit(buttons, buttons.get_rect(center=(posx + 290, posy + 40)), lvl5on)
+        else:
+            screen.blit(buttons, buttons.get_rect(center=(posx + 290, posy + 40)), lvl5off)
+
+
+
         print(pygame.mouse.get_pos())
 
 
