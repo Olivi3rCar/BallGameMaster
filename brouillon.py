@@ -18,6 +18,19 @@ pygame.display.set_icon(icon)
 clock = pygame.time.Clock()
 running = True
 
+def Axis(A, B):
+    """Retourne un vecteur normalisé perpendiculaire au segment AB (normale)."""
+    dx = B[0] - A[0]
+    dy = B[1] - A[1]
+    n = [-dy, dx]  # Normale au segment
+    v = math.sqrt(n[0] ** 2 + n[1] ** 2)
+    return [n[0] / v, n[1] / v] if v != 0 else [0, 0]
+
+
+def projection(point, axis):
+    """Retourne la projection scalaire d'un point sur un axe donné."""
+    return point[0] * axis[0] + point[1] * axis[1]
+
 
 def collision_check(vertices, circle_center, circle_radius):
     axes = []
@@ -244,38 +257,43 @@ class Ball:
             return 90 if normal_vector.y > 0 else -90
         return math.degrees(math.atan2(normal_vector.y, normal_vector.x))
 
-    def handle_collision(self, tilemap): #Works as intended
-        #Return 2 tiles max which are touching the ball, with a priority for slope tiles
+    def handle_collision(self, tilemap):  # Choosing the tiles with the greatest penetration depth
         collision_tiles = {}
-        for tile in tilemap.tiles:
-            collision = collision_check(tile.vertices, (self.pos.x, self.pos.y), self.radius) # collision = (normal_vector, overlap)
-            draw_hitbox(self,tile)
-            if collision:
-                normal_vector = pygame.Vector2(collision[0]).normalize()  # Normalisation ici
-                overlap = collision[1]
-                collision_tiles[tile] = (normal_vector, overlap)
-                if len(collision_tiles) == 2: #If a tile touches, but without impacting it (Ex : the angle at several tiles' intersection)
-                    for key in collision_tiles.keys():
-                        if key.priority == 0 :#If we find a less important tile
-                            key_to_delete = key
-                    collision_tiles.pop(key_to_delete) #DELETE THE LESS IMPORTANT TILE
-                collision_tiles[tile] = (normal_vector, overlap)
 
-        if len(collision_tiles) == 1:
-                return collision_tiles #Output : {Tile : (normal_vector, overlap)}
-        elif len(collision_tiles) == 2 :
-            list_keys = list(collision_tiles.keys())
-            if collision_tiles[list_keys[0]][0] == collision_tiles[list_keys[1]][0] : #Check if the two tiles have the same normal vector
-                collision_tiles.pop(list_keys[1]) #We only need one
-            return collision_tiles
-        return False
+        for tile in tilemap.tiles:
+            collision = collision_check(tile.vertices, (self.pos.x, self.pos.y), self.radius)
+
+            if collision:  # Si la balle touche la tuile
+                normal_vector = pygame.Vector2(collision[0]).normalize()
+                overlap = collision[1]
+
+                if not collision_tiles:
+                    # Si le dictionnaire est vide, on ajoute directement la première tuile détectée
+                    collision_tiles[tile] = (normal_vector, overlap)
+                else:
+                    # Comparaison avec les tuiles déjà enregistrées
+                    for existing_tile in list(collision_tiles.keys()):
+                        existing_normal, existing_overlap = collision_tiles[existing_tile]
+                        angle_between = abs(existing_normal.angle_to(normal_vector))
+
+                        if angle_between < 10:  # Si les normales sont presque identiques
+                            if overlap > existing_overlap:
+                                collision_tiles.pop(existing_tile)  # Supprime l'ancienne tuile
+                                collision_tiles[tile] = (normal_vector, overlap)  # Garde la nouvelle meilleure
+                            break  # On arrête la recherche, on a remplacé l'ancienne tuile
+                    else:
+                        # Si aucune tuile similaire n'a été trouvée, on ajoute cette nouvelle tuile
+                        if len(collision_tiles) < 2:  # On limite à 2 tuiles max
+                            collision_tiles[tile] = (normal_vector, overlap)
+
+        return collision_tiles if collision_tiles else False
 
 # ---------------------------
 # Charging the items
 # ---------------------------
 spritesheet = Spritesheet(os.path.join("Sprites png/sandtiles.png"), tile_size=32, columns=9)
 tilemap = Tilemap("tiles_maps/test_map.csv", spritesheet)
-ball = Ball(pygame.math.Vector2(200, 150), 7, 0.5, 0.7, pygame.math.Vector2(0, 0), 1, 0.2)
+ball = Ball(pygame.math.Vector2(450, 250), 7, 0.5, 0.7, pygame.math.Vector2(0, 0), 1, 0.2)
 
 
 
