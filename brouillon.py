@@ -17,56 +17,13 @@ icon = pygame.image.load("Sprites/golf-icon.png")
 pygame.display.set_icon(icon)
 clock = pygame.time.Clock()
 running = True
+active_select = False
+in_jump = False
+running = True
+t0 = None
 
 
-def Axis(A, B):
-    """Retourne un vecteur normalisé perpendiculaire au segment AB (normale)."""
-    dx, dy = B[0] - A[0], B[1] - A[1]
-    n = [-dy, dx]  # Normale perpendiculaire
-    v = math.hypot(n[0], n[1])  # Calcul de la norme (plus stable que sqrt)
-    return [n[0] / v, n[1] / v] if v != 0 else [0, 0]
 
-
-def projection(point, axis):
-    """Retourne la projection scalaire d'un point sur un axe donné."""
-    return point[0] * axis[0] + point[1] * axis[1]
-
-
-def collision_check(vertices, circle_center, circle_radius):
-    axes = []
-    min_overlap = float('inf')
-    collision_normal = None
-
-    for i in range(len(vertices)):
-        A = vertices[i]
-        B = vertices[(i + 1) % len(vertices)]
-        axis = Axis(A, B)
-        axes.append(axis)
-
-    for axis in axes:
-        min_poly = max_poly = projection(vertices[0], axis)
-        for v in vertices:
-            proj = projection(v, axis)
-            min_poly = min(min_poly, proj)
-            max_poly = max(max_poly, proj)
-
-        circle_proj = projection(circle_center, axis)
-        min_circle = circle_proj - circle_radius
-        max_circle = circle_proj + circle_radius
-
-        # Avoid false collisions
-        tolerance = 0.5
-        if max_poly < min_circle - tolerance or max_circle + tolerance < min_poly:
-            return False  # Pas de collision sur cet axe
-
-        overlap = min(max_poly - min_circle, max_circle - min_poly)
-        if overlap < min_overlap:
-            min_overlap = overlap
-            collision_normal = axis
-
-    if collision_normal is not None:
-        return collision_normal, min_overlap
-    return False
 
 def draw_hitbox(ball,tile) :
     if collision_check(tile.vertices, (ball.pos.x, ball.pos.y), ball.radius) :
@@ -119,7 +76,7 @@ class Tile(pygame.sprite.Sprite):
             7: [(x, y + 16),(x, y + 32),(x + 32, y + 32), (x + 32, y)],
             8: [(x + 32, y + 32), (x, y + 32), (x + 32, y + 23)],
             9: [(x + 32, y + 32),  (x+32, y + 12),(x, y + 22),(x, y + 32)],
-            10: [(x + 32, y + 32), (x + 32, y), (x, y + 11),(x, y + 32)],
+            10: [(x, y + 11),(x, y + 32),(x + 32, y + 32),(x + 32, y)],
             11: [(x + 32, y + 32), (x + 32, y), (x + 17, y + 32)],
             12: [(x + 32, y + 32), (x + 32, y), (x + 15, y),(x, y + 32)],
             13: [(x + 32, y + 32), (x + 32, y), (x + 23, y + 32)],
@@ -194,6 +151,7 @@ class Ball:
         self.velocity = velocity
         self.id = id
         self.friction = friction
+        self.v0 = None
 
     def draw(self):
         pygame.draw.circle(screen, (255, 255, 255), (int(self.pos.x), int(self.pos.y)), self.radius)
@@ -212,15 +170,26 @@ class Ball:
         gravity = pygame.Vector2(0, 0.4)  # gravity
         return gravity * self.mass
 
-    def frictions(self,normal_vector):
+    def frictions(self, normal_vector):
         if self.is_on_valid_surface(normal_vector):
+            # Calcul du vecteur tangent
             tangent_vector = pygame.Vector2(-normal_vector.y, normal_vector.x)  # Vecteur tangent au sol
-            # friction force
+
+            # Force de friction (proportionnelle à la vitesse actuelle)
             friction_force = -self.velocity.dot(tangent_vector) * self.friction * tangent_vector
-            # do not let the frction force invert the movement
+
+            # Vérification si la force de friction est trop grande par rapport à la vitesse actuelle
             if friction_force.length() > self.velocity.length():
+                # On applique une petite friction, mais pas plus que la vitesse
                 friction_force = -self.velocity
+
+            # Appliquer la friction en diminuant progressivement la vitesse
+            # Si la vitesse est faible, on réduit la friction de manière progressive
+            if self.velocity.length() < 0.2:  # Si la vitesse est très faible
+                friction_force = -self.velocity  # Appliquer une friction plus douce pour finir l'arrêt en douceur
+
             return friction_force
+
         return pygame.Vector2(0, 0)
 
     def is_on_valid_surface(self,normal_vector):
@@ -249,14 +218,13 @@ class Ball:
                 if abs(self.velocity.y) < 0.21:  # Si la vitesse verticale est trop faible
                     self.velocity.y = 0  # On annule la vitesse verticale, mais on conserve la vitesse horizontale
                     # Appliquer une petite composante de mouvement même sur une pente très douce
-                    if abs(self.velocity.x) < 0.1:  # Si la vitesse horizontale est très faible
+                    if abs(self.velocity.x) < 0.01:  # Si la vitesse horizontale est très faible
                         self.velocity.x = 0  # Arrêt total, on peut aussi ajuster ce seuil pour plus de fluidité
                 print("Collision detected",tile_key.index,normal_vector, "Current speed :",self.velocity)
         else:
             self.velocity += weight
 
-        if self.velocity.length() < 0.2:  # Seuil arbitraire, ajustable
-            self.velocity = pygame.Vector2(0, 0)
+
         self.pos += self.velocity
 
 
@@ -264,6 +232,8 @@ class Ball:
         #to reposition the ball, the epsilon is to make sure the ball isn't stuck
         epsilon = 0.1
         self.pos += normal_vector * (penetration + epsilon)
+
+
 
     def getting_slope_angle(self, normal_vector):
         if normal_vector.x == 0:
@@ -308,28 +278,71 @@ class Ball:
 
         return collision_tiles if collision_tiles else False
 
+    def shoot(self):
+        angle = self.get_trajectory_angle()
+        force = pygame.math.Vector2(self.v0 * math.cos(math.radians(angle)), self.v0 * math.sin(math.radians(angle)))
+        self.velocity += force / self.mass
+
+
+    def get_trajectory_angle(self):
+        pos = pygame.mouse.get_pos()
+        dx = pos[0] - self.pos.x
+        dy = self.pos.y - pos[1]
+        if dx == 0:
+            return 90
+        elif dx < 0:
+            return 180 - math.degrees(math.atan2(abs(dy), abs(dx)))
+        return math.degrees(math.atan2(abs(dy), abs(dx)))
+
+    def check_select(self, pos):
+        return abs(pos[0] - self.pos.x) < 10 and abs(pos[1] - self.pos.y) < 10
+
+    def draw_trajectory(self, v0):
+        angle_deg = self.get_trajectory_angle()
+        angle_rad = math.radians(angle_deg)
+        pos_x = [v0 * math.cos(angle_rad) * t + self.pos.x for t in range(0, 20, 2)]
+        pos_y = [0.5 * 0.5 * t ** 2 - v0 * math.sin(angle_rad) * t + self.pos.y for t in range(0, 20, 2)]
+        for i in range(len(pos_x)):
+            pygame.draw.circle(screen, "red", (int(pos_x[i]), int(pos_y[i])), 4)
+
+    def handle_shooting(self, event):
+        """Gère la puissance de tir en fonction de l'appui sur ESPACE."""
+        global active_select
+        rate_v0 = 0.02  # Vitesse d'augmentation de la puissance
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+            self.t0 = pygame.time.get_ticks()  # Début du chrono
+            self.v0 = 0  # Réinitialisation de la puissance
+
+        elif event.type == pygame.KEYUP and event.key == pygame.K_SPACE and self.t0 is not None and active_select:
+            duration = pygame.time.get_ticks() - self.t0  # Durée d'appui
+            self.v0 = min(duration * rate_v0, 20)  # Limite de puissance
+            self.shoot()  # Effectue le tir
+            active_select = False
+            self.t0 = None  # Réinitialise le chrono
+
 
 # ---------------------------
 # Charging the items
 # ---------------------------
 spritesheet = Spritesheet(os.path.join("Sprites png/sandtiles.png"), tile_size=32, columns=9)
 tilemap = Tilemap("tiles_maps/test_map.csv", spritesheet)
-ball = Ball(pygame.math.Vector2(450, 250), 7, 0.5, 0.7, pygame.math.Vector2(0, 0), 1, 0.2)
+ball = Ball(pygame.math.Vector2(400, 150), 7, 0.4, 0.6, pygame.math.Vector2(0, 0), 1, 0.1)
 
 
 
 while running:
     screen.fill((0, 0, 0))
     tilemap.draw(screen)
-
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.MOUSEBUTTONDOWN:
-            mouse_pos = pygame.mouse.get_pos()
-            for tile in tilemap.tiles:
-                if pygame.Rect(tile.rect).collidepoint(mouse_pos):
-                    highlight_tile(tile)
+            if event.button == 1 and ball.check_select(event.pos):
+                active_select = not active_select
+        in_jump = True
+        ball.handle_shooting(event)  # Gestion du tir dans la classe Ball
+    if active_select:
+        ball.draw_trajectory(10)
     ball.moving(tilemap)
     ball.draw()
     pygame.display.flip()

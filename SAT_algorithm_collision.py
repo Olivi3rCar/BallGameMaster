@@ -2,10 +2,9 @@ import math
 
 def Axis(A, B):
     """Retourne un vecteur normalisé perpendiculaire au segment AB (normale)."""
-    dx = B[0] - A[0]
-    dy = B[1] - A[1]
-    n = [-dy, dx]  # Normale au segment
-    v = math.sqrt(n[0] ** 2 + n[1] ** 2)
+    dx, dy = B[0] - A[0], B[1] - A[1]
+    n = [-dy, dx]  # Normale perpendiculaire
+    v = math.hypot(n[0], n[1])  # Calcul de la norme (plus stable que sqrt)
     return [n[0] / v, n[1] / v] if v != 0 else [0, 0]
 
 
@@ -49,7 +48,6 @@ def collision_check(vertices, circle_center, circle_radius):
     if collision_normal is not None:
         return collision_normal, min_overlap
     return False
-
 
 
 
