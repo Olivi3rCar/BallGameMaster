@@ -15,110 +15,82 @@ pygame.display.set_caption("Tilemap Loader")
 WHITE = (255, 255, 255)
 
 
-# Classe Spritesheet pour extraire les tiles
+# ---------------------------
+# Classe Spritesheet
+# ---------------------------
 class Spritesheet:
     def __init__(self, filename, tile_size=32, columns=9):
         self.spritesheet = pygame.image.load(filename).convert_alpha()
         self.tile_size = tile_size
-        self.columns = columns  # Nombre de colonnes dans la spritesheet
+        self.columns = columns
 
     def get_tile(self, index):
-        """Retourne une surface correspondant à la tile avec l'index donné"""
         x = (index % self.columns) * self.tile_size
         y = (index // self.columns) * self.tile_size
         return self.spritesheet.subsurface((x, y, self.tile_size, self.tile_size))
 
-#We need to modify the tile creation and get_tile so we can get what we want
-
+# ---------------------------
 # Classe Tile
+# ---------------------------
 class Tile(pygame.sprite.Sprite):
     def __init__(self, tile_index, x, y, spritesheet):
         pygame.sprite.Sprite.__init__(self)
-        self.image = spritesheet.get_tile(tile_index)  # Extrait la bonne tile
+        self.image = spritesheet.get_tile(tile_index)
         self.rect = self.image.get_rect()
         self.rect.x, self.rect.y = x, y
+        self.x, self.y = x, y
         self.vertices = []
         self.angle = 0
         self.index = tile_index
+        self.attribution()
+        self.priority = 0
 
     def attribution(self):
-        x,y = self.rect.x,self.rect.y
-        if self.index in [1,2,3,4,0] :
-            self.angle = 0
-            self.vertices = [(x,y),(x+32,y+32),(x+32,y),(x,y+32)]
-        elif self.index == 5:
-            self.angle = 45
-            self.vertices = [(x+32,y+32),(x,y+32),(x+32,y)]
-        elif self.index in [6,7] :
-            self.angle = 22.5
-            if self.index == 6:
-                self.vertices = [(x+32,y+32),(x,y+32),(x+32,y+17)]
-            else :
-                self.vertices = [(x+32,y+32),(x+32,y),(x,y+32),(x,y+16)]
-        elif self.index in [8,9,10] :
-            self.angle = 11.25
-            if self.index == 8:
-                self.vertices = [(x+32,y+32),(x,y+32),(x+32,y+23)]
-            elif self.index == 9:
-                self.vertices = [(x+32,y+32),(x+32,y+26),(x,y+32),(x,y+12)]
-            else :
-                self.vertices = [(x+32,y+32),(x+32,y),(x,y+32),(x,y+11)]
-        elif self.index in [11,12] :
-            self.angle = 63.4
-            if self.index == 11 :
-                self.vertices = [(x + 32, y + 32), (x + 32, y), (x + 17, y + 32)]
-            else :
-                self.vertices = [(x+32,y+32),(x+32,y),(x,y+32),(x+15,y)]
-        elif self.index in [13,14,15] :
-            self.angle = 72.6
-            if self.index == 13:
-                self.vertices = [(x+32,y+32),(x+32,y),(x+23,y+32)]
-            elif self.index == 14:
-                self.vertices = [(x+32,y+32),(x+32,y),(x+12,y+32),(x+22,y)]
-            else :
-                self.vertices = [(x+32,y+32),(x+32,y),(x+10,y),(x,y+32)]
-        elif self.index == 16 :
-            self.angle = 135
-            self.vertices = [(x+32,y+32),(x,y),(x,y+32)]
-        elif self.index in [17,18] :
-            self.angle = 157.5
-            if self.index == 17:
-                self.vertices = [(x+32,y+32),(x,y+32),(x,y+17)]
-            else:
-                self.vertices = [(x+32,y+32),(x,y),(x,y+32),(x+32,y+16)]
-        elif self.index in [19,20,21] :
-            self.angle = 101.25
-            if self.index == 19:
-                self.vertices = [(x+32,y+32),(x,y+32),(x+32,y+23)]
-            elif self.index == 20:
-                self.vertices = [(x+32,y+32),(x+32,y+12),(x,y+32),(x,y+22)]
-            else :
-                self.vertices = [(x+32,y+32),(x,y),(x,y+32),(x+32,y+11)]
-        elif self.index in [22,23] :
-            self.angle = 116.6
-            if self.index == 22 :
-                self.vertices = [(x,y),(x,y+32),(x+15,y+32)]
-            else :
-                self.vertices = [(x+32,y+32),(x,y),(x,y+32),(x+17,y)]
-        else : #24,25,26
-            self.angle = 107.4
-            if self.index == 24:
-                self.vertices = [(x,y+32),(x,y),(x+10,y+32)]
-            elif self.index == 25:
-                self.vertices = [(x,y),(x,y+32),(x+11,y),(x+21,y+32)]
-            else :
-                self.vertices = [(x+32,y+32),(x,y),(x+10,y),(x+23,y)]
+        x, y = self.rect.x, self.rect.y
+        tile_vertices = {
+            0: [(x, y), (x + 32, y + 32), (x + 32, y), (x, y + 32)],
+            1: [(x, y), (x + 32, y + 32), (x + 32, y), (x, y + 32)],
+            2: [(x, y), (x + 32, y + 32), (x + 32, y), (x, y + 32)],
+            3: [(x, y), (x + 32, y + 32), (x + 32, y), (x, y + 32)],
+            4: [(x, y), (x + 32, y + 32), (x + 32, y), (x, y + 32)],
+            5: [(x + 32, y + 32), (x, y + 32), (x + 32, y)],
+            6: [(x + 32, y + 32), (x, y + 32), (x + 32, y + 17)],
+            7: [(x + 32, y + 32), (x + 32, y), (x, y + 32), (x, y + 16)],
+            8: [(x + 32, y + 32), (x, y + 32), (x + 32, y + 23)],
+            9: [(x + 32, y + 32), (x + 32, y + 26), (x, y + 32), (x, y + 12)],
+            10: [(x + 32, y + 32), (x + 32, y), (x, y + 32), (x, y + 11)],
+            11: [(x + 32, y + 32), (x + 32, y), (x + 17, y + 32)],
+            12: [(x + 32, y + 32), (x + 32, y), (x, y + 32), (x + 15, y)],
+            13: [(x + 32, y + 32), (x + 32, y), (x + 23, y + 32)],
+            14: [(x + 32, y + 32), (x + 32, y), (x + 12, y + 32), (x + 22, y)],
+            15: [(x + 32, y + 32), (x + 32, y), (x + 10, y), (x, y + 32)],
+            16: [(x + 32, y + 32), (x, y), (x, y + 32)],
+            17: [(x + 32, y + 32), (x, y + 32), (x, y + 17)],
+            18: [(x + 32, y + 32), (x, y), (x, y + 32), (x + 32, y + 16)],
+            19: [(x + 32, y + 32), (x, y + 32), (x + 32, y + 23)],
+            20: [(x + 32, y + 32), (x + 32, y + 12), (x, y + 32), (x, y + 22)],
+            21: [(x + 32, y + 32), (x, y), (x, y + 32), (x + 32, y + 11)],
+            22: [(x, y), (x, y + 32), (x + 15, y + 32)],
+            23: [(x + 32, y + 32), (x, y), (x, y + 32), (x + 17, y)],
+            24: [(x, y + 32), (x, y), (x + 10, y + 32)],
+            25: [(x, y), (x, y + 32), (x + 11, y), (x + 21, y + 32)],
+            26: [(x + 32, y + 32), (x, y), (x + 10, y), (x + 23, y)],
+        }
+        self.vertices = tile_vertices[self.index]
+        if self.vertices != [(x, y), (x + 32, y + 32), (x + 32, y), (x, y + 32)] :
+            self.priority = 1
+        else :
+            self.priority = 0
 
-
-
+# ---------------------------
 # Classe Tilemap
+# ---------------------------
 class Tilemap:
     def __init__(self, filename, spritesheet):
         self.tile_size = 32
         self.tiles = self.load_tiles(filename, spritesheet)
 
     def read_csv(self, filename):
-        """Lit le fichier CSV et retourne une liste contenant la carte"""
         map_data = []
         with open(filename) as data:
             reader = csv.reader(data, delimiter=',')
@@ -127,26 +99,23 @@ class Tilemap:
         return map_data
 
     def load_tiles(self, filename, spritesheet):
-        """Charge les tiles à partir du fichier CSV"""
         tiles = []
         tile_map = self.read_csv(filename)
         y = 0
         for row in tile_map:
             x = 0
             for tile in row:
-                tile_index = int(tile)  # Convertir en entier
-                if tile_index != -1:  # -1 = espace vide
-                    entering_tile = Tile(tile_index, x * self.tile_size, y * self.tile_size, spritesheet)
-                    entering_tile.attribution()
-                    tiles.append(entering_tile)
+                tile_index = int(tile)
+                if tile_index != -1:
+                    tiles.append(Tile(tile_index, x * self.tile_size, y * self.tile_size, spritesheet))
                 x += 1
             y += 1
-        return tiles # Our array of tiles
+        return tiles
 
     def draw(self, surface):
-        """Dessine toutes les tiles sur l'écran"""
         for tile in self.tiles:
             surface.blit(tile.image, (tile.rect.x, tile.rect.y))
+
 
 
 # Charger la spritesheet

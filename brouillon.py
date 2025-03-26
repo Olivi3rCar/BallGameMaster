@@ -18,12 +18,12 @@ pygame.display.set_icon(icon)
 clock = pygame.time.Clock()
 running = True
 
+
 def Axis(A, B):
     """Retourne un vecteur normalisé perpendiculaire au segment AB (normale)."""
-    dx = B[0] - A[0]
-    dy = B[1] - A[1]
-    n = [-dy, dx]  # Normale au segment
-    v = math.sqrt(n[0] ** 2 + n[1] ** 2)
+    dx, dy = B[0] - A[0], B[1] - A[1]
+    n = [-dy, dx]  # Normale perpendiculaire
+    v = math.hypot(n[0], n[1])  # Calcul de la norme (plus stable que sqrt)
     return [n[0] / v, n[1] / v] if v != 0 else [0, 0]
 
 
@@ -109,14 +109,14 @@ class Tile(pygame.sprite.Sprite):
     def attribution(self):
         x, y = self.rect.x, self.rect.y
         tile_vertices = {
-            0: [(x, y),(x, y + 32), (x + 32, y + 32), (x + 32, y)],
-            1: [(x, y),(x, y + 32), (x + 32, y + 32), (x + 32, y)],
-            2: [(x, y),(x, y + 32), (x + 32, y + 32), (x + 32, y)],
-            3: [(x, y),(x, y + 32), (x + 32, y + 32), (x + 32, y)],
-            4: [(x, y),(x, y + 32), (x + 32, y + 32), (x + 32, y)],
+            0: [(x + 32, y), (x + 32, y + 32), (x, y + 32),(x, y)],
+            1: [(x + 32, y), (x + 32, y + 32), (x, y + 32),(x, y)],
+            2: [(x + 32, y), (x + 32, y + 32), (x, y + 32),(x, y)],
+            3: [(x + 32, y), (x + 32, y + 32), (x, y + 32),(x, y)],
+            4: [(x + 32, y), (x + 32, y + 32), (x, y + 32),(x, y)],
             5: [(x + 32, y + 32), (x, y + 32), (x + 32, y)],
-            6: [(x + 32, y + 32), (x, y + 32), (x + 32, y + 17)],
-            7: [(x + 32, y + 32), (x + 32, y),(x, y + 16),(x, y + 32)],
+            6: [(x, y + 32),(x + 32, y + 32),(x + 32, y + 17)],
+            7: [(x, y + 16),(x, y + 32),(x + 32, y + 32), (x + 32, y)],
             8: [(x + 32, y + 32), (x, y + 32), (x + 32, y + 23)],
             9: [(x + 32, y + 32),  (x+32, y + 12),(x, y + 22),(x, y + 32)],
             10: [(x + 32, y + 32), (x + 32, y), (x, y + 11),(x, y + 32)],
@@ -129,19 +129,24 @@ class Tile(pygame.sprite.Sprite):
             17: [(x + 32, y + 32), (x, y + 32), (x, y + 17)],
             18: [(x, y), (x, y + 32),(x + 32, y + 32), (x + 32, y + 16)],
             19: [(x + 32, y + 32), (x, y + 32), (x, y + 23)],
-            20: [(x + 32, y + 32), (x + 32, y + 22), (x, y + 12),(x, y + 32)],
+            20: [(x, y + 12),(x, y + 32),(x + 32, y + 32), (x + 32, y + 22)],
             21: [(x, y), (x, y + 32),(x + 32, y + 32), (x + 32, y + 11)],
             22: [(x, y), (x, y + 32), (x + 15, y + 32)],
             23: [(x, y), (x, y + 32),(x + 32, y + 32), (x + 17, y)],
-            24: [(x, y + 32), (x, y), (x + 10, y + 32)],
+            24: [(x, y),(x, y + 32), (x + 10, y + 32)],
             25: [(x, y), (x, y + 32),(x + 21, y + 32),(x + 11, y)],
-            26: [(x, y+32),(x, y), (x + 23, y),(x + 32, y + 32)]
+            26: [(x, y),(x, y+32),(x + 32, y + 32),(x + 23, y)]
         }
         self.vertices = tile_vertices[self.index]
-        if self.vertices != [(x, y), (x + 32, y + 32), (x + 32, y), (x, y + 32)] :
+        if self.index not in [0,1,2,3,4] :
             self.priority = 1
         else :
             self.priority = 0
+
+
+def draw_hitbox(ball,tile) :
+    if collision_check(tile.vertices, (ball.pos.x, ball.pos.y), ball.radius) :
+        pygame.draw.polygon(screen,"green",tile.vertices)
 
 # ---------------------------
 # Class Tilemap
@@ -195,14 +200,16 @@ class Ball:
 
     def bounce(self, normal_vector):
         normal_velocity_component = self.velocity.dot(normal_vector) * normal_vector
-        # Inversion and attenuation of the normal componante
-        reflected_velocity = normal_velocity_component * -(1+self.retention)
-        if reflected_velocity.length() < 0.2 : #Minimum threshold to avoid trembling
-            return pygame.Vector2(0,0)
+        reflected_velocity = normal_velocity_component * -(1 + self.retention)
+
+        # Condition pour arrêter les petits rebonds
+        if reflected_velocity.length() < 0.5:  # Seuil pour stopper les rebonds
+            return pygame.Vector2(0, 0)
+
         return reflected_velocity
 
     def weight(self):
-        gravity = pygame.Vector2(0, 0.2)  # gravity
+        gravity = pygame.Vector2(0, 0.4)  # gravity
         return gravity * self.mass
 
     def frictions(self,normal_vector):
@@ -220,12 +227,16 @@ class Ball:
         slope_angle = self.getting_slope_angle(normal_vector)
         return abs(slope_angle-90) > 20  # (No frictions against a wall)
 
-    def moving(self, tilemap):
+    def moving(self, tilemap):#tile 8 a toujours un mauvais vecteur normal, pareil pour la 9 et les carrés
         weight = self.weight()
         collision_info = self.handle_collision(tilemap) #THE Dictionnary CONTAINING INFOS ABOUT THE TILES THAT ARE TOUCHING
         if collision_info:
             for tile_key in collision_info.keys():
+                draw_hitbox(self,tile_key)
                 normal_vector = collision_info[tile_key][0]
+
+
+
                 tangent_vector = pygame.Vector2(-normal_vector.y, normal_vector.x)  # tangeant vector to the normal
                 penetration = collision_info[tile_key][1]
                 self.repositioning(normal_vector, penetration)
@@ -235,14 +246,16 @@ class Ball:
                 self.velocity += -parallel_force + normal_force
                 self.velocity += self.bounce(normal_vector)
                 self.velocity += self.frictions(normal_vector) #PROBLEME AVEC LES FROTTEMENTS
-
-                if abs(self.velocity.y) < 0.5:
-                    self.velocity.y -= 0.5 * normal_vector.y
-                print("Collision detected",tile_key, "Current speed :",self.velocity)
+                if abs(self.velocity.y) < 0.21:  # Si la vitesse verticale est trop faible
+                    self.velocity.y = 0  # On annule la vitesse verticale, mais on conserve la vitesse horizontale
+                    # Appliquer une petite composante de mouvement même sur une pente très douce
+                    if abs(self.velocity.x) < 0.1:  # Si la vitesse horizontale est très faible
+                        self.velocity.x = 0  # Arrêt total, on peut aussi ajuster ce seuil pour plus de fluidité
+                print("Collision detected",tile_key.index,normal_vector, "Current speed :",self.velocity)
         else:
             self.velocity += weight
 
-        if self.velocity.length() < 0.1:  # Seuil arbitraire, ajustable
+        if self.velocity.length() < 0.2:  # Seuil arbitraire, ajustable
             self.velocity = pygame.Vector2(0, 0)
         self.pos += self.velocity
 
@@ -257,36 +270,44 @@ class Ball:
             return 90 if normal_vector.y > 0 else -90
         return math.degrees(math.atan2(normal_vector.y, normal_vector.x))
 
-    def handle_collision(self, tilemap):  # Choosing the tiles with the greatest penetration depth
+    def handle_collision(self, tilemap):
         collision_tiles = {}
+        ANGLE_THRESHOLD = 10  # Seuil pour considérer deux normales comme similaires
+        EDGE_ANGLE_THRESHOLD = 75  # Seuil pour détecter un contact avec une arête
 
         for tile in tilemap.tiles:
             collision = collision_check(tile.vertices, (self.pos.x, self.pos.y), self.radius)
 
-            if collision:  # Si la balle touche la tuile
+            if collision:
                 normal_vector = pygame.Vector2(collision[0]).normalize()
                 overlap = collision[1]
 
-                if not collision_tiles:
-                    # Si le dictionnaire est vide, on ajoute directement la première tuile détectée
-                    collision_tiles[tile] = (normal_vector, overlap)
-                else:
-                    # Comparaison avec les tuiles déjà enregistrées
-                    for existing_tile in list(collision_tiles.keys()):
-                        existing_normal, existing_overlap = collision_tiles[existing_tile]
-                        angle_between = abs(existing_normal.angle_to(normal_vector))
+                # Vérifier si on touche déjà une autre normale avec un angle proche de 90° (arête)
+                added = False
+                for existing_tile, (existing_normal, existing_overlap) in list(collision_tiles.items()):
+                    angle_between = abs(existing_normal.angle_to(normal_vector))
 
-                        if angle_between < 10:  # Si les normales sont presque identiques
-                            if overlap > existing_overlap:
-                                collision_tiles.pop(existing_tile)  # Supprime l'ancienne tuile
-                                collision_tiles[tile] = (normal_vector, overlap)  # Garde la nouvelle meilleure
-                            break  # On arrête la recherche, on a remplacé l'ancienne tuile
-                    else:
-                        # Si aucune tuile similaire n'a été trouvée, on ajoute cette nouvelle tuile
-                        if len(collision_tiles) < 2:  # On limite à 2 tuiles max
+                    if angle_between < ANGLE_THRESHOLD:
+                        # Même direction, on garde celui avec le plus grand overlap
+                        if overlap > existing_overlap:
+                            collision_tiles[existing_tile] = (normal_vector, overlap)
+                        added = True
+                        break
+
+                    elif angle_between > EDGE_ANGLE_THRESHOLD:
+                        # Collision avec une arête détectée -> Prendre la plus pertinente
+                        if overlap > existing_overlap:
+                            collision_tiles.clear()  # Priorité à la plus forte pénétration
                             collision_tiles[tile] = (normal_vector, overlap)
+                        added = True
+                        break
+
+                if not added:
+                    if len(collision_tiles) < 2:
+                        collision_tiles[tile] = (normal_vector, overlap)
 
         return collision_tiles if collision_tiles else False
+
 
 # ---------------------------
 # Charging the items
