@@ -162,8 +162,17 @@ class Ball:
         # Condition pour arrêter les petits rebonds
         if reflected_velocity.length() < 0.5:  # Seuil pour stopper les rebonds
             return pygame.Vector2(0, 0)
-
         return reflected_velocity
+
+    def is_normal_good(self, normal_vector, tile): #Make sure we have the good normal_vector
+        # Normalize the normal vector
+        normal_vector = pygame.Vector2(normal_vector).normalize()
+        # Test position
+        pos_test = self.pos + 10*normal_vector
+        # Check for collision
+        if collision_check(tile.vertices, (pos_test.x, pos_test.y), self.radius):
+            return -normal_vector
+        return normal_vector
 
     def weight(self):
         gravity = pygame.Vector2(0, 0.4)  # gravity
@@ -202,6 +211,7 @@ class Ball:
             for tile_key in collision_info.keys():
                 draw_hitbox(self,tile_key)
                 normal_vector = collision_info[tile_key][0]
+                normal_vector = self.is_normal_good(normal_vector,tile_key)
 
                 tangent_vector = pygame.Vector2(-normal_vector.y, normal_vector.x)  # tangeant vector to the normal
                 penetration = collision_info[tile_key][1]
