@@ -36,7 +36,7 @@ def collision_check(vertices, circle_center, circle_radius):
         max_circle = circle_proj + circle_radius
 
         # Avoid false collisions
-        tolerance = 0.5
+        tolerance = 0.3
         if max_poly < min_circle - tolerance or max_circle + tolerance < min_poly:
             return False  # Pas de collision sur cet axe
 

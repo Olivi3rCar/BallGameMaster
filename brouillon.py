@@ -23,15 +23,11 @@ running = True
 t0 = None
 
 
-
-
 def draw_hitbox(ball,tile) :
     if collision_check(tile.vertices, (ball.pos.x, ball.pos.y), ball.radius) :
         print(f"Tile {tile.index} Hitbox: {tile.vertices}")  # Debugging
         pygame.draw.polygon(screen,"green",tile.vertices)
 
-def highlight_tile(tile):
-    pygame.draw.polygon(screen, "green", tile.vertices)
 
 # ---------------------------
 # Class Spritesheet
@@ -66,7 +62,7 @@ class Tile(pygame.sprite.Sprite):
     def attribution(self):
         x, y = self.rect.x, self.rect.y
         tile_vertices = {
-            0: [(x + 32, y), (x + 32, y + 32), (x, y + 32),(x, y)],
+            0: [(x + 32, y), (x + 32, y + 32), (x, y + 32),(x, y)], #Still problems with squared tiles
             1: [(x + 32, y), (x + 32, y + 32), (x, y + 32),(x, y)],
             2: [(x + 32, y), (x + 32, y + 32), (x, y + 32),(x, y)],
             3: [(x + 32, y), (x + 32, y + 32), (x, y + 32),(x, y)],
@@ -142,6 +138,9 @@ class Tilemap:
 # ---------------------------
 # Class Ball
 # ---------------------------
+
+"""la balle reste coincee sur une pente sans retomber + le vecteur normal de la tile ou se situe la balle affecte la direction du saut + pas toujours les tiles les plus pertinantes"""
+
 class Ball:
     def __init__(self, pos, radius, mass, retention, velocity, id, friction):
         self.pos = pos
@@ -196,15 +195,13 @@ class Ball:
         slope_angle = self.getting_slope_angle(normal_vector)
         return abs(slope_angle-90) > 20  # (No frictions against a wall)
 
-    def moving(self, tilemap):#tile 8 a toujours un mauvais vecteur normal, pareil pour la 9 et les carrés
+    def moving(self, tilemap):
         weight = self.weight()
         collision_info = self.handle_collision(tilemap) #THE Dictionnary CONTAINING INFOS ABOUT THE TILES THAT ARE TOUCHING
         if collision_info:
             for tile_key in collision_info.keys():
                 draw_hitbox(self,tile_key)
                 normal_vector = collision_info[tile_key][0]
-
-
 
                 tangent_vector = pygame.Vector2(-normal_vector.y, normal_vector.x)  # tangeant vector to the normal
                 penetration = collision_info[tile_key][1]
@@ -232,7 +229,6 @@ class Ball:
         #to reposition the ball, the epsilon is to make sure the ball isn't stuck
         epsilon = 0.1
         self.pos += normal_vector * (penetration + epsilon)
-
 
 
     def getting_slope_angle(self, normal_vector):
@@ -282,7 +278,6 @@ class Ball:
         angle = self.get_trajectory_angle()
         force = pygame.math.Vector2(self.v0 * math.cos(math.radians(angle)), self.v0 * math.sin(math.radians(angle)))
         self.velocity += force / self.mass
-
 
     def get_trajectory_angle(self):
         pos = pygame.mouse.get_pos()
