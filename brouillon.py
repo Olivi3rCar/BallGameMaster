@@ -307,7 +307,7 @@ class Ball:
     def shoot(self):
         angle = self.get_trajectory_angle()
         force = pygame.math.Vector2(self.v0 * math.cos(math.radians(angle)), self.v0 * math.sin(math.radians(angle)))
-        self.velocity += force / self.mass
+        self.velocity = force / self.mass
 
     def get_trajectory_angle(self):
         pos = pygame.mouse.get_pos()
