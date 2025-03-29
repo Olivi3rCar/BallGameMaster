@@ -17,12 +17,14 @@ def collision_check(vertices, circle_center, circle_radius):
     axes = []
     min_overlap = float('inf')
     collision_normal = None
+    axis_to_look = None
 
     for i in range(len(vertices)):
         A = vertices[i]
         B = vertices[(i + 1) % len(vertices)]
         axis = Axis(A, B)
         axes.append(axis)
+
 
     for axis in axes:
         min_poly = max_poly = projection(vertices[0], axis)
@@ -41,10 +43,16 @@ def collision_check(vertices, circle_center, circle_radius):
             return False  # Pas de collision sur cet axe
 
         overlap = min(max_poly - min_circle, max_circle - min_poly)
-        if overlap < min_overlap:
+        if overlap < min_overlap :
             min_overlap = overlap
             collision_normal = axis
+        if abs(overlap - min_overlap) < min_overlap * 0.1:
+            if abs(axis[0]) < 0.99 and axis[0] != 0 :
+                axis_to_look = axis #WE need to store the only vector who is not +-1,0 or 0,-+1, in case we have a ball so fast it touches 2 edges
+                overlap_to_look = overlap
 
+    if axis_to_look :
+        return axis_to_look,overlap_to_look
     if collision_normal is not None:
         return collision_normal, min_overlap
     return False

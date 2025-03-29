@@ -4,7 +4,6 @@ import csv
 import os
 from SAT_algorithm_collision import *  # Si tu utilises un module externe, sinon ignorez cette ligne
 
-
 # ---------------------------
 # Initialization of Pygame window parameters
 # ---------------------------
@@ -23,10 +22,25 @@ running = True
 t0 = None
 
 
-def draw_hitbox(ball,tile) :
-    if collision_check(tile.vertices, (ball.pos.x, ball.pos.y), ball.radius) :
+def draw_hitbox(ball, tile):
+    if collision_check(tile.vertices, (ball.pos.x, ball.pos.y), ball.radius):
         print(f"Tile {tile.index} Hitbox: {tile.vertices}")  # Debugging
-        pygame.draw.polygon(screen,"green",tile.vertices)
+        pygame.draw.polygon(screen, "green", tile.vertices)
+
+
+def grow_hitbox(vertices, factor=1.0):
+    center_x = sum(v[0] for v in vertices) / len(vertices)
+    center_y = sum(v[1] for v in vertices) / len(vertices)
+
+    new_vertices = []
+    for v in vertices:
+        direction_x = v[0] - center_x
+        direction_y = v[1] - center_y
+        new_x = center_x + direction_x * factor
+        new_y = center_y + direction_y * factor
+        new_vertices.append((new_x, new_y))
+
+    return new_vertices
 
 
 # ---------------------------
@@ -42,6 +56,7 @@ class Spritesheet:
         x = (index % self.columns) * self.tile_size
         y = (index // self.columns) * self.tile_size
         return self.spritesheet.subsurface((x, y, self.tile_size, self.tile_size))
+
 
 # ---------------------------
 # Class Tile
@@ -62,44 +77,45 @@ class Tile(pygame.sprite.Sprite):
     def attribution(self):
         x, y = self.rect.x, self.rect.y
         tile_vertices = {
-            0: [(x + 32, y), (x + 32, y + 32), (x, y + 32),(x, y)], #Still problems with squared tiles
-            1: [(x + 32, y), (x + 32, y + 32), (x, y + 32),(x, y)],
-            2: [(x + 32, y), (x + 32, y + 32), (x, y + 32),(x, y)],
-            3: [(x + 32, y), (x + 32, y + 32), (x, y + 32),(x, y)],
-            4: [(x + 32, y), (x + 32, y + 32), (x, y + 32),(x, y)],
-            5: [(x + 32, y + 32), (x, y + 32), (x + 32, y)],
-            6: [(x, y + 32),(x + 32, y + 32),(x + 32, y + 17)],
-            7: [(x, y + 16),(x, y + 32),(x + 32, y + 32), (x + 32, y)],
+            0: grow_hitbox([(x + 32, y), (x + 32, y + 32), (x, y + 32), (x, y)] ),
+            1: grow_hitbox([(x + 32, y), (x + 32, y + 32), (x, y + 32), (x, y)] ),
+            2: grow_hitbox([(x + 32, y), (x + 32, y + 32), (x, y + 32), (x, y)] ),
+            3: grow_hitbox([(x + 32, y), (x + 32, y + 32), (x, y + 32), (x, y)] ),
+            4: grow_hitbox([(x + 32, y), (x + 32, y + 32), (x, y + 32), (x, y)]),
+            5: [(x + 32, y + 32), (x, y + 32), (x + 34, y)],
+            6: [(x, y + 32), (x + 32, y + 32), (x + 32, y + 17)],
+            7: [(x, y + 16), (x, y + 32), (x + 32, y + 32), (x + 32, y)],
             8: [(x + 32, y + 32), (x, y + 32), (x + 32, y + 23)],
-            9: [(x + 32, y + 32),  (x+32, y + 12),(x, y + 22),(x, y + 32)],
-            10: [(x, y + 11),(x, y + 32),(x + 32, y + 32),(x + 32, y)],
+            9: [(x + 32, y + 32), (x + 32, y + 12), (x, y + 22), (x, y + 32)],
+            10: [(x, y + 11), (x, y + 32), (x + 32, y + 32), (x + 32, y)],
             11: [(x + 32, y + 32), (x + 32, y), (x + 17, y + 32)],
-            12: [(x + 32, y + 32), (x + 32, y), (x + 15, y),(x, y + 32)],
+            12: [(x + 32, y + 32), (x + 32, y), (x + 15, y), (x, y + 32)],
             13: [(x + 32, y + 32), (x + 32, y), (x + 23, y + 32)],
-            14: [(x + 32, y + 32), (x + 32, y), (x + 22, y),(x + 12, y + 32)],
+            14: [(x + 32, y + 32), (x + 32, y), (x + 22, y), (x + 12, y + 32)],
             15: [(x + 32, y + 32), (x + 32, y), (x + 10, y), (x, y + 32)],
             16: [(x + 32, y + 32), (x, y), (x, y + 32)],
             17: [(x + 32, y + 32), (x, y + 32), (x, y + 17)],
-            18: [(x, y), (x, y + 32),(x + 32, y + 32), (x + 32, y + 16)],
+            18: [(x, y), (x, y + 32), (x + 32, y + 32), (x + 32, y + 16)],
             19: [(x + 32, y + 32), (x, y + 32), (x, y + 23)],
-            20: [(x, y + 12),(x, y + 32),(x + 32, y + 32), (x + 32, y + 22)],
-            21: [(x, y), (x, y + 32),(x + 32, y + 32), (x + 32, y + 11)],
+            20: [(x, y + 12), (x, y + 32), (x + 32, y + 32), (x + 32, y + 22)],
+            21: [(x, y), (x, y + 32), (x + 32, y + 32), (x + 32, y + 11)],
             22: [(x, y), (x, y + 32), (x + 15, y + 32)],
-            23: [(x, y), (x, y + 32),(x + 32, y + 32), (x + 17, y)],
-            24: [(x, y),(x, y + 32), (x + 10, y + 32)],
-            25: [(x, y), (x, y + 32),(x + 21, y + 32),(x + 11, y)],
-            26: [(x, y),(x, y+32),(x + 32, y + 32),(x + 23, y)]
+            23: [(x, y), (x, y + 32), (x + 32, y + 32), (x + 17, y)],
+            24: [(x, y), (x, y + 32), (x + 10, y + 32)],
+            25: [(x, y), (x, y + 32), (x + 21, y + 32), (x + 11, y)],
+            26: [(x, y), (x, y + 32), (x + 32, y + 32), (x + 23, y)]
         }
         self.vertices = tile_vertices[self.index]
-        if self.index not in [0,1,2,3,4] :
+        if self.index not in [0, 1, 2, 3, 4]:
             self.priority = 1
-        else :
+        else:
             self.priority = 0
 
 
-def draw_hitbox(ball,tile) :
-    if collision_check(tile.vertices, (ball.pos.x, ball.pos.y), ball.radius) :
-        pygame.draw.polygon(screen,"green",tile.vertices)
+def draw_hitbox(ball, tile):
+    if collision_check(tile.vertices, (ball.pos.x, ball.pos.y), ball.radius):
+        pygame.draw.polygon(screen, "green", tile.vertices)
+
 
 # ---------------------------
 # Class Tilemap
@@ -142,7 +158,8 @@ class Tilemap:
 """la balle reste coincee sur une pente sans retomber + le vecteur normal de la tile ou se situe la balle affecte la direction du saut + pas toujours les tiles les plus pertinantes
 le vecteur est toujours le bon, sauf si la balle est trop rapide
 
-solution pour le choix des tiles, gonfler artificiellement la hitbox des tiles pentes"""
+solution pour le choix des tiles, gonfler artificiellement la hitbox des tiles pentes
+tile 8 la balle touche deux edges en meme temps, donc l'algo renvoie le mauvais vecteur normal"""
 
 class Ball:
     def __init__(self, pos, radius, mass, retention, velocity, id, friction):
