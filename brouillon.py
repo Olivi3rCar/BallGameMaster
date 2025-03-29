@@ -139,7 +139,10 @@ class Tilemap:
 # Class Ball
 # ---------------------------
 
-"""la balle reste coincee sur une pente sans retomber + le vecteur normal de la tile ou se situe la balle affecte la direction du saut + pas toujours les tiles les plus pertinantes"""
+"""la balle reste coincee sur une pente sans retomber + le vecteur normal de la tile ou se situe la balle affecte la direction du saut + pas toujours les tiles les plus pertinantes
+le vecteur est toujours le bon, sauf si la balle est trop rapide
+
+solution pour le choix des tiles, gonfler artificiellement la hitbox des tiles pentes"""
 
 class Ball:
     def __init__(self, pos, radius, mass, retention, velocity, id, friction):
@@ -320,7 +323,7 @@ class Ball:
 
         elif event.type == pygame.KEYUP and event.key == pygame.K_SPACE and self.t0 is not None and active_select:
             duration = pygame.time.get_ticks() - self.t0  # Durée d'appui
-            self.v0 = min(duration * rate_v0, 20)  # Limite de puissance
+            self.v0 = min(duration * rate_v0, 10)  # Limite de puissance
             self.shoot()  # Effectue le tir
             active_select = False
             self.t0 = None  # Réinitialise le chrono
