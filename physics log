@@ -59,19 +59,7 @@ if tile_index in [22,23,24,25,26]        if in [22,23] : angle = 116.6
 
 
 26/03 : We're finally seeign the light in the tunnel, while the physics is still wacky, it mostly works
-    def is_normal_good(self, normal_vector, tile): #Make sure we have the good normal_vector
-        # Normalize the normal vector
-        normal_vector = pygame.Vector2(normal_vector).normalize()
-        # Test position
-        pos_test = self.pos + 10*normal_vector
-        # Check for collision
-        if collision_check(tile.vertices, (pos_test.x, pos_test.y), self.radius):
-            return -normal_vector
-        return normal_vector
+                    print("Collision detected",tile_key.index,self.normal_vector, "Current speed :",self.velocity,tangent_vector)
 
 
-  if (self.velocity.x > 0 and self.velocity.y > 0 and test_velocity.x > 0 and test_velocity.y > 0 or
-        self.velocity.x > 0 and self.velocity.y < 0 and test_velocity.x > 0 and test_velocity.y < 0 or
-        self.velocity.x > 0 and self.velocity.y > 0 and test_velocity.x > 0 and test_velocity.y > 0 or
-        self.velocity.x < 0 and self.velocity.y < 0 and test_velocity.x < 0 and test_velocity.y < 0 or
-        self.velocity.x < 0 and self.velocity.y > 0 and test_velocity.x < 0 and test_velocity.y > 0) :
+

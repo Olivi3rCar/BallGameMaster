@@ -46,8 +46,8 @@ def collision_check(vertices, circle_center, circle_radius):
         if overlap < min_overlap :
             min_overlap = overlap
             collision_normal = axis
-        if abs(overlap - min_overlap) < min_overlap * 0.1:
-            if abs(axis[0]) < 0.99 and axis[0] != 0 :
+        if abs(overlap - min_overlap) < min_overlap * 0.7:
+            if (abs(axis[0]) < 0.99) and (abs(axis[1]) < 0.99):
                 axis_to_look = axis #WE need to store the only vector who is not +-1,0 or 0,-+1, in case we have a ball so fast it touches 2 edges
                 overlap_to_look = overlap
 

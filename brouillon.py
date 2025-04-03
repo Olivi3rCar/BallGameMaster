@@ -1,9 +1,7 @@
 import pygame
 import math
-import csv
-import os
 from SAT_algorithm_collision import *  # Si tu utilises un module externe, sinon ignorez cette ligne
-
+from tiles import *
 # ---------------------------
 # Initialization of Pygame window parameters
 # ---------------------------
@@ -21,135 +19,10 @@ in_jump = False
 running = True
 t0 = None
 
-
-def draw_hitbox(ball, tile):
-    if collision_check(tile.vertices, (ball.pos.x, ball.pos.y), ball.radius):
-        print(f"Tile {tile.index} Hitbox: {tile.vertices}")  # Debugging
-        pygame.draw.polygon(screen, "green", tile.vertices)
-
-
-def grow_hitbox(vertices, factor=1.0):
-    center_x = sum(v[0] for v in vertices) / len(vertices)
-    center_y = sum(v[1] for v in vertices) / len(vertices)
-
-    new_vertices = []
-    for v in vertices:
-        direction_x = v[0] - center_x
-        direction_y = v[1] - center_y
-        new_x = center_x + direction_x * factor
-        new_y = center_y + direction_y * factor
-        new_vertices.append((new_x, new_y))
-
-    return new_vertices
-
-
-# ---------------------------
-# Class Spritesheet
-# ---------------------------
-class Spritesheet:
-    def __init__(self, filename, tile_size=32, columns=9):
-        self.spritesheet = pygame.image.load(filename).convert_alpha()
-        self.tile_size = tile_size
-        self.columns = columns
-
-    def get_tile(self, index):
-        x = (index % self.columns) * self.tile_size
-        y = (index // self.columns) * self.tile_size
-        return self.spritesheet.subsurface((x, y, self.tile_size, self.tile_size))
-
-
-# ---------------------------
-# Class Tile
-# ---------------------------
-class Tile(pygame.sprite.Sprite):
-    def __init__(self, tile_index, x, y, spritesheet):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = spritesheet.get_tile(tile_index)
-        self.rect = self.image.get_rect()
-        self.rect.x, self.rect.y = x, y
-        self.x, self.y = x, y
-        self.vertices = []
-        self.angle = 0
-        self.index = tile_index
-        self.attribution()
-        self.priority = 0
-
-    def attribution(self):
-        x, y = self.rect.x, self.rect.y
-        tile_vertices = {
-            0: grow_hitbox([(x + 32, y), (x + 32, y + 32), (x, y + 32), (x, y)] ),
-            1: grow_hitbox([(x + 32, y), (x + 32, y + 32), (x, y + 32), (x, y)] ),
-            2: grow_hitbox([(x + 32, y), (x + 32, y + 32), (x, y + 32), (x, y)] ),
-            3: grow_hitbox([(x + 32, y), (x + 32, y + 32), (x, y + 32), (x, y)] ),
-            4: grow_hitbox([(x + 32, y), (x + 32, y + 32), (x, y + 32), (x, y)]),
-            5: [(x + 32, y + 32), (x, y + 32), (x + 34, y)],
-            6: [(x, y + 32), (x + 32, y + 32), (x + 32, y + 17)],
-            7: [(x, y + 16), (x, y + 32), (x + 32, y + 32), (x + 32, y)],
-            8: [(x + 32, y + 32), (x, y + 32), (x + 32, y + 23)],
-            9: [(x + 32, y + 32), (x + 32, y + 12), (x, y + 22), (x, y + 32)],
-            10: [(x, y + 11), (x, y + 32), (x + 32, y + 32), (x + 32, y)],
-            11: [(x + 32, y + 32), (x + 32, y), (x + 17, y + 32)],
-            12: [(x + 32, y + 32), (x + 32, y), (x + 15, y), (x, y + 32)],
-            13: [(x + 32, y + 32), (x + 32, y), (x + 23, y + 32)],
-            14: [(x + 32, y + 32), (x + 32, y), (x + 22, y), (x + 12, y + 32)],
-            15: [(x + 32, y + 32), (x + 32, y), (x + 10, y), (x, y + 32)],
-            16: [(x + 32, y + 32), (x, y), (x, y + 32)],
-            17: [(x + 32, y + 32), (x, y + 32), (x, y + 17)],
-            18: [(x, y), (x, y + 32), (x + 32, y + 32), (x + 32, y + 16)],
-            19: [(x + 32, y + 32), (x, y + 32), (x, y + 23)],
-            20: [(x, y + 12), (x, y + 32), (x + 32, y + 32), (x + 32, y + 22)],
-            21: [(x, y), (x, y + 32), (x + 32, y + 32), (x + 32, y + 11)],
-            22: [(x, y), (x, y + 32), (x + 15, y + 32)],
-            23: [(x, y), (x, y + 32), (x + 32, y + 32), (x + 17, y)],
-            24: [(x, y), (x, y + 32), (x + 10, y + 32)],
-            25: [(x, y), (x, y + 32), (x + 21, y + 32), (x + 11, y)],
-            26: [(x, y), (x, y + 32), (x + 32, y + 32), (x + 23, y)]
-        }
-        self.vertices = tile_vertices[self.index]
-        if self.index not in [0, 1, 2, 3, 4]:
-            self.priority = 1
-        else:
-            self.priority = 0
-
-
 def draw_hitbox(ball, tile):
     if collision_check(tile.vertices, (ball.pos.x, ball.pos.y), ball.radius):
         pygame.draw.polygon(screen, "green", tile.vertices)
 
-
-# ---------------------------
-# Class Tilemap
-# ---------------------------
-class Tilemap:
-    def __init__(self, filename, spritesheet):
-        self.tile_size = 32
-        self.tiles = self.load_tiles(filename, spritesheet)
-
-    def read_csv(self, filename):
-        map_data = []
-        with open(filename) as data:
-            reader = csv.reader(data, delimiter=',')
-            for row in reader:
-                map_data.append(list(row))
-        return map_data
-
-    def load_tiles(self, filename, spritesheet):
-        tiles = []
-        tile_map = self.read_csv(filename)
-        y = 0
-        for row in tile_map:
-            x = 0
-            for tile in row:
-                tile_index = int(tile)
-                if tile_index != -1:
-                    tiles.append(Tile(tile_index, x * self.tile_size, y * self.tile_size, spritesheet))
-                x += 1
-            y += 1
-        return tiles
-
-    def draw(self, surface):
-        for tile in self.tiles:
-            surface.blit(tile.image, (tile.rect.x, tile.rect.y))
 
 # ---------------------------
 # Class Ball
@@ -171,12 +44,21 @@ class Ball:
         self.id = id
         self.friction = friction
         self.v0 = None
+        self.shot_state = [False, 0]
+        self.normal_vector = pygame.math.Vector2(0,0)
+
+    def freeze_normal_vect(self):
+        if self.shot_state[0] :
+            self.shot_state[0] -= 1
+            if self.shot_state[1] <= 0 :
+                self.shot_state[0] = False
+
 
     def draw(self):
         pygame.draw.circle(screen, (255, 255, 255), (int(self.pos.x), int(self.pos.y)), self.radius)
 
-    def bounce(self, normal_vector):
-        normal_velocity_component = self.velocity.dot(normal_vector) * normal_vector
+    def bounce(self):
+        normal_velocity_component = self.velocity.dot(self.normal_vector) * self.normal_vector
         reflected_velocity = normal_velocity_component * -(1 + self.retention)
 
         # Condition pour arrêter les petits rebonds
@@ -184,25 +66,27 @@ class Ball:
             return pygame.Vector2(0, 0)
         return reflected_velocity
 
-    def is_normal_good(self, normal_vector, tile): #Make sure we have the good normal_vector
+    def is_normal_good(self,tile): #Make sure we have the good normal_vector
         # Normalize the normal vector
-        normal_vector = pygame.Vector2(normal_vector).normalize()
+        self.normal_vector = pygame.Vector2(self.normal_vector).normalize()
         # Test position
-        pos_test = self.pos + 10*normal_vector
+        pos_test = self.pos + 10*self.normal_vector
         # Check for collision
         if collision_check(tile.vertices, (pos_test.x, pos_test.y), self.radius):
-            return -normal_vector
-        return normal_vector
+            self.normal_vector = -self.normal_vector
+        return False
+
+    def is_tangent_good(self,tangent_vector):
+        if abs(self.velocity.x + tangent_vector.x) != abs(self.velocity.x) + abs(tangent_vector.x) or abs(self.velocity.y + tangent_vector.y) != abs(self.velocity.y) + abs(tangent_vector.y) :
+            return -tangent_vector
+        return tangent_vector
 
     def weight(self):
         gravity = pygame.Vector2(0, 0.4)  # gravity
         return gravity * self.mass
 
-    def frictions(self, normal_vector):
-        if self.is_on_valid_surface(normal_vector):
-            # Calcul du vecteur tangent
-            tangent_vector = pygame.Vector2(-normal_vector.y, normal_vector.x)  # Vecteur tangent au sol
-
+    def frictions(self,tangent_vector): #tengent not good
+        if self.is_on_valid_surface():
             # Force de friction (proportionnelle à la vitesse actuelle)
             friction_force = -self.velocity.dot(tangent_vector) * self.friction * tangent_vector
 
@@ -213,58 +97,62 @@ class Ball:
 
             # Appliquer la friction en diminuant progressivement la vitesse
             # Si la vitesse est faible, on réduit la friction de manière progressive
-            if self.velocity.length() < 0.2:  # Si la vitesse est très faible
+            if self.velocity.length() < 0.5:  # Si la vitesse est très faible
                 friction_force = -self.velocity  # Appliquer une friction plus douce pour finir l'arrêt en douceur
 
             return friction_force
 
         return pygame.Vector2(0, 0)
 
-    def is_on_valid_surface(self,normal_vector):
-        slope_angle = self.getting_slope_angle(normal_vector)
+    def is_on_valid_surface(self):
+        slope_angle = self.getting_slope_angle()
         return abs(slope_angle-90) > 20  # (No frictions against a wall)
 
     def moving(self, tilemap):
         weight = self.weight()
-        collision_info = self.handle_collision(tilemap) #THE Dictionnary CONTAINING INFOS ABOUT THE TILES THAT ARE TOUCHING
-        if collision_info:
-            for tile_key in collision_info.keys():
-                draw_hitbox(self,tile_key)
-                normal_vector = collision_info[tile_key][0]
-                normal_vector = self.is_normal_good(normal_vector,tile_key)
-
-                tangent_vector = pygame.Vector2(-normal_vector.y, normal_vector.x)  # tangeant vector to the normal
-                penetration = collision_info[tile_key][1]
-                self.repositioning(normal_vector, penetration)
-                # forces decomposition
-                normal_force = weight.dot(normal_vector) * normal_vector
-                parallel_force = weight.dot(tangent_vector) * tangent_vector
-                self.velocity += -parallel_force + normal_force
-                self.velocity += self.bounce(normal_vector)
-                self.velocity += self.frictions(normal_vector) #PROBLEME AVEC LES FROTTEMENTS
-                if abs(self.velocity.y) < 0.21:  # Si la vitesse verticale est trop faible
-                    self.velocity.y = 0  # On annule la vitesse verticale, mais on conserve la vitesse horizontale
-                    # Appliquer une petite composante de mouvement même sur une pente très douce
-                    if abs(self.velocity.x) < 0.01:  # Si la vitesse horizontale est très faible
-                        self.velocity.x = 0  # Arrêt total, on peut aussi ajuster ce seuil pour plus de fluidité
-                print("Collision detected",tile_key.index,normal_vector, "Current speed :",self.velocity)
-        else:
-            self.velocity += weight
-
+        if self.shot_state[0] :
+            self.normal_vector = pygame.math.Vector2(0,0)
+            while self.shot_state[1] > 0 :
+                self.shot_state[1] -= 1
+            self.shot_state[0] = False
+        else :
+            collision_info = self.handle_collision(tilemap) #THE Dictionnary CONTAINING INFOS ABOUT THE TILES THAT ARE TOUCHING
+            if collision_info:
+                for tile_key in collision_info.keys():
+                    draw_hitbox(self,tile_key)
+                    self.normal_vector = collision_info[tile_key][0]
+                    self.is_normal_good(tile_key)
+                    tangent_vector = pygame.Vector2(-self.normal_vector.y, self.normal_vector.x)  # tangent vector to the normal
+                    penetration = collision_info[tile_key][1]
+                    tangent_vector = self.is_tangent_good(tangent_vector)
+                    self.repositioning(penetration)
+                    # forces decomposition
+                    normal_force = weight.dot(self.normal_vector) * self.normal_vector
+                    parallel_force = weight.dot(tangent_vector) * tangent_vector
+                    self.velocity += -parallel_force + normal_force
+                    self.velocity += self.frictions(tangent_vector) #PROBLEME AVEC LES FROTTEMENTS
+                    self.velocity += self.bounce()
+                    if abs(self.velocity.y) < 0.21:  # Si la vitesse verticale est trop faible
+                        self.velocity.y = 0  # On annule la vitesse verticale, mais on conserve la vitesse horizontale
+                        # Appliquer une petite composante de mouvement même sur une pente très douce
+                        if abs(self.velocity.x) < 0.01:  # Si la vitesse horizontale est très faible
+                           self.velocity.x = 0  # Arrêt total, on peut aussi ajuster ce seuil pour plus de fluidité
+            else:
+                self.velocity += weight
 
         self.pos += self.velocity
 
 
-    def repositioning(self, normal_vector, penetration):
+    def repositioning(self, penetration):
         #to reposition the ball, the epsilon is to make sure the ball isn't stuck
         epsilon = 0.1
-        self.pos += normal_vector * (penetration + epsilon)
+        self.pos += self.normal_vector * (penetration + epsilon)
 
 
-    def getting_slope_angle(self, normal_vector):
-        if normal_vector.x == 0:
-            return 90 if normal_vector.y > 0 else -90
-        return math.degrees(math.atan2(normal_vector.y, normal_vector.x))
+    def getting_slope_angle(self):
+        if self.normal_vector.x == 0:
+            return 90 if self.normal_vector.y > 0 else -90
+        return math.degrees(math.atan2(self.normal_vector.y, self.normal_vector.x))
 
     def handle_collision(self, tilemap):
         collision_tiles = {}
@@ -306,8 +194,12 @@ class Ball:
 
     def shoot(self):
         angle = self.get_trajectory_angle()
-        force = pygame.math.Vector2(self.v0 * math.cos(math.radians(angle)), self.v0 * math.sin(math.radians(angle)))
+        self.shot_state = [True, 10]
+        force = pygame.math.Vector2(self.v0 * (math.cos(math.radians(angle))), self.v0 * (math.sin(math.radians(angle))))
+        # Reset any existing velocity completely
         self.velocity = force / self.mass
+        print(f"angle : {angle}, normal_vector : {self.normal_vector}  velocity : {self.velocity}")
+
 
     def get_trajectory_angle(self):
         pos = pygame.mouse.get_pos()
@@ -351,7 +243,7 @@ class Ball:
 # ---------------------------
 spritesheet = Spritesheet(os.path.join("Sprites png/sandtiles.png"), tile_size=32, columns=9)
 tilemap = Tilemap("tiles_maps/test_map.csv", spritesheet)
-ball = Ball(pygame.math.Vector2(400, 150), 7, 0.4, 0.6, pygame.math.Vector2(0, 0), 1, 0.1)
+ball = Ball(pygame.math.Vector2(400, 150), 7, 0.5, 0.6, pygame.math.Vector2(0, 0), 1, 0.1)
 
 
 
@@ -368,6 +260,7 @@ while running:
         ball.handle_shooting(event)  # Gestion du tir dans la classe Ball
     if active_select:
         ball.draw_trajectory(10)
+    ball.freeze_normal_vect()
     ball.moving(tilemap)
     ball.draw()
     pygame.display.flip()

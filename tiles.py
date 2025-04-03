@@ -1,22 +1,23 @@
 import pygame
 import csv
 import os
-from pytmx import *
-# Initialisation de Pygame
-pygame.init()
 
-# Taille de la fenêtre
-SCREEN_WIDTH = 640
-SCREEN_HEIGHT = 480
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Tilemap Loader")
+def grow_hitbox(vertices, factor=1.0):
+    center_x = sum(v[0] for v in vertices) / len(vertices)
+    center_y = sum(v[1] for v in vertices) / len(vertices)
 
-# Couleurs
-WHITE = (255, 255, 255)
+    new_vertices = []
+    for v in vertices:
+        direction_x = v[0] - center_x
+        direction_y = v[1] - center_y
+        new_x = center_x + direction_x * factor
+        new_y = center_y + direction_y * factor
+        new_vertices.append((new_x, new_y))
+    return new_vertices
 
 
 # ---------------------------
-# Classe Spritesheet
+# Class Spritesheet
 # ---------------------------
 class Spritesheet:
     def __init__(self, filename, tile_size=32, columns=9):
@@ -29,8 +30,9 @@ class Spritesheet:
         y = (index // self.columns) * self.tile_size
         return self.spritesheet.subsurface((x, y, self.tile_size, self.tile_size))
 
+
 # ---------------------------
-# Classe Tile
+# Class Tile
 # ---------------------------
 class Tile(pygame.sprite.Sprite):
     def __init__(self, tile_index, x, y, spritesheet):
@@ -47,43 +49,88 @@ class Tile(pygame.sprite.Sprite):
 
     def attribution(self):
         x, y = self.rect.x, self.rect.y
+
+        # Pour les tuiles 0 à 4, on garde un factor=1.0 (ou la valeur par défaut)
+        # Pour les autres (5 à 26), on applique factor=1.1 (ajustable) afin de "gonfler" la hitbox.
         tile_vertices = {
-            0: [(x, y), (x + 32, y + 32), (x + 32, y), (x, y + 32)],
-            1: [(x, y), (x + 32, y + 32), (x + 32, y), (x, y + 32)],
-            2: [(x, y), (x + 32, y + 32), (x + 32, y), (x, y + 32)],
-            3: [(x, y), (x + 32, y + 32), (x + 32, y), (x, y + 32)],
-            4: [(x, y), (x + 32, y + 32), (x + 32, y), (x, y + 32)],
-            5: [(x + 32, y + 32), (x, y + 32), (x + 32, y)],
-            6: [(x + 32, y + 32), (x, y + 32), (x + 32, y + 17)],
-            7: [(x + 32, y + 32), (x + 32, y), (x, y + 32), (x, y + 16)],
-            8: [(x + 32, y + 32), (x, y + 32), (x + 32, y + 23)],
-            9: [(x + 32, y + 32), (x + 32, y + 26), (x, y + 32), (x, y + 12)],
-            10: [(x + 32, y + 32), (x + 32, y), (x, y + 32), (x, y + 11)],
-            11: [(x + 32, y + 32), (x + 32, y), (x + 17, y + 32)],
-            12: [(x + 32, y + 32), (x + 32, y), (x, y + 32), (x + 15, y)],
-            13: [(x + 32, y + 32), (x + 32, y), (x + 23, y + 32)],
-            14: [(x + 32, y + 32), (x + 32, y), (x + 12, y + 32), (x + 22, y)],
-            15: [(x + 32, y + 32), (x + 32, y), (x + 10, y), (x, y + 32)],
-            16: [(x + 32, y + 32), (x, y), (x, y + 32)],
-            17: [(x + 32, y + 32), (x, y + 32), (x, y + 17)],
-            18: [(x + 32, y + 32), (x, y), (x, y + 32), (x + 32, y + 16)],
-            19: [(x + 32, y + 32), (x, y + 32), (x + 32, y + 23)],
-            20: [(x + 32, y + 32), (x + 32, y + 12), (x, y + 32), (x, y + 22)],
-            21: [(x + 32, y + 32), (x, y), (x, y + 32), (x + 32, y + 11)],
-            22: [(x, y), (x, y + 32), (x + 15, y + 32)],
-            23: [(x + 32, y + 32), (x, y), (x, y + 32), (x + 17, y)],
-            24: [(x, y + 32), (x, y), (x + 10, y + 32)],
-            25: [(x, y), (x, y + 32), (x + 11, y), (x + 21, y + 32)],
-            26: [(x + 32, y + 32), (x, y), (x + 10, y), (x + 23, y)],
+            0: grow_hitbox([(x + 32, y), (x + 32, y + 32),
+                            (x, y + 32), (x, y)], 0.9),
+            1: grow_hitbox([(x + 32, y), (x + 32, y + 32),
+                            (x, y + 32), (x, y)], 0.9),
+            2: grow_hitbox([(x + 32, y), (x + 32, y + 32),
+                            (x, y + 32), (x, y)], 0.9),
+            3: grow_hitbox([(x + 32, y), (x + 32, y + 32),
+                            (x, y + 32), (x, y)], 0.9),
+            4: grow_hitbox([(x + 32, y), (x + 32, y + 32),
+                            (x, y + 32), (x, y)], 0.9),
+
+            # À partir de 5, on applique un facteur > 1.0 pour grossir la hitbox
+            5: grow_hitbox([(x + 32, y + 32), (x, y + 32), (x + 34, y)], 1.1),
+            6: grow_hitbox([(x, y + 32), (x + 32, y + 32),
+                            (x + 32, y + 17)], 1.1),
+            7: grow_hitbox([(x, y + 16), (x, y + 32),
+                            (x + 32, y + 32), (x + 32, y)], 1.1),
+            8: grow_hitbox([(x + 32, y + 32), (x, y + 32),
+                            (x + 32, y + 23)], 1.1),
+            9: grow_hitbox([(x + 32, y + 32), (x + 32, y + 12),
+                            (x, y + 22), (x, y + 32)], 1.1),
+            10: grow_hitbox([(x, y + 11), (x, y + 32),
+                             (x + 32, y + 32), (x + 32, y)], 1.1),
+            11: grow_hitbox([(x + 32, y + 32), (x + 32, y),
+                             (x + 17, y + 32)], 1.1),
+            12: grow_hitbox([(x + 32, y + 32), (x + 32, y),
+                             (x + 15, y), (x, y + 32)], 1.1),
+            13: grow_hitbox([(x + 32, y + 32), (x + 32, y),
+                             (x + 23, y + 32)], 1.1),
+            14: grow_hitbox([(x + 32, y + 32), (x + 32, y),
+                             (x + 22, y), (x + 12, y + 32)], 1.1),
+            15: grow_hitbox([(x + 32, y + 32), (x + 32, y),
+                             (x + 10, y), (x, y + 32)], 1.1),
+            16: grow_hitbox([(x + 32, y + 32), (x, y),
+                             (x, y + 32)], 1.1),
+            17: grow_hitbox([(x + 32, y + 32), (x, y + 32),
+                             (x, y + 17)], 1.1),
+            18: grow_hitbox([(x, y), (x, y + 32),
+                             (x + 32, y + 32), (x + 32, y + 16)], 1.1),
+            19: grow_hitbox([(x + 32, y + 32), (x, y + 32),
+                             (x, y + 23)], 1.1),
+            20: grow_hitbox([(x, y + 12), (x, y + 32),
+                             (x + 32, y + 32), (x + 32, y + 22)], 1.1),
+            21: grow_hitbox([(x, y), (x, y + 32),
+                             (x + 32, y + 32), (x + 32, y + 11)], 1.1),
+            22: grow_hitbox([(x, y), (x, y + 32),
+                             (x + 15, y + 32)], 1.1),
+            23: grow_hitbox([(x, y), (x, y + 32),
+                             (x + 32, y + 32), (x + 17, y)], 1.1),
+            24: grow_hitbox([(x, y), (x, y + 32),
+                             (x + 10, y + 32)], 1.1),
+            25: grow_hitbox([(x, y), (x, y + 32),
+                             (x + 21, y + 32), (x + 11, y)], 1.1),
+            26: grow_hitbox([(x, y), (x, y + 32),
+                             (x + 32, y + 32), (x + 23, y)], 1.1),
         }
+
+        # Assigne ensuite la liste de sommets à self.vertices
         self.vertices = tile_vertices[self.index]
-        if self.vertices != [(x, y), (x + 32, y + 32), (x + 32, y), (x, y + 32)] :
+
+        # Par exemple, si tu veux toujours mettre priority=1
+        # pour les tiles non 0..4 :
+        if self.index not in [0, 1, 2, 3, 4]:
             self.priority = 1
-        else :
+        else:
             self.priority = 0
 
+        self.vertices = tile_vertices[self.index]
+        if self.index not in [0, 1, 2, 3, 4]:
+            self.priority = 1
+        else:
+            self.priority = 0
+
+
+
+
 # ---------------------------
-# Classe Tilemap
+# Class Tilemap
 # ---------------------------
 class Tilemap:
     def __init__(self, filename, spritesheet):
@@ -115,26 +162,3 @@ class Tilemap:
     def draw(self, surface):
         for tile in self.tiles:
             surface.blit(tile.image, (tile.rect.x, tile.rect.y))
-
-
-
-# Charger la spritesheet
-spritesheet = Spritesheet(os.path.join("Sprites png/sandtiles.png"), tile_size=32, columns=9)  # Chemin à adapter
-
-# Charger la tilemap
-tilemap = Tilemap("tiles_maps/test_map.csv", spritesheet)  # Chemin à adapter
-
-# Boucle de jeu
-running = True
-while running:
-    screen.fill((0,0,0))  # Fond blanc
-
-    tilemap.draw(screen)  # Affiche la tilemap
-
-    pygame.display.flip()  # Rafraîchir l'écran
-
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-
-pygame.quit()
