@@ -60,6 +60,6 @@ if tile_index in [22,23,24,25,26]        if in [22,23] : angle = 116.6
 
 26/03 : We're finally seeign the light in the tunnel, while the physics is still wacky, it mostly works
                     print("Collision detected",tile_key.index,self.normal_vector, "Current speed :",self.velocity,tangent_vector)
-
+03/04 : finally we can shoot without much problem
 
 

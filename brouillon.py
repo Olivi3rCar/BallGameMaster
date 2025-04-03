@@ -44,14 +44,8 @@ class Ball:
         self.id = id
         self.friction = friction
         self.v0 = None
-        self.shot_state = [False, 0]
+        self.shot_state = False
         self.normal_vector = pygame.math.Vector2(0,0)
-
-    def freeze_normal_vect(self):
-        if self.shot_state[0] :
-            self.shot_state[0] -= 1
-            if self.shot_state[1] <= 0 :
-                self.shot_state[0] = False
 
 
     def draw(self):
@@ -110,35 +104,29 @@ class Ball:
 
     def moving(self, tilemap):
         weight = self.weight()
-        if self.shot_state[0] :
-            self.normal_vector = pygame.math.Vector2(0,0)
-            while self.shot_state[1] > 0 :
-                self.shot_state[1] -= 1
-            self.shot_state[0] = False
-        else :
-            collision_info = self.handle_collision(tilemap) #THE Dictionnary CONTAINING INFOS ABOUT THE TILES THAT ARE TOUCHING
-            if collision_info:
-                for tile_key in collision_info.keys():
-                    draw_hitbox(self,tile_key)
-                    self.normal_vector = collision_info[tile_key][0]
-                    self.is_normal_good(tile_key)
-                    tangent_vector = pygame.Vector2(-self.normal_vector.y, self.normal_vector.x)  # tangent vector to the normal
-                    penetration = collision_info[tile_key][1]
-                    tangent_vector = self.is_tangent_good(tangent_vector)
-                    self.repositioning(penetration)
-                    # forces decomposition
-                    normal_force = weight.dot(self.normal_vector) * self.normal_vector
-                    parallel_force = weight.dot(tangent_vector) * tangent_vector
-                    self.velocity += -parallel_force + normal_force
-                    self.velocity += self.frictions(tangent_vector) #PROBLEME AVEC LES FROTTEMENTS
-                    self.velocity += self.bounce()
-                    if abs(self.velocity.y) < 0.21:  # Si la vitesse verticale est trop faible
-                        self.velocity.y = 0  # On annule la vitesse verticale, mais on conserve la vitesse horizontale
-                        # Appliquer une petite composante de mouvement même sur une pente très douce
-                        if abs(self.velocity.x) < 0.01:  # Si la vitesse horizontale est très faible
-                           self.velocity.x = 0  # Arrêt total, on peut aussi ajuster ce seuil pour plus de fluidité
-            else:
-                self.velocity += weight
+        collision_info = self.handle_collision(tilemap) #THE Dictionnary CONTAINING INFOS ABOUT THE TILES THAT ARE TOUCHING
+        if collision_info:
+            for tile_key in collision_info.keys():
+                draw_hitbox(self,tile_key)
+                self.normal_vector = collision_info[tile_key][0]
+                self.is_normal_good(tile_key)
+                tangent_vector = pygame.Vector2(-self.normal_vector.y, self.normal_vector.x)  # tangent vector to the normal
+                penetration = collision_info[tile_key][1]
+                tangent_vector = self.is_tangent_good(tangent_vector)
+                self.repositioning(penetration)
+                # forces decomposition
+                normal_force = weight.dot(self.normal_vector) * self.normal_vector
+                parallel_force = weight.dot(tangent_vector) * tangent_vector
+                self.velocity += -parallel_force + normal_force
+                self.velocity += self.frictions(tangent_vector) #PROBLEME AVEC LES FROTTEMENTS
+                self.velocity += self.bounce()
+                if abs(self.velocity.y) < 0.21:  # Si la vitesse verticale est trop faible
+                    self.velocity.y = 0  # On annule la vitesse verticale, mais on conserve la vitesse horizontale
+                    # Appliquer une petite composante de mouvement même sur une pente très douce
+                    if abs(self.velocity.x) < 0.01:  # Si la vitesse horizontale est très faible
+                       self.velocity.x = 0  # Arrêt total, on peut aussi ajuster ce seuil pour plus de fluidité
+        else:
+               self.velocity += weight
 
         self.pos += self.velocity
 
@@ -192,10 +180,11 @@ class Ball:
 
         return collision_tiles if collision_tiles else False
 
-    def shoot(self):
+    def shoot(self): #Finally work
         angle = self.get_trajectory_angle()
-        self.shot_state = [True, 10]
-        force = pygame.math.Vector2(self.v0 * (math.cos(math.radians(angle))), self.v0 * (math.sin(math.radians(angle))))
+        self.shot_state = True
+        self.pos += self.normal_vector*5
+        force = pygame.math.Vector2(self.v0 * (math.cos(math.radians(angle))), -self.v0 * (math.sin(math.radians(angle))))
         # Reset any existing velocity completely
         self.velocity = force / self.mass
         print(f"angle : {angle}, normal_vector : {self.normal_vector}  velocity : {self.velocity}")
@@ -260,7 +249,6 @@ while running:
         ball.handle_shooting(event)  # Gestion du tir dans la classe Ball
     if active_select:
         ball.draw_trajectory(10)
-    ball.freeze_normal_vect()
     ball.moving(tilemap)
     ball.draw()
     pygame.display.flip()
