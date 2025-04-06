@@ -108,6 +108,17 @@ class Tile(pygame.sprite.Sprite):
                              (x + 21, y + 32), (x + 11, y)], 1.1),
             26: grow_hitbox([(x, y), (x, y + 32),
                              (x + 32, y + 32), (x + 23, y)], 1.1),
+            27: grow_hitbox([(x + 32, y), (x + 32, y + 15),
+                            (x, y + 15), (x, y)], 0.9),
+            28: grow_hitbox([(x + 32, y), (x + 32, y + 15),
+                            (x, y + 15), (x, y)], 0.9),
+            29: grow_hitbox([(x + 32, y), (x + 32, y + 15),
+                            (x, y + 15), (x, y)], 0.9),
+            30: grow_hitbox([(x + 32, y), (x + 32, y + 15),
+                            (x, y + 15), (x, y)], 0.9),
+            31: grow_hitbox([(x + 32, y), (x + 32, y + 15),
+                            (x, y + 15), (x, y)], 0.9)
+
         }
 
         # Assigne ensuite la liste de sommets à self.vertices
