@@ -57,5 +57,16 @@ def collision_check(vertices, circle_center, circle_radius):
         return collision_normal, min_overlap
     return False
 
+def double_check(vertices,previous_normal) : #If we have a normal vector that is a unit one for a slope tile
+    axes = []
+    for i in range(len(vertices)):
+        A = vertices[i]
+        B = vertices[(i + 1) % len(vertices)]
+        axis = Axis(A, B)
+        axes.append(axis)
+    for i in range(len(axes)) :
+        if axes[i][0] not in [0,1,-1] or axes[i][1] not in [0,1,-1] :
+            return axes[i]
+    return previous_normal
 
 

@@ -62,9 +62,11 @@ class Ball:
             return pygame.Vector2(0, 0)
         return reflected_velocity
 
-    def is_normal_good(self,tile): #Make sure we have the good normal_vector
+    def is_normal_good(self,tile): #Make sure we have the good normal_vector MUST MODIFY SO IF WE DO NOT TOUCH A SQUARE, WE ABSOLUTELY NEED ANOTHER VECTOR FOR SLOPE
         # Normalize the normal vector
         self.normal_vector = pygame.Vector2(self.normal_vector).normalize()
+        check = double_check(tile.vertices,self.normal_vector)
+        self.normal_vector = pygame.Vector2(check[0],check[1])
         # Test position
         pos_test = self.pos + 10*self.normal_vector
         # Check for collision
@@ -72,9 +74,11 @@ class Ball:
             self.normal_vector = -self.normal_vector
         return False
 
-    def is_tangent_good(self,tangent_vector):
-        if abs(self.velocity.x + tangent_vector.x) != abs(self.velocity.x) + abs(tangent_vector.x) \
-                or abs(self.velocity.y + tangent_vector.y) != abs(self.velocity.y) + abs(tangent_vector.y) :
+    def is_tangent_good(self, tangent_vector):
+        # Calcul du produit scalaire entre la vitesse et la tangente
+        dot_product = self.velocity.dot(tangent_vector)
+        # Si le produit scalaire est négatif, la vitesse et la tangente sont opposées, donc on inverse la tangente
+        if dot_product < 0:
             return -tangent_vector
         return tangent_vector
 
@@ -84,25 +88,25 @@ class Ball:
 
     def is_on_valid_surface(self):
         slope_angle = self.getting_slope_angle()
-        return abs(slope_angle-90) > 20  # (No frictions against a wall)
+        return abs(slope_angle-90) > 10  # (No frictions against a wall)
 
-    def frictions(self,tangent_vector): #tengent not good
+    def apply_friction(self, tangent_vector):
+        # Si la balle est sur une surface valide
         if self.is_on_valid_surface():
             # Calcul de la force de friction (modèle visqueux)
             friction_force = -self.velocity.dot(tangent_vector) * self.friction * tangent_vector
 
-            # Éviter que la force de friction ne réduise la vitesse de plus que la valeur actuelle
+            # Lissage de l'arrêt progressif quand très lent
+            if self.velocity.length() < 0.3:  # au lieu de 0.5, ajustement pour un arrêt plus fluide
+                smoothing_factor = self.velocity.length() / 0.3
+                friction_force = -self.velocity * smoothing_factor * 0.7  # un peu moins agressif pour un arrêt progressif
+
+            # Si la force de friction est plus grande que la vitesse actuelle, on applique une friction douce
             if friction_force.length() > self.velocity.length():
-                friction_force = -self.velocity
+                friction_force = -self.velocity * 0.9  # Ne pas annuler tout d’un coup
 
-            # Transition progressive pour un arrêt en douceur quand la vitesse est faible
-            if self.velocity.length() < 0.5:
-                smoothing_factor = self.velocity.length() / 0.5  # Facteur variant de 0 à 1
-                friction_force = -self.velocity * smoothing_factor
-            return friction_force
-
-        return pygame.Vector2(0, 0)
-
+            # Applique la friction si la balle est en mouvement et sur une surface valide
+            self.velocity += friction_force
 
     def moving(self, tilemap,dt):
         weight = self.weight()
@@ -121,18 +125,24 @@ class Ball:
                 # forces decomposition
                 normal_force = weight.dot(self.normal_vector) * self.normal_vector
                 parallel_force = weight.dot(tangent_vector) * tangent_vector
-                #self.velocity += -parallel_force + normal_force
-                self.velocity += self.frictions(tangent_vector) #PROBLEME AVEC LES FROTTEMENTS
+                self.velocity += -parallel_force + normal_force
+                print(self.velocity, self.normal_vector, tangent_vector, tile_key.index)
+
+                self.apply_friction(tangent_vector) #PROBLEME AVEC LES FROTTEMENTS
                 self.velocity += self.bounce()
+
                 # Seuil de vitesse minimale pour annuler les vitesses faibles
-                min_speed_threshold = 0.1  # Seuil global pour annuler la vitesse
+                if not self.is_on_valid_surface():
+                    min_speed_threshold = 0.8  # Mur ou surface verticale
+                else:
+                    min_speed_threshold = 0.05  # Pente ou sol incliné → permet le glissement
+
                 if self.velocity.length() < min_speed_threshold:
-                    # Si la vitesse est proche de zéro, appliquer un facteur de décélération
-                    deceleration_factor = 0.7  # Réduction de la vitesse (entre 0 et 1, 1 serait un arrêt immédiat)
-                    self.velocity *= deceleration_factor  # Ralentir progressivement la vitesse
-                    # Lorsque la vitesse devient vraiment négligeable, on l'annule complètement
-                    if self.velocity.length() < 0.00005:  # Seuil pour un arrêt complet
-                        self.velocity = pygame.Vector2(0, 0)  # Arrêt total
+                    deceleration_factor = 0.95
+                    self.velocity *= deceleration_factor
+                    if self.velocity.length() < 0.01:
+                        self.velocity = pygame.Vector2(0, 0)
+
         else:
             self.velocity += weight
         self.pos += self.velocity*dt*70 #Framerate independance should now work
@@ -195,8 +205,6 @@ class Ball:
         force = pygame.math.Vector2(self.v0*(math.cos(math.radians(angle))), -self.v0 * (math.sin(math.radians(angle))))
         # Reset any existing velocity completely
         self.velocity = force / self.mass
-        print(f"angle : {angle}, normal_vector : {self.normal_vector}  velocity : {self.velocity}")
-
 
     def get_trajectory_angle(self):
         pos = pygame.mouse.get_pos()
@@ -235,12 +243,15 @@ class Ball:
             self.t0 = None  # Réinitialise le chrono
 
 
+
+
+
 # ---------------------------
 # Charging the items
 # ---------------------------
 spritesheet = Spritesheet(os.path.join("Sprites png/sandtiles.png"), tile_size=32, columns=9)
 tilemap = Tilemap("tiles_maps/test_map.csv", spritesheet)
-ball=Ball(pygame.math.Vector2(400, 150), 7, 0.5, 0.6, pygame.math.Vector2(0, 0), 1, 0.1)
+ball=Ball(pygame.math.Vector2(400, 150), 7, 0.5, 0.6, pygame.math.Vector2(0, 0), 1, 0.2)
 
 
 previous_time = time.time()
