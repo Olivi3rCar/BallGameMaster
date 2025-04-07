@@ -287,4 +287,13 @@ while True:
                 elif on_button((0,320),(640,480)):
                     scene="Ice"
                     first_frame = True
+
+            if on_button((0,0),(48,48)):
+                if scene=="Forest" or scene=="Desert" or scene=="Ice":
+                    scene="World Selection"
+                    first_frame = True
+
+                if scene=="World Selection":
+                    scene="Title"
+                    first_frame = True
     pygame.display.flip()
