@@ -8,15 +8,13 @@ start_time = time.time()
 
 
 def on_button(top_left,bottom_right):
-    """
+    """Getting the position of the mouse, then checking its position relative to the "hitbox" of the image
     :param top_left: int couple: the position of the top left corner of the image
     :param bottom_right: int couple: the position of the bottom right of the image
     :return: bool: if the mouse is on the image or not
     """
-
-    """Getting the position of the mouse, then checking its position relative to the "hitbox" of the image"""
+    
     mouse_x, mouse_y = pygame.mouse.get_pos()
-
     if (top_left[0]<mouse_x<bottom_right[0]) and (top_left[1]<mouse_y<bottom_right[1]):
         return True
 
