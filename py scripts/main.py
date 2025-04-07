@@ -1,4 +1,6 @@
 import time
+
+"""A ENLEVER, C'EST POUR CHECK LE BUILD TIME (parce que je suis maniaque)"""
 start_time = time.time()
 
 import sys
@@ -6,7 +8,7 @@ import pygame
 from pygame.locals import *
 import os
 from math import sin
-
+clock = pygame.time.Clock()
 
 def on_button(top_left,bottom_right):
     """Getting the position of the mouse, then checking its position relative to the "hitbox" of the image
@@ -14,7 +16,6 @@ def on_button(top_left,bottom_right):
     :param bottom_right: int couple: the position of the bottom right of the image
     :return: bool: if the mouse is on the image or not
     """
-    
     mouse_x, mouse_y = pygame.mouse.get_pos()
     if (top_left[0]<mouse_x<bottom_right[0]) and (top_left[1]<mouse_y<bottom_right[1]):
         return True
@@ -23,14 +24,11 @@ def on_button(top_left,bottom_right):
 screen = pygame.display.set_mode((640,480))
 pygame.display.set_caption('Ball Game')
 
-FPS = pygame.time.Clock()
-FPS.tick(60)
-
 """Getting the path to the sprites folder"""
 path=(os.path.abspath(os.path.join("./main.py", os.pardir)))
 path=str(path)[:-10]+"Sprites png\\"
 
-"""Loading all the images, some with there "dimensions" which are their positions in more composite sprites"""
+"""Loading all the images, some with there "dimensions" which are their positions in composite or carousel sprites"""
 title_image = pygame.image.load(path+"Title.png")
 title_image = pygame.transform.scale(title_image,(2*title_image.get_width(),2*title_image.get_height()))
 
@@ -46,18 +44,17 @@ playon=(80*3,0,160*3,20*3)
 worldselect=pygame.image.load(path+"stageselect.png")
 
 bckgroundgrass=pygame.image.load(path+"bckgroundgrass.png")
-bckgroundgrass_dim=(0,0,640,480)
+bckground_dim=(0,0,640,480)
 
 bckgroundsand=pygame.image.load(path+"bckgroundsand.png")
-bckgroundsand_dim=(0,0,640,480)
 
 bckgroundice=pygame.image.load(path+"bckgroundice.png")
-bckgroundice_dim=(0,0,640,480)
 
 buttons=pygame.image.load(path+"Buttons.png")
 buttons = pygame.transform.scale(buttons, (3 * buttons.get_width(), 3 * buttons.get_height()))
 gobackbuttonoff=(0,0,48,48)
 gobackbuttonon=(48,0,48,48)
+disable_back=False
 
 w1lvl1off=(0,96,48,48)
 w1lvl1on=(48,96,48,48)
@@ -100,7 +97,9 @@ w3lvl4on=(144,432,48,48)
 w3lvl5off=(0,480,48,48)
 w3lvl5on=(48,480,48,48)
 
-path=path[:-12]+"Levels//"
+
+"""Storing the path to every level"""
+path=path[:-12]+"Levels\\"
 E1M1=path+"grass_level_1.csv"
 E1M2=path+"grass_level_2.csv"
 E1M3=path+"grass_level_3.csv"
@@ -130,12 +129,15 @@ scene = "Title"
 print("Build time : %.5s seconds" % (time.time() - start_time))
 
 while True:
+    """Capping the fps to 60"""
+    clock.tick(60)
+
     if scene == "Title":
         screen.fill((86, 150, 0))
 
         """Messing with the size of the splash text to make it BoUnCy"""
         splashscale=0.4*sin(x)+2.5
-        x+=0.15/40
+        x+=1/40
         splashdisp=pygame.transform.scale(splash,(splashscale*splash.get_width(),splashscale*splash.get_height()))
 
         """Printing the images on the screen"""
@@ -153,7 +155,8 @@ while True:
 
     elif scene == "Forest":
         if first_frame:
-            screen.blit(bckgroundgrass, (0,0), bckgroundgrass_dim)
+            """Printing the background and buttons only on the first frame"""
+            screen.blit(bckgroundgrass, (0,0), bckground_dim)
             screen.blit(buttons, (500,300), w1lvl1off)
             screen.blit(buttons, (353,277), w1lvl2off)
             screen.blit(buttons, (109,266), w1lvl3off)
@@ -161,7 +164,7 @@ while True:
             screen.blit(buttons, (518,37), w1lvl5off)
             first_frame=False
 
-        """Checking if the cursor in on any of the buttons"""
+        """Checking if the cursor in on any of the buttons, then changing one of them is the mouse is hovering one"""
         if on_button((500,300), (548, 348)):
             screen.blit(buttons, (500,300), w1lvl1on)
         else:
@@ -189,7 +192,7 @@ while True:
 
     elif scene == "Desert":
         if first_frame:
-            screen.blit(bckgroundsand, (0,0), bckgroundsand_dim)
+            screen.blit(bckgroundsand, (0,0), bckground_dim)
             screen.blit(buttons,(530,302) , w2lvl1off)
             screen.blit(buttons,(96,238) , w2lvl2off)
             screen.blit(buttons, (244,200), w2lvl3off)
@@ -224,7 +227,7 @@ while True:
 
     elif scene == "Ice":
         if first_frame:
-            screen.blit(bckgroundice, (0,0), bckgroundice_dim)
+            screen.blit(bckgroundice, (0,0), bckground_dim)
             screen.blit(buttons, (500,395), w3lvl1off)
             screen.blit(buttons, (470,275), w3lvl2off)
             screen.blit(buttons, (25,310), w3lvl3off)
@@ -257,8 +260,12 @@ while True:
                             screen.blit(buttons, (45,45), w3lvl5on)
                         else:
                             screen.blit(buttons, (45,45), w3lvl5off)
+
     if scene!="Title":
-        screen.blit(buttons, (0,0), gobackbuttonoff)
+        """Setting up the sprite and the logic of a button to go back in the menus"""
+        if first_frame:
+            screen.blit(buttons, (0,0), gobackbuttonoff)
+            first_frame=False
 
         if on_button((0,0),(48,48)):
             screen.blit(buttons, (0,0), gobackbuttonon)
@@ -278,7 +285,7 @@ while True:
                 first_frame=True
 
             elif scene == "World Selection":
-                if on_button((0,0),(640,160)):
+                if on_button((0,0),(640,160)) and not(on_button((0,0),(48,48))):
                     scene="Forest"
                     first_frame = True
                 elif on_button((0,160),(640,320)):
@@ -288,12 +295,39 @@ while True:
                     scene="Ice"
                     first_frame = True
 
-            if on_button((0,0),(48,48)):
+            elif scene=="Forest":
+                for i in levels["grass"]:
+                    if on_button((levels["grass"][i][1][0],levels["grass"][i][1][1]),
+                                 (levels["grass"][i][1][0]+48,levels["grass"][i][1][1]+48)):
+                        print(levels["grass"][i][0])
+                        break
+
+            elif scene=="Desert":
+                for i in levels["desert"]:
+                    if on_button((levels["desert"][i][1][0],levels["desert"][i][1][1]),
+                                 (levels["desert"][i][1][0]+48,levels["desert"][i][1][1]+48)):
+                        print(levels["desert"][i][0])
+                        break
+
+            elif scene=="Ice":
+                for i in levels["ice"]:
+                    if on_button((levels["ice"][i][1][0],levels["ice"][i][1][1]),
+                                 (levels["ice"][i][1][0]+48,levels["ice"][i][1][1]+48)):
+                        print(levels["ice"][i][0])
+                        break
+
+            if on_button((0,0),(48,48)) and disable_back==False:
                 if scene=="Forest" or scene=="Desert" or scene=="Ice":
                     scene="World Selection"
-                    first_frame = True
 
-                if scene=="World Selection":
+                elif scene=="World Selection":
                     scene="Title"
-                    first_frame = True
+
+                first_frame = True
+                disable_back=True
+
+            """Stopping the user from going back multiple menus in one click"""
+        elif event.type == MOUSEBUTTONUP:
+            disable_back=False
+
     pygame.display.flip()
