@@ -58,7 +58,7 @@ class Ball:
         reflected_velocity = normal_velocity_component * -(1 + self.retention)
 
         # Condition pour arrêter les petits rebonds
-        if reflected_velocity.length() < 0.5:  # Seuil pour stopper les rebonds
+        if reflected_velocity.length() < 0.1:  # Seuil pour stopper les rebonds
             return pygame.Vector2(0, 0)
         return reflected_velocity
 
@@ -143,9 +143,9 @@ class Ball:
                     if self.velocity.length() < 0.01:
                         self.velocity = pygame.Vector2(0, 0)
 
-        else:
-            self.velocity += weight
-        self.pos += self.velocity*dt*70 #Framerate independance should now work
+            else:
+                self.velocity += weight
+            self.pos += self.velocity*dt*70 #Framerate independance should now work
 
 
 
