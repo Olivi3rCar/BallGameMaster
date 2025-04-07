@@ -122,8 +122,6 @@ levels ={"grass":{1:(E1M1,(500,300)),2:(E1M2,(353,277)),3:(E1M3,(109,266)),4:(E1
 posx = screen.get_rect().centerx
 posy= screen.get_rect().centery
 
-print(posx,posy)
-
 first_frame=False
 scene = "Title"
 print("Build time : %.5s seconds" % (time.time() - start_time))
