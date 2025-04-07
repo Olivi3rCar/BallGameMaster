@@ -56,6 +56,9 @@ bckgroundice_dim=(0,0,640,480)
 
 buttons=pygame.image.load(path+"Buttons.png")
 buttons = pygame.transform.scale(buttons, (3 * buttons.get_width(), 3 * buttons.get_height()))
+gobackbuttonoff=(0,0,48,48)
+gobackbuttonon=(48,0,48,48)
+
 w1lvl1off=(0,96,48,48)
 w1lvl1on=(48,96,48,48)
 w1lvl2off=(96,96,48,48)
@@ -255,7 +258,12 @@ while True:
                         else:
                             screen.blit(buttons, (45,45), w3lvl5off)
     if scene!="Title":
-        ...
+        screen.blit(buttons, (0,0), gobackbuttonoff)
+
+        if on_button((0,0),(48,48)):
+            screen.blit(buttons, (0,0), gobackbuttonon)
+        else:
+            screen.blit(buttons, (0,0), gobackbuttonoff)
 
     for event in pygame.event.get():
 
