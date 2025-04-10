@@ -5,7 +5,6 @@ import os
 def grow_hitbox(vertices, factor=1.0):
     center_x = sum(v[0] for v in vertices) / len(vertices)
     center_y = sum(v[1] for v in vertices) / len(vertices)
-
     new_vertices = []
     for v in vertices:
         direction_x = v[0] - center_x
@@ -29,7 +28,6 @@ class Spritesheet:
         x = (index % self.columns) * self.tile_size
         y = (index // self.columns) * self.tile_size
         return self.spritesheet.subsurface((x, y, self.tile_size, self.tile_size))
-
 
 # ---------------------------
 # Class Tile
@@ -118,12 +116,10 @@ class Tile(pygame.sprite.Sprite):
                             (x, y + 15), (x, y)], 0.9),
             31: grow_hitbox([(x + 32, y), (x + 32, y + 15),
                             (x, y + 15), (x, y)], 0.9)
-
         }
 
         # Assigne ensuite la liste de sommets à self.vertices
         self.vertices = tile_vertices[self.index]
-
         # Par exemple, si tu veux toujours mettre priority=1
         # pour les tiles non 0..4 :
         if self.index not in [0, 1, 2, 3, 4]:
