@@ -30,11 +30,6 @@ def draw_hitbox(ball, tile):
 # Class Ball
 # ---------------------------
 
-"""la balle reste coincee sur une pente sans retomber direction du saut + pas toujours les tiles les plus pertinantes
-le vecteur est toujours le bon, sauf si la balle est trop rapide
-
-solution pour le choix des tiles, gonfler artificiellement la hitbox des tiles pentes
-tile 8 la balle touche deux edges en meme temps, donc l'algo renvoie le mauvais vecteur normal"""
 
 class Ball:
     def __init__(self, pos, radius, mass, retention, velocity, id, friction):
