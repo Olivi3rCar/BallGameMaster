@@ -1,7 +1,9 @@
 import math
+"""This is my version of the Separation Axis Theorem,
+modified to work only with a circle and a polygon, we do not need anything else"""
 
 def Axis(A, B):
-    """Retourne un vecteur normalisé perpendiculaire au segment AB (normale)."""
+    """Returns a normalized normal vector of the segment AB"""
     dx, dy = B[0] - A[0], B[1] - A[1]
     n = [-dy, dx]  # Normale perpendiculaire
     v = math.hypot(n[0], n[1])  # Calcul de la norme (plus stable que sqrt)
@@ -9,16 +11,18 @@ def Axis(A, B):
 
 
 def projection(point, axis):
-    """Retourne la projection scalaire d'un point sur un axe donné."""
+    """Returns the projection of a scalar on an axis"""
     return point[0] * axis[0] + point[1] * axis[1]
 
 
 def collision_check(vertices, circle_center, circle_radius):
+    """Check the collisions between a convex polygon and a circle"""
     axes = []
     min_overlap = float('inf')
     collision_normal = None
     axis_to_look = None
 
+    #Generate our list of potential axis
     for i in range(len(vertices)):
         A = vertices[i]
         B = vertices[(i + 1) % len(vertices)]
@@ -57,7 +61,8 @@ def collision_check(vertices, circle_center, circle_radius):
         return collision_normal, min_overlap
     return False
 
-def double_check(vertices,previous_normal) : #If we have a normal vector that is a unit one for a slope tile
+def double_check(vertices,previous_normal):
+    """If we have a normal vector that is a unit one for a slope tile, which is clearly a bug"""
     axes = []
     for i in range(len(vertices)):
         A = vertices[i]
