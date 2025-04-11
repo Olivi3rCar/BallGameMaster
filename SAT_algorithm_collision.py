@@ -5,8 +5,8 @@ modified to work only with a circle and a polygon, we do not need anything else"
 def Axis(A, B):
     """Returns a normalized normal vector of the segment AB"""
     dx, dy = B[0] - A[0], B[1] - A[1]
-    n = [-dy, dx]  # Normale perpendiculaire
-    v = math.hypot(n[0], n[1])  # Calcul de la norme (plus stable que sqrt)
+    n = [-dy, dx]  # Normal vector
+    v = math.hypot(n[0], n[1])  # Computation of the norm
     return [n[0] / v, n[1] / v] if v != 0 else [0, 0]
 
 
@@ -44,7 +44,7 @@ def collision_check(vertices, circle_center, circle_radius):
         # Avoid false collisions
         tolerance = 0.5
         if max_poly < min_circle - tolerance or max_circle + tolerance < min_poly:
-            return False  # Pas de collision sur cet axe
+            return False  # No collision
 
         overlap = min(max_poly - min_circle, max_circle - min_poly)
         if overlap < min_overlap :
