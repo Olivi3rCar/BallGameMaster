@@ -15,10 +15,7 @@ icon = pygame.image.load("Sprites/golf-icon.png")
 pygame.display.set_icon(icon)
 clock = pygame.time.Clock()
 running = True
-active_select = False
-in_jump = False
-running = True
-t0 = None
+
 # ---------------------------
 # Class Ball
 # ---------------------------
@@ -35,7 +32,8 @@ class Ball:
         self.v0 = None
         self.normal_vector = pygame.math.Vector2(0,0)
         self.biome = "forest" #Used to determine the coefficient of friction
-
+        self.is_shooting = False # New attribute to track if the ball is being shot
+        self.can_be_selected = True
 
     def draw(self):
         """Draws the ball on the screen"""
@@ -121,6 +119,8 @@ class Ball:
                 self.velocity += parallel_force + normal_force
                 self.apply_friction(tangent_vector, normal_magnitude)
                 self.velocity += self.bounce()
+                self.is_shooting = False # Reset shooting flag on collision
+                self.can_be_selected = True # Ball can be selected again
 
             """Bunch of conditions to stop the ball if its velocity is too low"""
             # Limits for speed
@@ -186,6 +186,8 @@ class Ball:
         force = pygame.math.Vector2(self.v0*(math.cos(math.radians(angle))), -self.v0 * (math.sin(math.radians(angle))))
         # Reset any existing velocity completely
         self.velocity = force / self.mass
+        self.is_shooting = True # Set the flag to True when shooting
+        self.can_be_selected = False
 
     def get_trajectory_angle(self):
         """Get the angle between mouse position and ground"""
@@ -200,7 +202,7 @@ class Ball:
 
     def check_select(self, pos):
         """Checking if we clicked on the ball"""
-        return abs(pos[0] - self.pos.x) < 10 and abs(pos[1] - self.pos.y) < 10
+        return self.can_be_selected and abs(pos[0] - self.pos.x) < 10 and abs(pos[1] - self.pos.y) < 10
 
     def draw_trajectory(self, v0):
         """Draw the shooting trajectory, with a initial velocity of reference"""
@@ -213,20 +215,20 @@ class Ball:
         for i in range(len(pos_x)):
             pygame.draw.circle(screen, "red", (int(pos_x[i]), int(pos_y[i])), 4)
 
-    def handle_shooting(self, event):
+    def handle_shooting(self, event, active_select):
         """Manage the shooting by taking in account the space bar"""
-        global active_select
         rate_v0 = 0.02  # Increase rate of the initial velocity
-        if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE and active_select and not self.is_shooting:
             self.t0 = pygame.time.get_ticks()  # Start of the chronometer
             self.v0 = 0  # Reset of initial velocity
 
-        elif event.type == pygame.KEYUP and event.key == pygame.K_SPACE and self.t0 is not None and active_select:
+        elif event.type == pygame.KEYUP and event.key == pygame.K_SPACE and self.t0 is not None and active_select and not self.is_shooting:
             duration = pygame.time.get_ticks() - self.t0  # Duration of the pressing of the space bar
             self.v0 = min(duration * rate_v0, 15)  # Capping of the initial velocity
             self.shoot()  # Shoots the ball
-            active_select = False
+            active_select = False # Deactivate selection after shooting
             self.t0 = None  # Reset the chronometer
+        return active_select
 
 # ---------------------------
 # Charging the items
@@ -235,26 +237,32 @@ spritesheet = Spritesheet(os.path.join("Sprites png/sandtiles.png"), tile_size=3
 tilemap = Tilemap("tiles_maps/test_map.csv", spritesheet)
 ball=Ball(pygame.math.Vector2(400, 150), 7, 0.5, 0.6, pygame.math.Vector2(0, 0))
 
-previous_time = time.time()
-while running:
-    clock.tick(FPS)
-    dt = time.time() - previous_time  # Convert to seconds for frame-rate independence
+def gameplay(screen,ball,tilemap) :
+    """Important function that does the loop for a level"""
+    game = True
+    active_select = False
     previous_time = time.time()
+    while game:
+        clock.tick(FPS)
+        dt = time.time() - previous_time  # Convert to seconds for frame-rate independence
+        previous_time = time.time()
 
-    screen.fill((0, 0, 0))
-    tilemap.draw(screen)
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1 and ball.check_select(event.pos):
-                active_select = not active_select
-        in_jump = True
-        ball.handle_shooting(event)  # Gestion du tir dans la classe Ball
-    if active_select:
-        ball.draw_trajectory(10)
-    ball.moving(tilemap,dt)
-    ball.draw()
-    pygame.display.flip()
+        screen.fill((0, 0, 0))
+        tilemap.draw(screen)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                game = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1 and ball.check_select(event.pos) and not ball.is_shooting and ball.can_be_selected:
+                    active_select = not active_select
+            active_select = ball.handle_shooting(event,active_select)  # Shooting the ball
+        if active_select and not ball.is_shooting:
+            ball.draw_trajectory(10)
+        ball.moving(tilemap, dt)
+        ball.draw()
+        pygame.display.flip()
 
+while running :
+    gameplay(screen,ball, tilemap)
+    running = False
 pygame.quit()
