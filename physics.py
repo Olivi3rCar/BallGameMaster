@@ -237,23 +237,24 @@ class Ball:
 spritesheet = Spritesheet(os.path.join("Sprites png/sandtiles.png"), tile_size=32, columns=9)
 tilemap = Tilemap("tiles_maps/test_map.csv", spritesheet)
 ball=Ball(pygame.math.Vector2(400, 150), 7, 0.5, 0.6, pygame.math.Vector2(0, 0))
+image = "Sprites png/bckgroundsand.png"
 
-# ---------------------------
-# Load the background image
-# ---------------------------
-try:
-    background_image = pygame.image.load("Sprites png/bckgroundsand.png").convert() # Replace "background.png" with your image file
-    # It's a good idea to convert the image for faster blitting
-    background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
-except pygame.error as e:
-    print(f"Error loading background image: {e}")
-    background_image = None # Handle the case where the image fails to load
-
-def gameplay(screen,ball,tilemap, background):
+def gameplay(screen,ball,tilemap,background_image):
     """Important function that does the loop for a level"""
     game = True
     active_select = False
     previous_time = time.time()
+    # ---------------------------
+    # Load the background image
+    # ---------------------------
+    try:
+        background_image = pygame.image.load(background_image).convert() # Replace "background.png" with your image file
+        # It's a good idea to convert the image for faster blitting
+        background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
+    except pygame.error as e:
+        print(f"Error loading background image: {e}")
+        background_image = None # Handle the case where the image fails to load
+
     while game:
         clock.tick(FPS)
         dt = time.time() - previous_time  # Convert to seconds for frame-rate independence
@@ -262,8 +263,8 @@ def gameplay(screen,ball,tilemap, background):
         # ---------------------------
         # Draw the background first
         # ---------------------------
-        if background is not None:
-            screen.blit(background, (0, 0))
+        if background_image is not None:
+            screen.blit(background_image, (0, 0))
         else:
             screen.fill((0, 0, 0)) # If no background, fill with black
 
@@ -280,8 +281,9 @@ def gameplay(screen,ball,tilemap, background):
         ball.moving(tilemap, dt)
         ball.draw()
         pygame.display.flip()
+    return False # Indicate that the game loop has ended
 
+running = True
 while running :
-    gameplay(screen,ball, tilemap, background_image)
-    running = False
+    running = gameplay(screen,ball, tilemap,image)
 pygame.quit()
