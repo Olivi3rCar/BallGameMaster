@@ -7,8 +7,12 @@ import sys
 import pygame
 from pygame.locals import *
 import os
-from math import sin
+from math import *
 clock = pygame.time.Clock()
+from SAT_algorithm_collision import collision_check
+from tiles import *
+
+from physics import gameplay, Ball
 
 def on_button(top_left,bottom_right):
     """Getting the position of the mouse, then checking its position relative to the "hitbox" of the image
@@ -25,7 +29,7 @@ screen = pygame.display.set_mode((640,480))
 pygame.display.set_caption('Ball Game')
 
 """Getting the path to the sprites folder"""
-path=(os.path.abspath(os.path.join("./main.py", os.pardir)))
+path=os.path.abspath(os.path.join("./main.py", os.pardir))
 path=str(path)[:-10]+"Sprites png\\"
 
 """Loading all the images, some with there "dimensions" which are their positions in composite or carousel sprites"""
@@ -97,6 +101,8 @@ w3lvl4on=(144,432,48,48)
 w3lvl5off=(0,480,48,48)
 w3lvl5on=(48,480,48,48)
 
+bckE1M1=bckgroundgrass.subsurface((640,0,640,480))
+
 
 """Storing the path to every level"""
 path=path[:-12]+"Levels\\"
@@ -116,6 +122,8 @@ E3M3=path+"sand_level_3.csv"
 E3M4=path+"sand_level_4.csv"
 E3M5=path+"sand_level_5.csv"
 
+path=path[:-7]+"Sprites png\\"
+
 levels ={"grass":{1:(E1M1,(500,300)),2:(E1M2,(353,277)),3:(E1M3,(109,266)),4:(E1M4,(177,180)),5:(E1M5,(518,37))},
          "desert":{1:(E2M1,(530,302)),2:(E2M2,(96,238)),3:(E2M3,(244,200)),4:(E2M4,(378,295)),5:(E2M5,(330,54))},
          "ice":{1:(E3M1,(500,395)),2:(E3M2,(470,275)),3:(E3M3,(25,310)),4:(E3M4,(350,45)),5:(E3M5,(45,45))}}
@@ -128,9 +136,11 @@ first_frame=False
 scene = "Title"
 print("Build time : %.5s seconds" % (time.time() - start_time))
 
+ball=Ball(pygame.math.Vector2(400, 150), 7, 0.5, 0.6, pygame.math.Vector2(0, 0))
+
 while True:
-    """Capping the fps to 60"""
-    clock.tick(60)
+    """Capping the fps to 120"""
+    clock.tick(120)
 
     if scene == "Title":
         screen.fill((86, 150, 0))
@@ -232,7 +242,7 @@ while True:
             screen.blit(buttons, (470,275), w3lvl2off)
             screen.blit(buttons, (25,310), w3lvl3off)
             screen.blit(buttons, (350,45), w3lvl4off)
-            screen.blit(buttons, (45,45), w3lvl5off)
+            screen.blit(buttons, (145,45), w3lvl5off)
             first_frame=False
 
         """Checking if the cursor in on any of the buttons"""
@@ -256,10 +266,10 @@ while True:
                     else:
                         screen.blit(buttons, (350,45), w3lvl4off)
 
-                        if on_button((45,45), (93, 93)):
-                            screen.blit(buttons, (45,45), w3lvl5on)
+                        if on_button((145,45), (193, 93)):
+                            screen.blit(buttons, (145,45), w3lvl5on)
                         else:
-                            screen.blit(buttons, (45,45), w3lvl5off)
+                            screen.blit(buttons, (145,45), w3lvl5off)
 
     if scene!="Title":
         """Setting up the sprite and the logic of a button to go back in the menus"""
@@ -296,17 +306,23 @@ while True:
                     first_frame = True
 
             elif scene=="Forest":
+                spritesheet = Spritesheet(
+                    os.path.join("C:/Users/victo/PycharmProjects/BallGameMaster/Sprites png/groundtiles.png"),
+                    tile_size=32, columns=9)
+                tilemap=Tilemap(E1M1, spritesheet)
+                ball = Ball(pygame.math.Vector2(400, 150), 7, 0.5, 0.6, pygame.math.Vector2(0, 0))
+
                 for i in levels["grass"]:
                     if on_button((levels["grass"][i][1][0],levels["grass"][i][1][1]),
                                  (levels["grass"][i][1][0]+48,levels["grass"][i][1][1]+48)):
-                        print(levels["grass"][i][0])
+                        gameplay(screen, ball, tilemap, bckE1M1)
                         break
 
             elif scene=="Desert":
                 for i in levels["desert"]:
                     if on_button((levels["desert"][i][1][0],levels["desert"][i][1][1]),
                                  (levels["desert"][i][1][0]+48,levels["desert"][i][1][1]+48)):
-                        print(levels["desert"][i][0])
+                        gameplay(screen, ball, E1M1)
                         break
 
             elif scene=="Ice":
@@ -330,4 +346,5 @@ while True:
         elif event.type == MOUSEBUTTONUP:
             disable_back=False
 
+    #print(pygame.mouse.get_pos())
     pygame.display.flip()

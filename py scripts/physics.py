@@ -12,7 +12,7 @@ SCREEN_HEIGHT = 480
 FPS = 120
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.RESIZABLE)
 pygame.display.set_caption("BallMaster")
-icon = pygame.image.load("Sprites/golf-icon.png")
+icon = pygame.image.load("../Sprites/golf-icon.png")
 pygame.display.set_icon(icon)
 clock = pygame.time.Clock()
 running = True
@@ -234,10 +234,10 @@ class Ball:
 # ---------------------------
 # Charging the items
 # ---------------------------
-spritesheet = Spritesheet(os.path.join("Sprites png/sandtiles.png"), tile_size=32, columns=9)
-tilemap = Tilemap("tiles_maps/test_map.csv", spritesheet)
+spritesheet = Spritesheet(os.path.join("C:/Users/victo/PycharmProjects/BallGameMaster/Sprites png/sandtiles.png"), tile_size=32, columns=9)
+tilemap = Tilemap("..\\tiles_maps\\test_map.csv", spritesheet)
 ball=Ball(pygame.math.Vector2(400, 150), 7, 0.5, 0.6, pygame.math.Vector2(0, 0))
-image = "Sprites png/bckgroundsand.png"
+image = "C:/Users/victo/PycharmProjects/BallGameMaster/Sprites png/bckgroundsand.png"
 
 def gameplay(screen,ball,tilemap,background_image):
     """Important function that does the loop for a level"""
@@ -247,13 +247,23 @@ def gameplay(screen,ball,tilemap,background_image):
     # ---------------------------
     # Load the background image
     # ---------------------------
-    try:
-        background_image = pygame.image.load(background_image).convert() # Replace "background.png" with your image file
-        # It's a good idea to convert the image for faster blitting
-        background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
-    except pygame.error as e:
-        print(f"Error loading background image: {e}")
-        background_image = None # Handle the case where the image fails to load
+
+
+
+
+
+    # try:
+    #     background_image = pygame.image.load(background_image).convert() # Replace "background.png" with your image file
+    #     # It's a good idea to convert the image for faster blitting
+    #     background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
+    # except pygame.error as e:
+    #     print(f"Error loading background image: {e}")
+    #     background_image = None # Handle the case where the image fails to load
+
+
+
+
+
 
     while game:
         clock.tick(FPS)
@@ -284,6 +294,6 @@ def gameplay(screen,ball,tilemap,background_image):
     return False # Indicate that the game loop has ended
 
 running = True
-while running :
-    running = gameplay(screen,ball, tilemap,image)
-pygame.quit()
+# while running :
+#     running = gameplay(screen,ball, tilemap,image)
+# pygame.quit()
