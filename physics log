@@ -64,6 +64,8 @@ if tile_index in [22,23,24,25,26]        if in [22,23] : angle = 116.6
 
 10/04 : frictions are finished, we just need to comment the code and tidy it up
 
+14/04 : loading the image background, and putting the whole code in a function for a better merge
+
 function used in debug : def draw_hitbox(ball, tile):
     if collision_check(tile.vertices, (ball.pos.x, ball.pos.y), ball.radius):
         pygame.draw.polygon(screen, "green", tile.vertices)
