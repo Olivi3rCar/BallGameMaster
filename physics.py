@@ -1,5 +1,6 @@
 import pygame
 import time
+import os
 from SAT_algorithm_collision import *
 from tiles import *
 # ---------------------------
@@ -237,7 +238,18 @@ spritesheet = Spritesheet(os.path.join("Sprites png/sandtiles.png"), tile_size=3
 tilemap = Tilemap("tiles_maps/test_map.csv", spritesheet)
 ball=Ball(pygame.math.Vector2(400, 150), 7, 0.5, 0.6, pygame.math.Vector2(0, 0))
 
-def gameplay(screen,ball,tilemap) :
+# ---------------------------
+# Load the background image
+# ---------------------------
+try:
+    background_image = pygame.image.load("Sprites png/bckgroundsand.png").convert() # Replace "background.png" with your image file
+    # It's a good idea to convert the image for faster blitting
+    background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
+except pygame.error as e:
+    print(f"Error loading background image: {e}")
+    background_image = None # Handle the case where the image fails to load
+
+def gameplay(screen,ball,tilemap, background):
     """Important function that does the loop for a level"""
     game = True
     active_select = False
@@ -247,7 +259,14 @@ def gameplay(screen,ball,tilemap) :
         dt = time.time() - previous_time  # Convert to seconds for frame-rate independence
         previous_time = time.time()
 
-        screen.fill((0, 0, 0))
+        # ---------------------------
+        # Draw the background first
+        # ---------------------------
+        if background is not None:
+            screen.blit(background, (0, 0))
+        else:
+            screen.fill((0, 0, 0)) # If no background, fill with black
+
         tilemap.draw(screen)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -263,6 +282,6 @@ def gameplay(screen,ball,tilemap) :
         pygame.display.flip()
 
 while running :
-    gameplay(screen,ball, tilemap)
+    gameplay(screen,ball, tilemap, background_image)
     running = False
 pygame.quit()
