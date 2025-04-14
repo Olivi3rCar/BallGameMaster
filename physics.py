@@ -31,7 +31,7 @@ class Ball:
         self.velocity = velocity
         self.v0 = None
         self.normal_vector = pygame.math.Vector2(0,0)
-        self.biome = "forest" #Used to determine the coefficient of friction
+        self.biome = "desert" #Used to determine the coefficient of friction
         self.is_shooting = False # New attribute to track if the ball is being shot
         self.can_be_selected = True
 
