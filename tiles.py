@@ -3,9 +3,9 @@ import csv
 import os
 
 def grow_hitbox(vertices, factor=1.0):
+    """Artificially grows or shrinks the hitbox of the tiles"""
     center_x = sum(v[0] for v in vertices) / len(vertices)
     center_y = sum(v[1] for v in vertices) / len(vertices)
-
     new_vertices = []
     for v in vertices:
         direction_x = v[0] - center_x
@@ -21,6 +21,7 @@ def grow_hitbox(vertices, factor=1.0):
 # ---------------------------
 class Spritesheet:
     def __init__(self, filename, tile_size=32, columns=9):
+        """Creation of the spritesheet from the png image"""
         self.spritesheet = pygame.image.load(filename).convert_alpha()
         self.tile_size = tile_size
         self.columns = columns
@@ -30,28 +31,28 @@ class Spritesheet:
         y = (index // self.columns) * self.tile_size
         return self.spritesheet.subsurface((x, y, self.tile_size, self.tile_size))
 
-
 # ---------------------------
 # Class Tile
 # ---------------------------
 class Tile(pygame.sprite.Sprite):
     def __init__(self, tile_index, x, y, spritesheet):
+        """Creation of the tiles"""
         pygame.sprite.Sprite.__init__(self)
         self.image = spritesheet.get_tile(tile_index)
         self.rect = self.image.get_rect()
         self.rect.x, self.rect.y = x, y
         self.x, self.y = x, y
         self.vertices = []
-        self.angle = 0
-        self.index = tile_index
-        self.attribution()
-        self.priority = 0
+        self.index = tile_index #So we know which kind of tiles we have
+        self.attribution() #Absolute pain
 
     def attribution(self):
+        """Pain, eternal pain
+        Creates the hitbox of each tile, I had to count myself each pixel of the sides"""
         x, y = self.rect.x, self.rect.y
 
-        # Pour les tuiles 0 à 4, on garde un factor=1.0 (ou la valeur par défaut)
-        # Pour les autres (5 à 26), on applique factor=1.1 (ajustable) afin de "gonfler" la hitbox.
+        """We shrink the squares, while growing the slopes, so squares under the slope
+        will not interfere with the ball's movement"""
         tile_vertices = {
             0: grow_hitbox([(x + 32, y), (x + 32, y + 32),
                             (x, y + 32), (x, y)], 0.9),
@@ -118,37 +119,22 @@ class Tile(pygame.sprite.Sprite):
                             (x, y + 15), (x, y)], 0.9),
             31: grow_hitbox([(x + 32, y), (x + 32, y + 15),
                             (x, y + 15), (x, y)], 0.9)
-
         }
 
-        # Assigne ensuite la liste de sommets à self.vertices
+        # Assign the vertices
         self.vertices = tile_vertices[self.index]
-
-        # Par exemple, si tu veux toujours mettre priority=1
-        # pour les tiles non 0..4 :
-        if self.index not in [0, 1, 2, 3, 4]:
-            self.priority = 1
-        else:
-            self.priority = 0
-
-        self.vertices = tile_vertices[self.index]
-        if self.index not in [0, 1, 2, 3, 4]:
-            self.priority = 1
-        else:
-            self.priority = 0
-
-
-
 
 # ---------------------------
 # Class Tilemap
 # ---------------------------
 class Tilemap:
+    """Creates the tilemap """
     def __init__(self, filename, spritesheet):
         self.tile_size = 32
         self.tiles = self.load_tiles(filename, spritesheet)
 
     def read_csv(self, filename):
+        """Reads the data of the level in a csv file"""
         map_data = []
         with open(filename) as data:
             reader = csv.reader(data, delimiter=',')
@@ -157,6 +143,7 @@ class Tilemap:
         return map_data
 
     def load_tiles(self, filename, spritesheet):
+        """Creation of the tilemap"""
         tiles = []
         tile_map = self.read_csv(filename)
         y = 0
@@ -171,5 +158,6 @@ class Tilemap:
         return tiles
 
     def draw(self, surface):
+        """Drawing the tilemap"""
         for tile in self.tiles:
             surface.blit(tile.image, (tile.rect.x, tile.rect.y))
