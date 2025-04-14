@@ -248,7 +248,7 @@ def gameplay(screen,ball,tilemap,background_image):
     # Load the background image
     # ---------------------------
     try:
-        background_image = pygame.image.load(background_image).convert() # Replace "background.png" with your image file
+        background_image = pygame.image.load(background_image).convert() #Load the background
         # It's a good idea to convert the image for faster blitting
         background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
     except pygame.error as e:
