@@ -259,15 +259,11 @@ def gameplay(screen,ball,tilemap,background_image):
         clock.tick(FPS)
         dt = time.time() - previous_time  # Convert to seconds for frame-rate independence
         previous_time = time.time()
-
-        # ---------------------------
-        # Draw the background first
-        # ---------------------------
         if background_image is not None:
             screen.blit(background_image, (0, 0))
         else:
             screen.fill((0, 0, 0)) # If no background, fill with black
-
+        tilemap.update_tiles()
         tilemap.draw(screen)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
