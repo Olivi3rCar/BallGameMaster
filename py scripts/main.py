@@ -102,7 +102,10 @@ w3lvl5off=(0,480,48,48)
 w3lvl5on=(48,480,48,48)
 
 bckE1M1=bckgroundgrass.subsurface((640,0,640,480))
-
+bckE1M2=bckgroundgrass.subsurface((1280,0,640,480))
+bckE1M3=bckgroundgrass.subsurface((1920,0,640,480))
+bckE1M4=bckgroundgrass.subsurface((2560,0,640,480))
+bckE1M5=bckgroundgrass.subsurface((3200,0,640,480))
 
 """Storing the path to every level"""
 path=path[:-12]+"Levels\\"
@@ -273,9 +276,7 @@ while True:
 
     if scene!="Title":
         """Setting up the sprite and the logic of a button to go back in the menus"""
-        if first_frame:
-            screen.blit(buttons, (0,0), gobackbuttonoff)
-            first_frame=False
+        screen.blit(buttons, (0,0), gobackbuttonoff)
 
         if on_button((0,0),(48,48)):
             screen.blit(buttons, (0,0), gobackbuttonon)
@@ -312,11 +313,31 @@ while True:
                 tilemap=Tilemap(E1M1, spritesheet)
                 ball = Ball(pygame.math.Vector2(400, 150), 7, 0.5, 0.6, pygame.math.Vector2(0, 0))
 
-                for i in levels["grass"]:
-                    if on_button((levels["grass"][i][1][0],levels["grass"][i][1][1]),
-                                 (levels["grass"][i][1][0]+48,levels["grass"][i][1][1]+48)):
-                        gameplay(screen, ball, tilemap, bckE1M1)
-                        break
+                if on_button((levels["grass"][1][1][0],levels["grass"][1][1][1]),
+                                 (levels["grass"][1][1][0]+48,levels["grass"][1][1][1]+48)):
+                    gameplay(screen, ball, Tilemap(E1M1, spritesheet), bckE1M1)
+                    scene="GrassLevel"
+                elif on_button((levels["grass"][2][1][0],levels["grass"][2][1][1]),
+                                 (levels["grass"][2][1][0]+48,levels["grass"][2][1][1]+48)):
+                    gameplay(screen, ball, Tilemap(E1M2, spritesheet), bckE1M2)
+                    scene="GrassLevel"
+
+                elif on_button((levels["grass"][3][1][0],levels["grass"][3][1][1]),
+                                 (levels["grass"][3][1][0]+48,levels["grass"][3][1][1]+48)):
+                    gameplay(screen, ball, Tilemap(E1M2, spritesheet), bckE1M3)
+                    scene="GrassLevel"
+
+                elif on_button((levels["grass"][4][1][0],levels["grass"][4][1][1]),
+                                 (levels["grass"][4][1][0]+48,levels["grass"][4][1][1]+48)):
+                    gameplay(screen, ball, Tilemap(E1M2, spritesheet), bckE1M4)
+                    scene="GrassLevel"
+
+                elif on_button((levels["grass"][5][1][0],levels["grass"][5][1][1]),
+                                 (levels["grass"][5][1][0]+48,levels["grass"][5][1][1]+48)):
+                    gameplay(screen, ball, Tilemap(E1M2, spritesheet), bckE1M5)
+                    scene="GrassLevel"
+
+
 
             elif scene=="Desert":
                 for i in levels["desert"]:
@@ -335,6 +356,9 @@ while True:
             if on_button((0,0),(48,48)) and disable_back==False:
                 if scene=="Forest" or scene=="Desert" or scene=="Ice":
                     scene="World Selection"
+
+                elif scene=="Levelgrass":
+                    scene="Forest"
 
                 elif scene=="World Selection":
                     scene="Title"
