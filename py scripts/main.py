@@ -12,17 +12,7 @@ clock = pygame.time.Clock()
 from SAT_algorithm_collision import collision_check
 from tiles import *
 
-from physics import gameplay, Ball
-
-def on_button(top_left,bottom_right):
-    """Getting the position of the mouse, then checking its position relative to the "hitbox" of the image
-    :param top_left: int couple: the position of the top left corner of the image
-    :param bottom_right: int couple: the position of the bottom right of the image
-    :return: bool: if the mouse is on the image or not
-    """
-    mouse_x, mouse_y = pygame.mouse.get_pos()
-    if (top_left[0]<mouse_x<bottom_right[0]) and (top_left[1]<mouse_y<bottom_right[1]):
-        return True
+from physics import gameplay, Ball, on_button
 
 """Initialization of the game window and the target frames per second"""
 screen = pygame.display.set_mode((640,480))
@@ -113,11 +103,11 @@ bckE2M3=bckgroundsand.subsurface((1920,0,640,480))
 bckE2M4=bckgroundsand.subsurface((2560,0,640,480))
 bckE2M5=bckgroundsand.subsurface((3200,0,640,480))
 
-bckE3M1=bckgroundice.subsurface((640,0,640,480))
-bckE3M2=bckgroundice.subsurface((1280,0,640,480))
-bckE3M3=bckgroundice.subsurface((1920,0,640,480))
-bckE3M4=bckgroundice.subsurface((2560,0,640,480))
-bckE3M5=bckgroundice.subsurface((3200,0,640,480))
+# bckE3M1=bckgroundice.subsurface((640,0,640,480))
+# bckE3M2=bckgroundice.subsurface((1280,0,640,480))
+# bckE3M3=bckgroundice.subsurface((1920,0,640,480))
+# bckE3M4=bckgroundice.subsurface((2560,0,640,480))
+# bckE3M5=bckgroundice.subsurface((3200,0,640,480))
 
 """Storing the path to every level"""
 path=path[:-12]+"Levels\\"
@@ -136,7 +126,6 @@ E3M2=path+"ice_level_2.csv"
 E3M3=path+"ice_level_3.csv"
 E3M4=path+"ice_level_4.csv"
 E3M5=path+"ice_level_5.csv"
-
 
 path=path[:-7]+"Sprites png\\"
 
@@ -326,8 +315,9 @@ while True:
 
                 if on_button((levels["grass"][1][1][0],levels["grass"][1][1][1]),
                                  (levels["grass"][1][1][0]+48,levels["grass"][1][1][1]+48)):
-                    gameplay(screen, ball, Tilemap(E1M1, spritesheet), bckE1M1)
                     scene="GrassLevel"
+
+                    gameplay(screen, ball, Tilemap(E1M1, spritesheet), bckE1M1)
                 elif on_button((levels["grass"][2][1][0],levels["grass"][2][1][1]),
                                  (levels["grass"][2][1][0]+48,levels["grass"][2][1][1]+48)):
                     gameplay(screen, ball, Tilemap(E1M2, spritesheet), bckE1M2)
@@ -347,6 +337,8 @@ while True:
                                  (levels["grass"][5][1][0]+48,levels["grass"][5][1][1]+48)):
                     gameplay(screen, ball, Tilemap(E1M5, spritesheet), bckE1M5)
                     scene="GrassLevel"
+                scene="Forest"
+                first_frame=True
 
 
 
@@ -380,41 +372,41 @@ while True:
                     gameplay(screen, ball, Tilemap(E2M5, spritesheet), bckE2M5)
                     scene = "SandLevel"
 
-            elif scene=="Ice":
-                spritesheet = Spritesheet(
-                    os.path.join("C:/Users/victo/PycharmProjects/BallGameMaster/Sprites png/icetiles.png"),
-                    tile_size=32, columns=11)
-                ball = Ball(pygame.math.Vector2(400, 150), 7, 0.5, 0.7, pygame.math.Vector2(0, 0))
-
-                if on_button((levels["ice"][1][1][0], levels["ice"][1][1][1]),
-                             (levels["ice"][1][1][0] + 48, levels["ice"][1][1][1] + 48)):
-                    gameplay(screen, ball, Tilemap(E3M1, spritesheet), bckE3M1)
-                    scene = "IceLevel"
-                elif on_button((levels["ice"][2][1][0], levels["ice"][2][1][1]),
-                               (levels["ice"][2][1][0] + 48, levels["ice"][2][1][1] + 48)):
-                    gameplay(screen, ball, Tilemap(E3M2, spritesheet), bckE3M2)
-                    scene = "IceLevel"
-
-                elif on_button((levels["ice"][3][1][0], levels["ice"][3][1][1]),
-                               (levels["ice"][3][1][0] + 48, levels["ice"][3][1][1] + 48)):
-                    gameplay(screen, ball, Tilemap(E3M3, spritesheet), bckE3M3)
-                    scene = "IceLevel"
-
-                elif on_button((levels["ice"][4][1][0], levels["ice"][4][1][1]),
-                               (levels["ice"][4][1][0] + 48, levels["ice"][4][1][1] + 48)):
-                    gameplay(screen, ball, Tilemap(E3M4, spritesheet), bckE3M4)
-                    scene = "IceLevel"
-
-                elif on_button((levels["ice"][5][1][0], levels["ice"][5][1][1]),
-                               (levels["ice"][5][1][0] + 48, levels["ice"][5][1][1] + 48)):
-                    gameplay(screen, ball, Tilemap(E3M5, spritesheet), bckE3M5)
-                    scene = "IceLevel"
+            # elif scene=="Ice":
+            #     spritesheet = Spritesheet(
+            #         os.path.join("C:/Users/victo/PycharmProjects/BallGameMaster/Sprites png/icetiles.png"),
+            #         tile_size=32, columns=11)
+            #     ball = Ball(pygame.math.Vector2(400, 150), 7, 0.5, 0.7, pygame.math.Vector2(0, 0))
+            #
+            #     if on_button((levels["ice"][1][1][0], levels["ice"][1][1][1]),
+            #                  (levels["ice"][1][1][0] + 48, levels["ice"][1][1][1] + 48)):
+            #         gameplay(screen, ball, Tilemap(E3M1, spritesheet), bckE3M1)
+            #         scene = "IceLevel"
+            #     elif on_button((levels["ice"][2][1][0], levels["ice"][2][1][1]),
+            #                    (levels["ice"][2][1][0] + 48, levels["ice"][2][1][1] + 48)):
+            #         gameplay(screen, ball, Tilemap(E3M2, spritesheet), bckE3M2)
+            #         scene = "IceLevel"
+            #
+            #     elif on_button((levels["ice"][3][1][0], levels["ice"][3][1][1]),
+            #                    (levels["ice"][3][1][0] + 48, levels["ice"][3][1][1] + 48)):
+            #         gameplay(screen, ball, Tilemap(E3M3, spritesheet), bckE3M3)
+            #         scene = "IceLevel"
+            #
+            #     elif on_button((levels["ice"][4][1][0], levels["ice"][4][1][1]),
+            #                    (levels["ice"][4][1][0] + 48, levels["ice"][4][1][1] + 48)):
+            #         gameplay(screen, ball, Tilemap(E3M4, spritesheet), bckE3M4)
+            #         scene = "IceLevel"
+            #
+            #     elif on_button((levels["ice"][5][1][0], levels["ice"][5][1][1]),
+            #                    (levels["ice"][5][1][0] + 48, levels["ice"][5][1][1] + 48)):
+            #         gameplay(screen, ball, Tilemap(E3M5, spritesheet), bckE3M5)
+            #         scene = "IceLevel"
 
             if on_button((0,0),(48,48)) and disable_back==False:
                 if scene=="Forest" or scene=="Desert" or scene=="Ice":
                     scene="World Selection"
 
-                elif scene=="Levelgrass":
+                elif scene[-5:]=="Level":
                     scene="Forest"
 
                 elif scene=="World Selection":
@@ -428,4 +420,5 @@ while True:
             disable_back=False
 
     #print(pygame.mouse.get_pos())
+    print(scene)
     pygame.display.flip()

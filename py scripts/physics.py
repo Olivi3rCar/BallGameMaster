@@ -17,10 +17,27 @@ pygame.display.set_icon(icon)
 clock = pygame.time.Clock()
 running = True
 
+"""Getting the path to the sprites folder"""
+path=os.path.abspath(os.path.join("./main.py", os.pardir))
+path=str(path)[:-10]+"Sprites png\\"
+buttons=pygame.image.load(path+"Buttons.png")
+buttons = pygame.transform.scale(buttons, (3 * buttons.get_width(), 3 * buttons.get_height()))
+gobackbuttonoff=(0,0,48,48)
+gobackbuttonon=(48,0,48,48)
+disable_back=False
+
 # ---------------------------
 # Class Ball
 # ---------------------------
-
+def on_button(top_left,bottom_right):
+    """Getting the position of the mouse, then checking its position relative to the "hitbox" of the image
+    :param top_left: int couple: the position of the top left corner of the image
+    :param bottom_right: int couple: the position of the bottom right of the image
+    :return: bool: if the mouse is on the image or not
+    """
+    mouse_x, mouse_y = pygame.mouse.get_pos()
+    if (top_left[0]<mouse_x<bottom_right[0]) and (top_left[1]<mouse_y<bottom_right[1]):
+        return True
 
 class Ball:
     """Creation of our ball"""
@@ -270,12 +287,24 @@ def gameplay(screen,ball,tilemap,background_image):
             screen.fill((0, 0, 0)) # If no background, fill with black
 
         tilemap.draw(screen)
+        print("haha bonjour :)")
+
+        if on_button((0,0),(48,48)):
+            screen.blit(buttons, (0,0), gobackbuttonon)
+        else:
+            screen.blit(buttons, (0,0), gobackbuttonoff)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 game = False
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1 and ball.check_select(event.pos) and not ball.is_shooting and ball.can_be_selected:
                     active_select = not active_select
+                if on_button((0, 0), (48, 48)) and disable_back == False:
+                    disable_back = True
+                    game=False
+            elif event.type == pygame.MOUSEBUTTONUP:
+                disable_back = False
+
             active_select = ball.handle_shooting(event,active_select)  # Shooting the ball
         if active_select and not ball.is_shooting:
             ball.draw_trajectory(10)
