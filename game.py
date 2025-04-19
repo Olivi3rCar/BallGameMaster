@@ -34,7 +34,7 @@ class Ball:
         self.is_shooting = False  # Nouvel attribut pour suivre si la balle est tirée
         self.can_be_selected = True
         self.ice_contact_timer = None  # Timer pour le contact avec la glace
-        self.last_ice_tile = None     # Référence au dernier bloc de glace touché
+        self.last_ice_tile = None  # Référence au dernier bloc de glace touché
 
     def draw(self):
         """Dessine la balle à l'écran"""

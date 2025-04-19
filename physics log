@@ -71,4 +71,4 @@ function used in debug : def draw_hitbox(ball, tile):
     if collision_check(tile.vertices, (ball.pos.x, ball.pos.y), ball.radius):
         pygame.draw.polygon(screen, "green", tile.vertices)
 
-
+15/04 : Ice tiles can break

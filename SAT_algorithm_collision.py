@@ -9,11 +9,9 @@ def Axis(A, B):
     v = math.hypot(n[0], n[1])  # Computation of the norm
     return [n[0] / v, n[1] / v] if v != 0 else [0, 0]
 
-
 def projection(point, axis):
     """Returns the projection of a scalar on an axis"""
     return point[0] * axis[0] + point[1] * axis[1]
-
 
 def collision_check(vertices, circle_center, circle_radius):
     """Check the collisions between a convex polygon and a circle"""
@@ -28,7 +26,6 @@ def collision_check(vertices, circle_center, circle_radius):
         B = vertices[(i + 1) % len(vertices)]
         axis = Axis(A, B)
         axes.append(axis)
-
 
     for axis in axes:
         min_poly = max_poly = projection(vertices[0], axis)
