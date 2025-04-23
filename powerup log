@@ -1,28 +1,27 @@
-Since i didn't have the physics necessary at first to make my powerups accordingly,
+10/02 Since i didn't have the physics necessary at first to make my powerups accordingly,
 i simply made a very simple algorithm to make the ball go in an arc,
 i then made my sticky powerup but i struggled at first because the ball either was stuck
 before even launching or didn't even stick.But after a while i finally made it stick when it landed.
 
-Couple weeks pass, i finally had the physics (thanks to jalil) and had to remake the powerup from scratch)
+3/03, i finally had the physics (thanks to jalil) and had to remake the powerup from scratch)
 because it didn't work with the new code.
 The main problem i encountered is that if the ball spawned directly with the sticky power
 launching it became impossible because the ball
 was already stuck to the ground before even hitting it. I then decided to have a key in order to
 turn it off and on so it didn't cause any problem (press the A key).
 
-Made a fast fall powerup (still in testing area still imperfect) press e to activate it and turn the ball blue i just need to wait until i have the maps ready so i can
+17/03Made a fast fall powerup (still in testing area still imperfect) press e to activate it and turn the ball blue i just need to wait until i have the maps ready so i can
 modify it accordingly.
-
 slightly tweaked the physics because the ball was way too bouncy for a golf ball so i changed it a bit
-
-
-
 imported and slightly tweaked the fast fall and sticky ball powerups to work with the new physics (collisions/tiles)
 
-made the bouncy ball powerup but still need some work as the collisions are still a mess as of now
+
+7/04 made the bouncy ball powerup but still need some work as the collisions are still a mess as of now
 (the ball goes through walls)(press z to use) also added a ball reset keybind (R) so when the ball
 just phases through the walls i can bring it back,it's still far from done because i need to reset it
 depending on the spawn points but because i don't have spawns yet i just made it come back to the center
 of the map
 
 still need to comment most of the code but the hour ended
+
+
