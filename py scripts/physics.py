@@ -103,7 +103,7 @@ class Ball:
         if self.is_on_valid_surface(): #We check if there is a need for the frictions
             tangential_speed = self.velocity.dot(tangent_vector)
             frictions_coefficients = {"desert" : 0.4,"iceland" : 0.1, "forest" : 0.2}
-            coefficient_of_friction = frictions_coefficients[biome]
+            coefficient_of_friction = frictions_coefficients[self.biome]
 
             # If speed is too low, we just reset it
             if abs(tangential_speed) < 0.1:
@@ -253,7 +253,7 @@ class Ball:
 # ---------------------------
 spritesheet = Spritesheet(os.path.join("C:/Users/victo/PycharmProjects/BallGameMaster/Sprites png/sandtiles.png"), tile_size=32, columns=9)
 tilemap = Tilemap("..\\tiles_maps\\test_map.csv", spritesheet)
-ball=Ball(pygame.math.Vector2(400, 150), 7, 0.5, 0.6, pygame.math.Vector2(0, 0))
+ball=Ball(pygame.math.Vector2(400, 150), 7, 0.5, 0.6, pygame.math.Vector2(0, 0),"forest")
 image = "C:/Users/victo/PycharmProjects/BallGameMaster/Sprites png/bckgroundsand.png"
 
 def gameplay(screen,ball,tilemap,background_image):

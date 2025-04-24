@@ -136,8 +136,6 @@ posy= screen.get_rect().centery
 first_frame=False
 scene = "Title"
 
-ball=Ball(pygame.math.Vector2(400, 150), 7, 0.5, 0.6, pygame.math.Vector2(0, 0))
-
 while True:
     """Capping the fps to 120"""
     clock.tick(120)
