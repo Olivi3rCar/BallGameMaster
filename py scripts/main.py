@@ -305,7 +305,7 @@ while True:
             elif scene=="Forest":
                 spritesheet = Spritesheet(os.path.join("C:/Users/victo/PycharmProjects/BallGameMaster/Sprites png/groundtiles.png"),
                     tile_size=32, columns=9)
-                ball = Ball(pygame.math.Vector2(400, 150), 7, 0.5, 0.6, pygame.math.Vector2(0, 0))
+                ball = Ball(pygame.math.Vector2(400, 150), 7, 0.5, 0.6, pygame.math.Vector2(0, 0),"forest")
 
                 if on_button((levels["grass"][1][1][0],levels["grass"][1][1][1]),
                                  (levels["grass"][1][1][0]+48,levels["grass"][1][1][1]+48)):
@@ -336,7 +336,7 @@ while True:
                 spritesheet = Spritesheet(
                     os.path.join("C:/Users/victo/PycharmProjects/BallGameMaster/Sprites png/sandtiles.png"),
                     tile_size=32, columns=9)
-                ball = Ball(pygame.math.Vector2(400, 150), 7, 0.5, 0.4, pygame.math.Vector2(0, 0))
+                ball = Ball(pygame.math.Vector2(400, 150), 7, 0.5, 0.6, pygame.math.Vector2(0, 0),"desert")
 
                 if on_button((levels["desert"][1][1][0], levels["desert"][1][1][1]),
                              (levels["desert"][1][1][0] + 48, levels["desert"][1][1][1] + 48)):
@@ -366,7 +366,7 @@ while True:
                 spritesheet = Spritesheet(
                     os.path.join("C:/Users/victo/PycharmProjects/BallGameMaster/Sprites png/icetiles.png"),
                     tile_size=32, columns=11)
-                ball = Ball(pygame.math.Vector2(400, 150), 7, 0.5, 0.7, pygame.math.Vector2(0, 0))
+                ball = Ball(pygame.math.Vector2(400, 150), 7, 0.5, 0.6, pygame.math.Vector2(0, 0),"iceland")
 
                 if on_button((levels["ice"][1][1][0], levels["ice"][1][1][1]),
                              (levels["ice"][1][1][0] + 48, levels["ice"][1][1][1] + 48)):

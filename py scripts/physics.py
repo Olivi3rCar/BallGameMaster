@@ -41,7 +41,7 @@ def on_button(top_left,bottom_right):
 
 class Ball:
     """Creation of our ball"""
-    def __init__(self, pos, radius, mass, retention, velocity):
+    def __init__(self, pos, radius, mass, retention, velocity, biome):
         self.pos = pos
         self.radius = radius
         self.mass = mass
@@ -49,7 +49,7 @@ class Ball:
         self.velocity = velocity
         self.v0 = None
         self.normal_vector = pygame.math.Vector2(0,0)
-        self.biome = "desert" #Used to determine the coefficient of friction
+        self.biome = biome #Used to determine the coefficient of friction
         self.is_shooting = False # New attribute to track if the ball is being shot
         self.can_be_selected = True
 
@@ -103,7 +103,7 @@ class Ball:
         if self.is_on_valid_surface(): #We check if there is a need for the frictions
             tangential_speed = self.velocity.dot(tangent_vector)
             frictions_coefficients = {"desert" : 0.4,"iceland" : 0.1, "forest" : 0.2}
-            coefficient_of_friction = frictions_coefficients[self.biome]
+            coefficient_of_friction = frictions_coefficients[biome]
 
             # If speed is too low, we just reset it
             if abs(tangential_speed) < 0.1:
