@@ -287,7 +287,6 @@ def gameplay(screen,ball,tilemap,background_image):
             screen.fill((0, 0, 0)) # If no background, fill with black
 
         tilemap.draw(screen)
-        print("haha bonjour :)")
 
         if on_button((0,0),(48,48)):
             screen.blit(buttons, (0,0), gobackbuttonon)
