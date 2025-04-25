@@ -261,17 +261,6 @@ def gameplay(screen,ball,tilemap,background_image):
     game = True
     active_select = False
     previous_time = time.time()
-    # ---------------------------
-    # Load the background image
-    # ---------------------------
-
-    # try:
-    #     background_image = pygame.image.load(background_image).convert() # Replace "background.png" with your image file
-    #     # It's a good idea to convert the image for faster blitting
-    #     background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
-    # except pygame.error as e:
-    #     print(f"Error loading background image: {e}")
-    #     background_image = None # Handle the case where the image fails to load
 
     while game:
         clock.tick(FPS)
@@ -311,8 +300,3 @@ def gameplay(screen,ball,tilemap,background_image):
         ball.draw()
         pygame.display.flip()
     return False # Indicate that the game loop has ended
-
-# running = True
-# while running :
-#     running = gameplay(screen,ball, tilemap,image)
-# pygame.quit()

@@ -143,7 +143,7 @@ while True:
     if scene == "Title":
         screen.fill((86, 150, 0))
 
-        """Messing with the size of the splash text to make it BoUnCy"""
+        """Messing with the size of the splash text to make it bouncy"""
         splashscale=0.4*sin(x)+2.5
         x+=1/40
         splashdisp=pygame.transform.scale(splash,(splashscale*splash.get_width(),splashscale*splash.get_height()))
@@ -199,6 +199,7 @@ while True:
                             screen.blit(buttons, (518,37), w1lvl5off)
 
     elif scene == "Desert":
+        """Printing the background and buttons only on the first frame"""
         if first_frame:
             screen.blit(bckgroundsand, (0,0), bckground_dim)
             screen.blit(buttons,(530,302) , w2lvl1off)
@@ -208,6 +209,7 @@ while True:
             screen.blit(buttons, (330,54), w2lvl5off)
             first_frame=False
 
+        """Checking if the cursor in on any of the buttons, then changing one of them is the mouse is hovering one"""
         if on_button((530,302), (578, 350)):
             screen.blit(buttons, (530,302), w2lvl1on)
         else:
@@ -234,6 +236,7 @@ while True:
                             screen.blit(buttons, (330,54), w2lvl5off)
 
     elif scene == "Ice":
+        """Printing the background and buttons only on the first frame"""
         if first_frame:
             screen.blit(bckgroundice, (0,0), bckground_dim)
             screen.blit(buttons, (500,395), w3lvl1off)
@@ -243,6 +246,7 @@ while True:
             screen.blit(buttons, (145,45), w3lvl5off)
             first_frame=False
 
+        """Checking if the cursor in on any of the buttons, then changing one of them is the mouse is hovering one"""
         if on_button((500,395), (548, 443)):
             screen.blit(buttons, (500,395), w3lvl1on)
         else:
@@ -269,7 +273,7 @@ while True:
                             screen.blit(buttons, (145,45), w3lvl5off)
 
     if scene!="Title":
-        """Setting up the sprite and the logic of a button to go back in the menus"""
+        """Setting up the sprite of a button to go back in the menus"""
         screen.blit(buttons, (0,0), gobackbuttonoff)
 
         if on_button((0,0),(48,48)):
@@ -279,6 +283,7 @@ while True:
 
     for event in pygame.event.get():
 
+        """Setting up the logic for exiting the game, by pressing the escape or exiting the window manually"""
         if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
             pygame.quit()
             sys.exit()
@@ -300,6 +305,9 @@ while True:
                     scene="Ice"
                     first_frame = True
 
+
+
+                """Setting up the transtition between the level selection and the levels themselves"""
             elif scene=="Forest":
                 spritesheet = Spritesheet(os.path.join("C:/Users/victo/PycharmProjects/BallGameMaster/Sprites png/groundtiles.png"),
                     tile_size=32, columns=9)
@@ -390,6 +398,7 @@ while True:
                     gameplay(screen, ball, Tilemap(E3M5, spritesheet), bckE3M5)
                     scene = "IceLevel"
 
+                """Setting up the logic of the button to go back in the menus"""
             if on_button((0,0),(48,48)) and disable_back==False:
                 if scene=="Forest" or scene=="Desert" or scene=="Ice":
                     scene="World Selection"
@@ -413,5 +422,4 @@ while True:
         elif event.type == MOUSEBUTTONUP:
             disable_back=False
 
-    #print(pygame.mouse.get_pos())
     pygame.display.flip()
