@@ -12,6 +12,10 @@ As for gravity and frictions, we set basic conditions that influence vx and vy:
 -Is the ball on the ground and does it move?
 
 17/02 SAT algorithm to detect collisions finished
+
+This version of SAT is working with a circle and a whatever polygon you choose, as long as you specify its vertices 
+
+
 -22/02  frictions on the ground are good and we can "choose v0" by pressing the space bar for a certain amount of time
 
 Now the biggest difficulty by far, is to make all of this work with tiles, including slopes
@@ -60,7 +64,6 @@ for the 4 last tiles, they were updated later
 
 
 26/03 : We're finally seeing the light in the tunnel, while the physics is still wacky, it mostly works
-                    print("Collision detected",tile_key.index,self.normal_vector, "Current speed :",self.velocity,tangent_vector)
 03/04 : finally we can shoot without much problem
 
 10/04 : frictions are finished, we just need to comment the code and tidy it up
@@ -72,3 +75,10 @@ function used in debug : def draw_hitbox(ball, tile):
         pygame.draw.polygon(screen, "green", tile.vertices)
 
 15/04 : Ice tiles can break
+
+
+Major difficulties : -creating a realistic physic, with good frictions
+                     -SAT algorithm
+                     -vertices of the tiles were determined by counting manually the pixels
+
+weakness : To ensure a smooth and seamless movement, 120 fps must be enabled. Otherwise, the ball may go through the walls
