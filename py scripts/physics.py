@@ -102,7 +102,7 @@ class Ball:
         """Manages the frictions"""
         if self.is_on_valid_surface(): #We check if there is a need for the frictions
             tangential_speed = self.velocity.dot(tangent_vector)
-            frictions_coefficients = {"desert" : 0.4,"iceland" : 0.1, "forest" : 0.2}
+            frictions_coefficients = {"sand" : 0.4,"ice" : 0.1, "grass" : 0.2}
             coefficient_of_friction = frictions_coefficients[self.biome]
 
             # If speed is too low, we just reset it
