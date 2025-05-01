@@ -151,7 +151,7 @@ class Tilemap:
             x = 0
             for tile in row:
                 tile_index = int(tile)
-                if tile_index != -1:
+                if tile_index != -1 and tile_index < 27:
                     tiles.append(Tile(tile_index, x * self.tile_size, y * self.tile_size, spritesheet))
                 x += 1
             y += 1

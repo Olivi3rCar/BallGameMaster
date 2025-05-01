@@ -320,9 +320,6 @@ def draw_world_selection():
                      (0, 0, 680, 480))
 
 
-    draw_lvl_end_screen('w3', 4, 125, 644654684)
-
-
 def draw_level_selection(world):
     """Draw the level selection screen for a specific world
     :param world: The world selected by the player

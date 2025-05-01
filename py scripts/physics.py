@@ -26,6 +26,10 @@ gobackbuttonoff=(0,0,48,48)
 gobackbuttonon=(48,0,48,48)
 disable_back=False
 
+chargebar = pygame.image.load(path+"Chargebar.png")
+chargebar = pygame.transform.scale(chargebar, (3 * chargebar.get_width(), 3 * chargebar.get_height()))
+chargebar_rect = [(128*3*i, 0, 128 * 3, 16 * 3) for i in range(17)]
+
 # ---------------------------
 # Class Ball
 # ---------------------------
@@ -48,6 +52,7 @@ class Ball:
         self.retention = retention
         self.velocity = velocity
         self.v0 = None
+        self.t0 = 0
         self.normal_vector = pygame.math.Vector2(0,0)
         self.biome = biome #Used to determine the coefficient of friction
         self.is_shooting = False # New attribute to track if the ball is being shot
@@ -240,12 +245,12 @@ class Ball:
             self.t0 = pygame.time.get_ticks()  # Start of the chronometer
             self.v0 = 0  # Reset of initial velocity
 
-        elif event.type == pygame.KEYUP and event.key == pygame.K_SPACE and self.t0 is not None and active_select and not self.is_shooting:
+        elif event.type == pygame.KEYUP and event.key == pygame.K_SPACE and self.t0 != 0 and active_select and not self.is_shooting:
             duration = pygame.time.get_ticks() - self.t0  # Duration of the pressing of the space bar
             self.v0 = min(duration * rate_v0, 15)  # Capping of the initial velocity
             self.shoot()  # Shoots the ball
             active_select = False # Deactivate selection after shooting
-            self.t0 = None  # Reset the chronometer
+            self.t0 = 0  # Reset the chronometer
         return active_select
 
 # ---------------------------
@@ -307,6 +312,11 @@ def gameplay(screen,ball,tilemap,background_image):
             active_select = ball.handle_shooting(event,active_select)  # Shooting the ball
         if active_select and not ball.is_shooting:
             ball.draw_trajectory(10)
+            print(pygame.time.get_ticks() - ball.t0)
+            if ball.t0 == 0:
+                screen.blit(chargebar, (128,432), chargebar_rect[0])
+            else :
+                screen.blit(chargebar, (128,432), chargebar_rect[min((pygame.time.get_ticks() - ball.t0)//50, 16)])
         ball.moving(tilemap, dt)
         ball.draw()
         pygame.display.flip()
