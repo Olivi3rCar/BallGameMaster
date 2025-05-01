@@ -39,6 +39,7 @@ class GameState:
         self.endlevel = None
         self.numbers = None
         self.reactions = None
+        self.names = None
 
         # Button dimensions
         self.button_rects = {
@@ -111,6 +112,9 @@ class GameState:
         self.number_rects = {"0123456789:"[i]: (14 * i, 0, 14, 25) for i in range(11)}
         self.reaction_rects = [(139 * i * 2, 0, 139 * 2, 30 * 2) for i in range(4)]
         self.endlevel_rects = {f"w{i}" : (640 * (i-1), 0, 640, 480) for i in range(1,4)}
+
+        # Dimentions for level Names
+        self.names_rect = [[(541*j, 31 * i, 541, 31) for j in range(5)] for i in range(3)]
 
         # Level files
         self.level_files = {
@@ -206,6 +210,8 @@ def init_game():
                                               (2 * game.reactions.get_width(),
                                                2 * game.reactions.get_height()))
 
+    game.names = pygame.image.load(game.sprite_path + "lvlnames.png")
+
     # Set up background images for levels
     backgrounds_data = {
         'grass': game.bckgroundgrass,
@@ -249,7 +255,12 @@ def draw_nbr_string(nbr : str, pos : tuple):
     for i in range(len(nbr)):
         game.screen.blit(game.numbers, (pos[0]+ i*15, pos[1]), game.number_rects[nbr[i]])
 
-def time_to_string(elapsed):
+def time_to_string(elapsed : int):
+    """
+    Turns elapsed time into readable "min:sec" string
+    :param elapsed: time elapsed (in seconds)
+    :return: readable "min:sec" string
+    """
     return str(elapsed // 60) + ":" + '0'*(int(elapsed%60 <=10) + int(elapsed%60 == 0)) + str(elapsed % 60)
 
 def draw_lvl_end_screen(w : str, lvl : int, time : int, strokes : int):
@@ -261,8 +272,8 @@ def draw_lvl_end_screen(w : str, lvl : int, time : int, strokes : int):
     :param strokes: strokes
     """
     global game
-    # Display the 'level beat' background
 
+    # Display the 'level beat' background
     game.screen.blit(game.endlevel,
                     game.worldselect.get_rect(center=(game.center_x, game.center_y)), game.endlevel_rects[w])
     # Display the level info
@@ -274,7 +285,15 @@ def draw_lvl_end_screen(w : str, lvl : int, time : int, strokes : int):
     # Display a funny message for the player's enjoyment
     game.screen.blit(game.reactions, (335,313), game.reaction_rects[(lvl+time+strokes)%4])
 
-
+def draw_lvl_name(w : int, l : int):
+    """
+    Displays the level name in the upper left corner of the screen
+    :param w: world ID in int
+    :param l: level ID in int
+    """
+    global game
+    w = max(0, w-1); l = max(0, l-1)
+    game.screen.blit(game.names, (8, 8), game.names_rect[w][l])
 
 
 def draw_title_screen(x):
