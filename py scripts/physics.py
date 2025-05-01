@@ -12,7 +12,7 @@ SCREEN_HEIGHT = 480
 FPS = 120
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.RESIZABLE)
 pygame.display.set_caption("BallMaster")
-icon = pygame.image.load("../Sprites/golf-icon.png")
+icon = pygame.image.load("golf-icon.png")
 pygame.display.set_icon(icon)
 clock = pygame.time.Clock()
 running = True
@@ -251,7 +251,7 @@ class Ball:
 # ---------------------------
 # Charging the items
 # ---------------------------
-spritesheet = Spritesheet(os.path.join("C:/Users/victo/PycharmProjects/BallGameMaster/Sprites png/sandtiles.png"), tile_size=32, columns=9)
+spritesheet = Spritesheet(path + "\\sandtiles.png", tile_size=32, columns=9)
 tilemap = Tilemap("..\\tiles_maps\\test_map.csv", spritesheet)
 ball=Ball(pygame.math.Vector2(400, 150), 7, 0.5, 0.6, pygame.math.Vector2(0, 0),"forest")
 image = "C:/Users/victo/PycharmProjects/BallGameMaster/Sprites png/bckgroundsand.png"

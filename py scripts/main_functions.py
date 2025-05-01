@@ -3,6 +3,7 @@ from pygame.locals import *
 from math import *
 from tiles import *
 from physics import gameplay, Ball, on_button
+from random import randint
 
 
 
@@ -35,6 +36,9 @@ class GameState:
         self.bckgroundsand = None
         self.bckgroundice = None
         self.buttons = None
+        self.endlevel = None
+        self.numbers = None
+        self.reactions = None
 
         # Button dimensions
         self.button_rects = {
@@ -102,6 +106,11 @@ class GameState:
             'sand': {},
             'ice': {}
         }
+
+        # Dimensions for the end level screen
+        self.number_rects = {"0123456789:"[i]: (14 * i, 0, 14, 25) for i in range(11)}
+        self.reaction_rects = [(139 * i * 2, 0, 139 * 2, 30 * 2) for i in range(4)]
+        self.endlevel_rects = {f"w{i}" : (640 * (i-1), 0, 640, 480) for i in range(1,4)}
 
         # Level files
         self.level_files = {
@@ -172,7 +181,8 @@ def init_game():
     # Load all images
     game.title_image = pygame.image.load(game.sprite_path + "Title.png")
     game.title_image = pygame.transform.scale(game.title_image,
-                                              (2 * game.title_image.get_width(), 2 * game.title_image.get_height()))
+                                              (2 * game.title_image.get_width(),
+                                               2 * game.title_image.get_height()))
 
     game.splash = pygame.image.load(game.sprite_path + "Putt_it_in.png")
 
@@ -186,7 +196,15 @@ def init_game():
     game.bckgroundice = pygame.image.load(game.sprite_path + "bckgroundice.png")
 
     game.buttons = pygame.image.load(game.sprite_path + "Buttons.png")
-    game.buttons = pygame.transform.scale(game.buttons, (3 * game.buttons.get_width(), 3 * game.buttons.get_height()))
+    game.buttons = pygame.transform.scale(game.buttons,
+                                          (3 * game.buttons.get_width(), 3 * game.buttons.get_height()))
+
+    game.endlevel = pygame.image.load(game.sprite_path + "endlevel.png")
+    game.numbers = pygame.image.load(game.sprite_path + "numbers.png")
+    game.reactions = pygame.image.load(game.sprite_path + "reactions.png")
+    game.reactions = pygame.transform.scale(game.reactions,
+                                              (2 * game.reactions.get_width(),
+                                               2 * game.reactions.get_height()))
 
     # Set up background images for levels
     backgrounds_data = {
@@ -220,6 +238,43 @@ def init_game():
     # Get screen center
     game.center_x = game.screen.get_rect().centerx
     game.center_y = game.screen.get_rect().centery
+
+def draw_nbr_string(nbr : str, pos : tuple):
+    """
+    Displays a string of numbers using sprites
+    :param nbr: the string to be displayed (can contain numbers 0-9 and colon ':')
+    :param pos: tuple of position for the upper left of the string
+    """
+    global game
+    for i in range(len(nbr)):
+        game.screen.blit(game.numbers, (pos[0]+ i*15, pos[1]), game.number_rects[nbr[i]])
+
+def time_to_string(elapsed):
+    return str(elapsed // 60) + ":" + '0'*(int(elapsed%60 <=10) + int(elapsed%60 == 0)) + str(elapsed % 60)
+
+def draw_lvl_end_screen(w : str, lvl : int, time : int, strokes : int):
+    """
+    Displays the level end screen
+    :param w: world ID (as 'wi', where i is the world ID)
+    :param lvl: level
+    :param time: time
+    :param strokes: strokes
+    """
+    global game
+    # Display the 'level beat' background
+
+    game.screen.blit(game.endlevel,
+                    game.worldselect.get_rect(center=(game.center_x, game.center_y)), game.endlevel_rects[w])
+    # Display the level info
+    draw_nbr_string(w[1]+':'+str(lvl), (290, 197))
+    # Display the number of strokes to beat the level
+    draw_nbr_string(str(strokes), (290, 233))
+    # Display the time took to finish the level
+    draw_nbr_string(time_to_string(time), (290, 270))
+    # Display a funny message for the player's enjoyment
+    game.screen.blit(game.reactions, (335,313), game.reaction_rects[(lvl+time+strokes)%4])
+
+
 
 
 def draw_title_screen(x):
@@ -263,6 +318,9 @@ def draw_world_selection():
     game.screen.blit(game.worldselect,
                      game.worldselect.get_rect(center=(game.center_x, game.center_y)),
                      (0, 0, 680, 480))
+
+
+    draw_lvl_end_screen('w3', 4, 125, 644654684)
 
 
 def draw_level_selection(world):
@@ -335,7 +393,8 @@ def handle_events():
 
             # World selection buttons
             elif game.scene == "World Selection":
-                if on_button((0, 0), (640, 160)) and not (on_button((0, 0), (48, 48))):
+                if on_button((0, 0), (640, 160)) and not (on_button((0, 0),
+                                                                    (48, 48))):
                     game.scene = "Forest"
                     game.first_frame = True
                 elif on_button((0, 160), (640, 320)):
