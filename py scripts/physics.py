@@ -281,9 +281,16 @@ def gameplay(screen,ball,tilemap,background_image):
             screen.blit(buttons, (0,0), gobackbuttonon)
         else:
             screen.blit(buttons, (0,0), gobackbuttonoff)
+
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 game = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_r:  # If you press R, all broken tiles will respawn
+                    for tile in tilemap.tiles:
+                        if tile.broken:
+                            tile.broken = 0
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1 and ball.check_select(event.pos) and not ball.is_shooting and ball.can_be_selected:
                     active_select = not active_select
@@ -292,8 +299,8 @@ def gameplay(screen,ball,tilemap,background_image):
                     game=False
             elif event.type == pygame.MOUSEBUTTONUP:
                 disable_back = False
-
             active_select = ball.handle_shooting(event,active_select)  # Shooting the ball
+
         if active_select and not ball.is_shooting:
             ball.draw_trajectory(10)
         ball.moving(tilemap, dt)
