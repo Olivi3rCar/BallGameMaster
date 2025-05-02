@@ -185,6 +185,7 @@ def init_game():
     # Load all images
     game.title_image = pygame.image.load(game.sprite_path + "Title.png")
     game.title_image = pygame.transform.scale(game.title_image,
+                                              (2 * game.title_image.get_width(), 2 * game.title_image.get_height()))
 
     game.splash = pygame.image.load(game.sprite_path + "Putt_it_in.png")
 
