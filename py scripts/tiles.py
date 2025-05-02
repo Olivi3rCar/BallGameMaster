@@ -45,6 +45,7 @@ class Tile(pygame.sprite.Sprite):
         self.vertices = []
         self.index = tile_index #So we know which kind of tiles we have
         self.attribution() #Absolute pain
+        self.broken = 0
 
     def attribution(self):
         """Pain, eternal pain

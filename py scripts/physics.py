@@ -51,24 +51,55 @@ class Ball:
         self.mass = mass
         self.retention = retention
         self.velocity = velocity
-        self.v0 = None
         self.t0 = 0
+        self.v0 = None
         self.normal_vector = pygame.math.Vector2(0,0)
         self.biome = biome #Used to determine the coefficient of friction
         self.is_shooting = False # New attribute to track if the ball is being shot
         self.can_be_selected = True
+        self.ice_contact_timer = None  # Timer pour le contact avec la glace
+        self.last_ice_tile = None  # Référence au dernier bloc de glace touché
+
+        """Attributs de powerups"""
+        self.sticky = False  # init du sticky
+        self.fast_fall = False  # init du ff
+        self.bouncy = False  # init du bouncy
+        self.impact_flash_time = 0
+        self.default_retention = retention
+        self.initial_pos = pos.copy()  # retient la position d'origine pour le reset (r)
+
+    def toggle_bouncy(self):
+        self.bouncy = not self.bouncy
+        self.retention = 1.2 if self.bouncy else self.default_retention
+
+    def reset_position(self):
+        self.pos = self.initial_pos.copy()
+        self.velocity = pygame.Vector2(0, 0)
 
     def draw(self):
-        """Draws the ball on the screen"""
-        pygame.draw.circle(screen, (255, 255, 255), (int(self.pos.x), int(self.pos.y)), self.radius)
+        """Changement de couleur selon powerup"""
+        if self.sticky:
+            color = (0, 255, 0)
+        elif self.bouncy:
+            color = (255, 0, 0)
+        elif self.fast_fall:
+            color = (0, 0, 255)
+        else:
+            color = (255, 255, 255)
+        pygame.draw.circle(screen, color, (int(self.pos.x), int(self.pos.y)), self.radius)
+        if self.fast_fall and pygame.time.get_ticks() - self.impact_flash_time < 100: #effet visu du ff
+            pygame.draw.circle(screen, (255, 255, 255), (int(self.pos.x), int(self.pos.y + self.radius + 4)), 6, 1)
 
     def bounce(self):
-        """Makes the ball bounce"""
+        """Si sticky activé, la balle ne rebondit pas"""
+        if self.sticky:
+            return pygame.Vector2(0, 0)
         normal_velocity_component = self.velocity.dot(self.normal_vector) * self.normal_vector
         reflected_velocity = normal_velocity_component * -(1 + self.retention)
-
-        # Condition to stop tremors
-        if reflected_velocity.length() < 0.2:  # Limit to stop the tremors
+        max_bounce_speed = self.velocity.length() * 1.90  # Cap la vitesse du rebond pour éviter infinite scale et noclip
+        if reflected_velocity.length() > max_bounce_speed:
+            reflected_velocity.scale_to_length(max_bounce_speed)
+        if reflected_velocity.length() < 0.2:  # pour enlever un rebond/tremblement infini si la valeur est trop basse, on stop net
             return pygame.Vector2(0, 0)
         return reflected_velocity
 
@@ -123,51 +154,78 @@ class Ball:
                 self.velocity -= tangent_vector * self.velocity.dot(tangent_vector)
 
     def moving(self, tilemap, dt):
-        """Coordinates all the forces on the ball"""
         weight = self.weight()
-        collision_info = self.handle_collision(tilemap)#The dictionary CONTAINING INFOS ABOUT THE TILES THAT ARE TOUCHING
+        collision_info = self.handle_collision(tilemap)
+        tangent_vector = pygame.Vector2(0, 1)
+
         if collision_info:
-            for tile_key in collision_info.keys(): #For each tile, calculate its "contribution"
-                self.normal_vector = collision_info[tile_key][0]
-                self.is_normal_good(tile_key)
-                tangent_vector = pygame.Vector2(-self.normal_vector.y, self.normal_vector.x)
-                # tangent vector to the normal
-                penetration = collision_info[tile_key][1]
-                normal_magnitude = self.normal_vector.length()
-                tangent_vector = self.is_tangent_good(tangent_vector)
-                self.repositioning(penetration)
-                # forces decomposition
-                normal_force = weight.dot(self.normal_vector) * self.normal_vector
-                parallel_force = weight.dot(tangent_vector) * tangent_vector
-                self.velocity += parallel_force + normal_force
-                self.apply_friction(tangent_vector, normal_magnitude)
-                self.velocity += self.bounce()
-                self.is_shooting = False # Reset shooting flag on collision
-                self.can_be_selected = True # Ball can be selected again
-
-            """Bunch of conditions to stop the ball if its velocity is too low"""
-            # Limits for speed
-            if not self.is_on_valid_surface():
-                min_speed_threshold = 0.8
-            else:
-                min_speed_threshold = 0.05
-
-            if self.velocity.length() < min_speed_threshold:
-                deceleration_factor = 0.90
-                self.velocity *= deceleration_factor
-                if abs(self.velocity.dot(tangent_vector)) < 0.01:
-                    projection = self.velocity.project(tangent_vector)  #
-                    self.velocity -= projection
-
-            # Another one
-            if abs(self.velocity.x) < 0.01 and abs(self.velocity.y) < 0.21:  # Ajuste ces seuils si nécessaire
-                self.velocity = pygame.Vector2(0, 0)
-
-        #If there's no touching tile, just apply the weight
+            for tile_key in collision_info.keys():
+                if self.sticky and tile_key.broken: #désactive sticky si la tile est cassé
+                    self.sticky = False
+                if tile_key.broken == 0:
+                    self.ice_contact(tile_key)
+                    self.normal_vector = collision_info[tile_key][0]
+                    self.is_normal_good(tile_key)
+                    tangent_vector = pygame.Vector2(-self.normal_vector.y, self.normal_vector.x)
+                    penetration = collision_info[tile_key][1]
+                    normal_magnitude = self.normal_vector.length()
+                    tangent_vector = self.is_tangent_good(tangent_vector)
+                    self.repositioning(penetration)
+                    normal_force = weight.dot(self.normal_vector) * self.normal_vector
+                    parallel_force = weight.dot(tangent_vector) * tangent_vector
+                    self.velocity += parallel_force + normal_force
+                    self.apply_friction(tangent_vector, normal_magnitude)
+                    self.velocity += self.bounce()
+                    self.is_shooting = False
+                    self.can_be_selected = True
+                else:
+                    self.velocity += weight
+                    self.normal_vector *= 0
         else:
             self.velocity += weight
             self.normal_vector *= 0
-        self.pos += self.velocity * dt * 30  # dt framerate independance
+
+        if not self.is_on_valid_surface() and collision_info:
+            min_speed_threshold = 0.8
+        else:
+            min_speed_threshold = 0.05
+
+        if self.velocity.length() < min_speed_threshold:
+            self.velocity *= 0.90
+            if abs(self.velocity.dot(tangent_vector)) < 0.01:
+                projection = self.velocity.project(tangent_vector)
+                self.velocity -= projection
+
+        if abs(self.velocity.x) < 0.01 and abs(self.velocity.y) < 0.1:
+            self.velocity = pygame.Vector2(0, 0)
+
+        if self.sticky and collision_info: #figer la balle lors de collisioon
+            self.velocity = pygame.Vector2(0, 0)
+
+        if self.fast_fall and collision_info: #petit effet pour fast fall
+            self.impact_flash_time = pygame.time.get_ticks()
+
+        self.pos += self.velocity * dt * 30
+
+
+    def ice_contact(self, tile):
+        """Check if the ball is on a breakable tile and set the timer to destroy it"""
+        if tile.index in [27, 28, 29, 30, 31]:  #Check if it's a breakable one
+            if tile == self.last_ice_tile:  # If it's the same tile as the previous one
+                if self.ice_contact_timer is None:
+                    self.ice_contact_timer = time.time()  # Set timer if not already done
+                else:
+                    difference = time.time() - self.ice_contact_timer
+                    if difference > 2:  # 2 secondes
+                        tile.broken = 1
+                        self.ice_contact_timer = None  # Reset the timer
+                        self.last_ice_tile = None     # Reset last block touched
+            else:  # If it's a new one
+                self.ice_contact_timer = time.time()  # New timer
+                self.last_ice_tile = tile            # Set the new tiler
+        else:  # Si ce n'est pas un bloc de glace
+            self.ice_contact_timer = None  # Reset timer
+            self.last_ice_tile = None     # Reset tile
 
     def repositioning(self, penetration):
         """Gets the ball out of the touching tile by replacing it a little further so the ball is not stuck"""
@@ -303,7 +361,14 @@ def gameplay(screen,ball,tilemap,background_image):
             if event.type == pygame.QUIT:
                 game = False
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_r:  # If you press R, all broken tiles will respawn
+                if event.key == pygame.K_a:
+                    ball.sticky = not ball.sticky
+                if event.key == pygame.K_e:
+                    ball.fast_fall = not ball.fast_fall
+                if event.key == pygame.K_z:
+                    ball.toggle_bouncy()
+                if event.key == pygame.K_r:
+                    ball.reset_position()
                     for tile in tilemap.tiles:
                         if tile.broken:
                             tile.broken = 0
@@ -318,7 +383,6 @@ def gameplay(screen,ball,tilemap,background_image):
 
             active_select = ball.handle_shooting(event,active_select)  # Shooting the ball
         if active_select and not ball.is_shooting:
-            print(pygame.time.get_ticks() - ball.t0)
             if ball.t0 == 0:
                 screen.blit(chargebar, (128,432), chargebar_rect[0])
                 ball.draw_trajectory(10)
