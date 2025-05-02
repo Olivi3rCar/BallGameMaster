@@ -311,12 +311,13 @@ def gameplay(screen,ball,tilemap,background_image):
 
             active_select = ball.handle_shooting(event,active_select)  # Shooting the ball
         if active_select and not ball.is_shooting:
-            ball.draw_trajectory(10)
             print(pygame.time.get_ticks() - ball.t0)
             if ball.t0 == 0:
                 screen.blit(chargebar, (128,432), chargebar_rect[0])
+                ball.draw_trajectory(10)
             else :
                 screen.blit(chargebar, (128,432), chargebar_rect[min((pygame.time.get_ticks() - ball.t0)//50, 16)])
+                ball.draw_trajectory(min((pygame.time.get_ticks() - ball.t0) * 0.02, 20))
         ball.moving(tilemap, dt)
         ball.draw()
         pygame.display.flip()

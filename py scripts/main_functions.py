@@ -277,7 +277,7 @@ def draw_lvl_end_screen(w : str, lvl : int, time : int, strokes : int):
     game.screen.blit(game.endlevel,
                     game.worldselect.get_rect(center=(game.center_x, game.center_y)), game.endlevel_rects[w])
     # Display the level info
-    draw_nbr_string(w[1]+':'+str(lvl), (290, 197))
+    draw_nbr_string(str(lvl), (290, 197))
     # Display the number of strokes to beat the level
     draw_nbr_string(str(strokes), (290, 233))
     # Display the time took to finish the level
