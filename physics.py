@@ -262,10 +262,10 @@ class Ball:
 # ---------------------------
 # Charging the items
 # ---------------------------
-spritesheet = Spritesheet(os.path.join("Sprites png/icetiles.png"), tile_size=32, columns=11) #if not iceland, column = 9
-tilemap = Tilemap("tiles_maps/ice_level_4.csv", spritesheet)
+spritesheet = Spritesheet(os.path.join("Sprites png/sandtiles.png"), tile_size=32, columns=9) #if not iceland, column = 9 else 11
+tilemap = Tilemap("tiles_maps/test_map.csv", spritesheet)
 ball=Ball(pygame.math.Vector2(400, 150), 7, 0.5, 0.6, pygame.math.Vector2(0, 0))
-ball.biome = "iceland" # Set the biome to iceland for this level
+ball.biome = "desert" # Set the biome to iceland for this level
 image = "Sprites png/bckgroundsand.png"
 
 def gameplay(screen,ball,tilemap,background_image):
