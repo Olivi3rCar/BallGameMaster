@@ -12,7 +12,7 @@ SCREEN_HEIGHT = 480
 FPS = 120
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.RESIZABLE)
 pygame.display.set_caption("BallMaster")
-icon = pygame.image.load("../Sprites/golf-icon.png")
+icon = pygame.image.load("golf-icon.png")
 pygame.display.set_icon(icon)
 clock = pygame.time.Clock()
 running = True
@@ -25,6 +25,10 @@ buttons = pygame.transform.scale(buttons, (3 * buttons.get_width(), 3 * buttons.
 gobackbuttonoff=(0,0,48,48)
 gobackbuttonon=(48,0,48,48)
 disable_back=False
+
+chargebar = pygame.image.load(path+"Chargebar.png")
+chargebar = pygame.transform.scale(chargebar, (3 * chargebar.get_width(), 3 * chargebar.get_height()))
+chargebar_rect = [(128*3*i, 0, 128 * 3, 16 * 3) for i in range(17)]
 
 # ---------------------------
 # Class Ball
@@ -48,6 +52,7 @@ class Ball:
         self.retention = retention
         self.velocity = velocity
         self.v0 = None
+        self.t0 = 0
         self.normal_vector = pygame.math.Vector2(0,0)
         self.biome = biome #Used to determine the coefficient of friction
         self.is_shooting = False # New attribute to track if the ball is being shot
@@ -240,18 +245,18 @@ class Ball:
             self.t0 = pygame.time.get_ticks()  # Start of the chronometer
             self.v0 = 0  # Reset of initial velocity
 
-        elif event.type == pygame.KEYUP and event.key == pygame.K_SPACE and self.t0 is not None and active_select and not self.is_shooting:
+        elif event.type == pygame.KEYUP and event.key == pygame.K_SPACE and self.t0 != 0 and active_select and not self.is_shooting:
             duration = pygame.time.get_ticks() - self.t0  # Duration of the pressing of the space bar
             self.v0 = min(duration * rate_v0, 15)  # Capping of the initial velocity
             self.shoot()  # Shoots the ball
             active_select = False # Deactivate selection after shooting
-            self.t0 = None  # Reset the chronometer
+            self.t0 = 0  # Reset the chronometer
         return active_select
 
 # ---------------------------
 # Charging the items
 # ---------------------------
-spritesheet = Spritesheet(os.path.join("C:/Users/victo/PycharmProjects/BallGameMaster/Sprites png/sandtiles.png"), tile_size=32, columns=9)
+spritesheet = Spritesheet(path + "\\sandtiles.png", tile_size=32, columns=9)
 tilemap = Tilemap("..\\tiles_maps\\test_map.csv", spritesheet)
 ball=Ball(pygame.math.Vector2(400, 150), 7, 0.5, 0.6, pygame.math.Vector2(0, 0),"forest")
 image = "C:/Users/victo/PycharmProjects/BallGameMaster/Sprites png/bckgroundsand.png"
@@ -261,6 +266,17 @@ def gameplay(screen,ball,tilemap,background_image):
     game = True
     active_select = False
     previous_time = time.time()
+    # ---------------------------
+    # Load the background image
+    # ---------------------------
+
+    # try:
+    #     background_image = pygame.image.load(background_image).convert() # Replace "background.png" with your image file
+    #     # It's a good idea to convert the image for faster blitting
+    #     background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
+    # except pygame.error as e:
+    #     print(f"Error loading background image: {e}")
+    #     background_image = None # Handle the case where the image fails to load
 
     while game:
         clock.tick(FPS)
@@ -299,11 +315,22 @@ def gameplay(screen,ball,tilemap,background_image):
                     game=False
             elif event.type == pygame.MOUSEBUTTONUP:
                 disable_back = False
-            active_select = ball.handle_shooting(event,active_select)  # Shooting the ball
 
+            active_select = ball.handle_shooting(event,active_select)  # Shooting the ball
         if active_select and not ball.is_shooting:
-            ball.draw_trajectory(10)
+            print(pygame.time.get_ticks() - ball.t0)
+            if ball.t0 == 0:
+                screen.blit(chargebar, (128,432), chargebar_rect[0])
+                ball.draw_trajectory(10)
+            else :
+                screen.blit(chargebar, (128,432), chargebar_rect[min((pygame.time.get_ticks() - ball.t0)//50, 16)])
+                ball.draw_trajectory(min((pygame.time.get_ticks() - ball.t0) * 0.02, 20))
         ball.moving(tilemap, dt)
         ball.draw()
         pygame.display.flip()
     return False # Indicate that the game loop has ended
+
+# running = True
+# while running :
+#     running = gameplay(screen,ball, tilemap,image)
+# pygame.quit()
