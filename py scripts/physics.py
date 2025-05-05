@@ -59,6 +59,7 @@ class Ball:
         self.can_be_selected = True
         self.ice_contact_timer = None  # Timer pour le contact avec la glace
         self.last_ice_tile = None  # Référence au dernier bloc de glace touché
+        self.hit = 0 #Number of strikes
 
         """Attributs de powerups"""
         self.sticky = False  # init du sticky
@@ -135,9 +136,14 @@ class Ball:
 
     def weight(self):
         """Calculate the weight"""
-        gravity = pygame.Vector2(0, 0.4)  # gravity
+        gravity_strength = 0.4
+        if self.fast_fall:
+            gravity_strength = 2.0  # boosted gravity when fast fall is on
+        gravity = pygame.Vector2(0, gravity_strength)
         return gravity * self.mass
 
+
+        
     def is_on_valid_surface(self):
         """Check if the touched tile is a slope (degree with the ground must not be between 100 and 80)"""
         slope_angle = self.getting_slope_angle()
@@ -278,6 +284,7 @@ class Ball:
         self.velocity = force / self.mass
         self.is_shooting = True # Set the flag to True when shooting
         self.can_be_selected = False
+        self.hit += 1
 
     def get_trajectory_angle(self):
         """Get the angle between mouse position and ground"""
@@ -332,6 +339,7 @@ def gameplay(screen,ball,tilemap,background_image):
     """Important function that does the loop for a level"""
     game = True
     active_select = False
+    start = pygame.time.get_ticks()
     previous_time = time.time()
     # ---------------------------
     # Load the background image
@@ -394,7 +402,8 @@ def gameplay(screen,ball,tilemap,background_image):
         ball.moving(tilemap, dt)
         ball.draw()
         pygame.display.flip()
-    return False # Indicate that the game loop has ended
+    #NEED to return ball.hit and (pygame.get.ticks() - start) which is the timer     
+    return False # Indicate that the game loop has ended 
 
 # running = True
 # while running :
