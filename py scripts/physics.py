@@ -118,51 +118,76 @@ class Ball:
                 self.velocity -= tangent_vector * self.velocity.dot(tangent_vector)
 
     def moving(self, tilemap, dt):
-        """Coordinates all the forces on the ball"""
+        """Coordonne toutes les forces sur la balle"""
         weight = self.weight()
-        collision_info = self.handle_collision(tilemap)#The dictionary CONTAINING INFOS ABOUT THE TILES THAT ARE TOUCHING
+        collision_info = self.handle_collision(tilemap)  # Le dictionnaire CONTENANT LES INFOS SUR LES TILES TOUCHÉES
+        tangent_vector = pygame.Vector2(0,
+                                        1)  # Default tangent vector (pointing downwards, which might need adjustment)
+
         if collision_info:
-            for tile_key in collision_info.keys(): #For each tile, calculate its "contribution"
-                self.normal_vector = collision_info[tile_key][0]
-                self.is_normal_good(tile_key)
-                tangent_vector = pygame.Vector2(-self.normal_vector.y, self.normal_vector.x)
-                # tangent vector to the normal
-                penetration = collision_info[tile_key][1]
-                normal_magnitude = self.normal_vector.length()
-                tangent_vector = self.is_tangent_good(tangent_vector)
-                self.repositioning(penetration)
-                # forces decomposition
-                normal_force = weight.dot(self.normal_vector) * self.normal_vector
-                parallel_force = weight.dot(tangent_vector) * tangent_vector
-                self.velocity += parallel_force + normal_force
-                self.apply_friction(tangent_vector, normal_magnitude)
-                self.velocity += self.bounce()
-                self.is_shooting = False # Reset shooting flag on collision
-                self.can_be_selected = True # Ball can be selected again
-
-            """Bunch of conditions to stop the ball if its velocity is too low"""
-            # Limits for speed
-            if not self.is_on_valid_surface():
-                min_speed_threshold = 0.8
-            else:
-                min_speed_threshold = 0.05
-
-            if self.velocity.length() < min_speed_threshold:
-                deceleration_factor = 0.90
-                self.velocity *= deceleration_factor
-                if abs(self.velocity.dot(tangent_vector)) < 0.01:
-                    projection = self.velocity.project(tangent_vector)  #
-                    self.velocity -= projection
-
-            # Another one
-            if abs(self.velocity.x) < 0.01 and abs(self.velocity.y) < 0.21:  # Ajuste ces seuils si nécessaire
-                self.velocity = pygame.Vector2(0, 0)
-
-        #If there's no touching tile, just apply the weight
+            for tile_key in collision_info.keys():  # Pour chaque tuile, calcule sa "contribution"
+                if tile_key.broken == 0:
+                    self.ice_contact(tile_key)
+                    self.normal_vector = collision_info[tile_key][0]
+                    self.is_normal_good(tile_key)
+                    tangent_vector = pygame.Vector2(-self.normal_vector.y, self.normal_vector.x)
+                    # vecteur tangent à la normale
+                    penetration = collision_info[tile_key][1]
+                    normal_magnitude = self.normal_vector.length()
+                    tangent_vector = self.is_tangent_good(tangent_vector)
+                    self.repositioning(penetration)
+                    # décomposition des forces
+                    normal_force = weight.dot(self.normal_vector) * self.normal_vector
+                    parallel_force = weight.dot(tangent_vector) * tangent_vector
+                    self.velocity += parallel_force + normal_force
+                    self.apply_friction(tangent_vector, normal_magnitude)
+                    self.velocity += self.bounce()
+                    self.is_shooting = False  # Réinitialise le drapeau de tir lors de la collision
+                    self.can_be_selected = True  # La balle peut être sélectionnée à nouveau
+                else:
+                    self.velocity += weight
+                    self.normal_vector *= 0
         else:
             self.velocity += weight
             self.normal_vector *= 0
-        self.pos += self.velocity * dt * 30  # dt framerate independance
+
+        """Ensemble de conditions pour arrêter la balle si sa vitesse est trop faible"""
+        # Limites de vitesse
+        if not self.is_on_valid_surface() and collision_info:  # Only check if on a valid surface AND there was a collision
+            min_speed_threshold = 0.8
+        else:
+            min_speed_threshold = 0.05
+
+        if self.velocity.length() < min_speed_threshold:
+            deceleration_factor = 0.90
+            self.velocity *= deceleration_factor
+            if abs(self.velocity.dot(tangent_vector)) < 0.01:
+                projection = self.velocity.project(tangent_vector)
+                self.velocity -= projection
+
+        # Une autre condition d'arrêt
+        if abs(self.velocity.x) < 0.01 and abs(self.velocity.y) < 0.1:  # Ajuste ces seuils si nécessaire
+            self.velocity = pygame.Vector2(0, 0)
+
+        self.pos += self.velocity * dt * 30  # Indépendance du framerate
+    def ice_contact(self, tile):
+        """Check if the ball is on a breakable tile and set the timer to destroy it"""
+        if tile.index in [27, 28, 29, 30, 31]:  #Check if it's a breakable one
+            if tile == self.last_ice_tile:  # If it's the same tile as the previous one
+                if self.ice_contact_timer is None:
+                    self.ice_contact_timer = time.time()  # Set timer if not already done
+                else:
+                    difference = time.time() - self.ice_contact_timer
+                    if difference > 2:  # 2 secondes
+                        tile.broken = 1
+                        self.ice_contact_timer = None  # Reset the timer
+                        self.last_ice_tile = None     # Reset last block touched
+            else:  # If it's a new one
+                self.ice_contact_timer = time.time()  # New timer
+                self.last_ice_tile = tile            # Set the new tiler
+        else:  # Si ce n'est pas un bloc de glace
+            self.ice_contact_timer = None  # Reset timer
+            self.last_ice_tile = None     # Reset tile
 
     def repositioning(self, penetration):
         """Gets the ball out of the touching tile by replacing it a little further so the ball is not stuck"""
