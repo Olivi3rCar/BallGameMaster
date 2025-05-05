@@ -4,7 +4,7 @@ from math import *
 from tiles import *
 from physics import gameplay, Ball, on_button
 from random import randint
-
+from time import sleep
 
 
 class GameState:
@@ -14,7 +14,7 @@ class GameState:
         # Game screens
         self.screen = None
         self.clock = None
-        self.scene = "Title"
+        self.scene = "FadeAway"
         self.first_frame = True
         self.disable_back = False
 
@@ -28,6 +28,7 @@ class GameState:
         self.level_path = None
 
         # UI images and resources
+        self.fade_away = None
         self.title_image = None
         self.splash = None
         self.play = None
@@ -45,7 +46,7 @@ class GameState:
         self.button_rects = {
             'play': {
                 'off': (0, 0, 80 * 3, 20 * 3),
-                'on': (80 * 3, 0, 160 * 3, 20 * 3)
+                'on': (80 * 3, 0, 80 * 3, 20 * 3)
             },
             'back': {
                 'off': (0, 0, 48, 48),
@@ -183,6 +184,7 @@ def init_game():
     }
 
     # Load all images
+    game.fade_away = pygame.image.load(game.sprite_path + "ballintro.png")
     game.title_image = pygame.image.load(game.sprite_path + "Title.png")
     game.title_image = pygame.transform.scale(game.title_image,
                                               (2 * game.title_image.get_width(), 2 * game.title_image.get_height()))
@@ -294,6 +296,16 @@ def draw_lvl_name(w : int, l : int):
     w = max(0, w-1); l = max(0, l-1)
     game.screen.blit(game.names, (8, 8), game.names_rect[w][l])
 
+def draw_fadeaway():
+    global game
+    for i in range(33):
+        game.screen.blit(game.fade_away,
+                         game.fade_away.get_rect(center=(game.center_x+10240, game.center_y)),
+                         (i*640,0,640,480))
+        sleep(0.3)
+        pygame.display.flip()
+        print("raaah ", i)
+    game.scene = "Title"
 
 def draw_title_screen(x):
     """
@@ -487,7 +499,9 @@ def game_loop():
         game.clock.tick(120)
 
         # Draw the appropriate scene
-        if game.scene == "Title":
+        if game.scene == "FadeAway":
+            draw_fadeaway()
+        elif game.scene == "Title":
             draw_title_screen(x)
             # Update animation counter
             x += 1 / 40
