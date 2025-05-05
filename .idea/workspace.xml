@@ -5,9 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ac5f406b-0a04-4a01-b25f-aed207a5ce76" name="Changes" comment="Physics fixes for consistency between branches">
-      <change beforePath="$PROJECT_DIR$/.idea/BallGameMaster.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/BallGameMaster.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Levels/grass_level_1.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Levels/grass_level_1.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Levels/grass_level_2.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Levels/grass_level_2.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Levels/grass_level_3.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Levels/grass_level_3.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Levels/grass_level_4.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Levels/grass_level_4.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Levels/sand_level_4.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Levels/sand_level_4.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/py scripts/main_functions.py" beforeDir="false" afterPath="$PROJECT_DIR$/py scripts/main_functions.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -19,6 +22,11 @@
     <option name="formatViaClangd" value="false" />
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
@@ -27,12 +35,12 @@
     &quot;assignee&quot;: &quot;Olivi3rCar&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/Olivi3rCar/BallGameMaster.git&quot;,
-    &quot;accountId&quot;: &quot;14e98172-e324-4275-a865-093a449b577b&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/Olivi3rCar/BallGameMaster.git",
+    "accountId": "a9c7ce66-2b20-4139-b59a-5862f0d4319f"
   }
-}</component>
+}]]></component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 6
 }</component>
@@ -90,8 +98,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-deb605915726-JavaScript-PY-243.22562.220" />
-        <option value="bundled-python-sdk-0fc6c617c4bd-9a18a617cbe4-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-243.22562.220" />
+        <option value="bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-PY-242.23726.102" />
+        <option value="bundled-python-sdk-5e1850174b45-399fe30bd8c1-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-242.23726.102" />
       </set>
     </attachedChunks>
   </component>
@@ -133,10 +141,21 @@
     <MESSAGE value="Physics fixes for consistency between branches" />
     <option name="LAST_COMMIT_MESSAGE" value="Physics fixes for consistency between branches" />
   </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/py scripts/main_functions.py</url>
+          <line>266</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/main_py$physics.coverage" NAME="physics Coverage Results" MODIFIED="1746016637233" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/py scripts" />
     <SUITE FILE_PATH="coverage/BallGameMaster$main.coverage" NAME="main Coverage Results" MODIFIED="1746437615984" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/py scripts" />
-    <SUITE FILE_PATH="coverage/main_functions_py$main.coverage" NAME="main Coverage Results" MODIFIED="1746425012321" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/py scripts" />
+    <SUITE FILE_PATH="coverage/main_functions_py$main.coverage" NAME="main Coverage Results" MODIFIED="1746457456751" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/py scripts" />
     <SUITE FILE_PATH="coverage/main_py$main.coverage" NAME="main Coverage Results" MODIFIED="1746017466907" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/py scripts" />
   </component>
 </project>

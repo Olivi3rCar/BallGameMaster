@@ -298,13 +298,12 @@ def draw_lvl_name(w : int, l : int):
 
 def draw_fadeaway():
     global game
-    for i in range(33):
+    """for i in range(33):
         game.screen.blit(game.fade_away,
                          game.fade_away.get_rect(center=(game.center_x+10240, game.center_y)),
                          (i*640,0,640,480))
         sleep(0.05)
-        pygame.display.flip()
-        print("raaah ", i)
+        pygame.display.flip()"""
     game.scene = "Title"
 
 def draw_title_screen(x):
