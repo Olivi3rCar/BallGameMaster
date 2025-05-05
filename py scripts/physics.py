@@ -77,13 +77,13 @@ class Ball:
         self.velocity = pygame.Vector2(0, 0)
 
     def reset_powers(self) :
-    """Resets all our power-ups"""
+        """Resets all our power-ups"""
         if self.sticky :
-            self.sticky = false
+            self.sticky = False
         if self.bouncy :
-            self.bouncy = false
+            self.bouncy = False
         if self.fast_fall :
-            self.fast_fall = false
+            self.fast_fall = False
             
     def draw(self):
         """Changement de couleur selon powerup"""

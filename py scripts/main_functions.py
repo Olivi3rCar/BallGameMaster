@@ -302,7 +302,7 @@ def draw_fadeaway():
         game.screen.blit(game.fade_away,
                          game.fade_away.get_rect(center=(game.center_x+10240, game.center_y)),
                          (i*640,0,640,480))
-        sleep(0.3)
+        sleep(0.05)
         pygame.display.flip()
         print("raaah ", i)
     game.scene = "Title"
