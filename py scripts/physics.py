@@ -76,6 +76,15 @@ class Ball:
         self.pos = self.initial_pos.copy()
         self.velocity = pygame.Vector2(0, 0)
 
+    def reset_powers(self) :
+    """Resets all our power-ups"""
+        if self.sticky :
+            self.sticky = false
+        if self.bouncy :
+            self.bouncy = false
+        if self.fast_fall :
+            self.fast_fall = false
+            
     def draw(self):
         """Changement de couleur selon powerup"""
         if self.sticky:
@@ -327,15 +336,6 @@ def gameplay(screen,ball,tilemap,background_image):
     # ---------------------------
     # Load the background image
     # ---------------------------
-
-    # try:
-    #     background_image = pygame.image.load(background_image).convert() # Replace "background.png" with your image file
-    #     # It's a good idea to convert the image for faster blitting
-    #     background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
-    # except pygame.error as e:
-    #     print(f"Error loading background image: {e}")
-    #     background_image = None # Handle the case where the image fails to load
-
     while game:
         clock.tick(FPS)
         dt = time.time() - previous_time  # Convert to seconds for physics frame-rate independence
@@ -361,13 +361,15 @@ def gameplay(screen,ball,tilemap,background_image):
             if event.type == pygame.QUIT:
                 game = False
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_a:
+                if event.key == pygame.K_t: #press t to reset the powers
+                    ball.reset_powers()
+                if event.key == pygame.K_a:#activation of sticky
                     ball.sticky = not ball.sticky
-                if event.key == pygame.K_e:
+                if event.key == pygame.K_e: #activation of fast_fall
                     ball.fast_fall = not ball.fast_fall
-                if event.key == pygame.K_z:
+                if event.key == pygame.K_z:#activation of bouncy
                     ball.toggle_bouncy()
-                if event.key == pygame.K_r:
+                if event.key == pygame.K_r: #If you press R, all broken tiles will respawn and ball will respawn
                     ball.reset_position()
                     for tile in tilemap.tiles:
                         if tile.broken:
