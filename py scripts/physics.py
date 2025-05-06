@@ -403,7 +403,7 @@ def gameplay(screen,ball,tilemap,background_image):
         ball.draw()
         pygame.display.flip()
     #NEED to return ball.hit and (pygame.get.ticks() - start) which is the timer     
-    return False # Indicate that the game loop has ended 
+    return ball.hit,pygame.get.ticks() - start  # Indicate that the game loop has ended 
 
 # running = True
 # while running :
