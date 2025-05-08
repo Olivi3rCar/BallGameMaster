@@ -3,7 +3,6 @@ from pygame.locals import *
 from math import *
 from tiles import *
 from physics import gameplay, Ball, on_button
-from random import randint
 from time import sleep
 
 
@@ -41,6 +40,10 @@ class GameState:
         self.numbers = None
         self.reactions = None
         self.names = None
+
+        # Music and sounds "dimensions" so to speak
+        self.music = None
+        self.music_path = None
 
         #Game data used for player feedback
         self.feedback=None
@@ -238,6 +241,16 @@ def init_game():
     game.center_x = game.screen.get_rect().centerx
     game.center_y = game.screen.get_rect().centery
 
+    # Music files Path Information
+    game.music_path = os.path.abspath(os.path.join("./main.py", os.pardir))
+    game.music_path = str(game.music_path)[:-10] + "Sound\\"
+    game.music = {
+        "intro": game.music_path + "Ambiance.ogg",
+        "grass": game.music_path + "GRASS.ogg",
+        "sand" : game.music_path + "SAND.ogg",
+        "ice"  : game.music_path + "ICE.ogg"
+    }
+
 def draw_nbr_string(nbr : str, pos : tuple):
     """
     Displays a string of numbers using sprites
@@ -307,6 +320,14 @@ def draw_fadeaway():
     game.screen.fill((0,0,0))
     sleep(0.7)
     game.scene = "Title"
+
+def pc_music(world):
+    """
+    Change they play the loaded music
+    :param world: Current world, to locate music file
+    """
+    pygame.mixer.music.load(game.music[world])
+    pygame.mixer.music.play(loops=-1)
 
 def draw_title_screen(x):
     """
@@ -498,26 +519,45 @@ def game_loop():
     global game
     # Animation counter for title screen
     x = 0
+    last_scene = None
+    pygame.mixer.music.set_volume(0.5)
 
     while True:
         # Cap fps to 120
         game.clock.tick(120)
 
+        # Scene change function to handle music
+        scene_change = game.scene != last_scene
+
         # Draw the appropriate scene
         if game.scene == "FadeAway":
             draw_fadeaway()
+            pc_music('intro')
+
         elif game.scene == "Title":
             draw_title_screen(x)
+            # Set music for Title Screen
             # Update animation counter
             x += 1 / 40
+
         elif game.scene == "World Selection":
             draw_world_selection()
+            # Set music for Title and Lvl selection Screen
+            if scene_change and last_scene != "Title" : pc_music('intro')
+
         elif game.scene == "Forest":
             game.first_frame = draw_level_selection('grass')
+            if scene_change : pc_music('grass')
+
         elif game.scene == "Desert":
             game.first_frame = draw_level_selection('sand')
+            if scene_change : pc_music('sand')
+
         elif game.scene == "Ice":
             game.first_frame = draw_level_selection('ice')
+            if scene_change : pc_music('ice')
+
+        last_scene = game.scene
 
         # Draw back button for all scenes except title
         if game.scene != "Title":
