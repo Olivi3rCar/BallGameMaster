@@ -225,7 +225,7 @@ class Ball:
 
     def ice_contact(self, tile):
         """Check if the ball is on a breakable tile and set the timer to destroy it"""
-        if tile.index in [27, 28, 29, 30, 31]:  #Check if it's a breakable one
+        if tile.index in [81, 82, 83, 84, 85]:  #Check if it's a breakable one
             if tile == self.last_ice_tile:  # If it's the same tile as the previous one
                 if self.ice_contact_timer is None:
                     self.ice_contact_timer = time.time()  # Set timer if not already done
@@ -238,7 +238,7 @@ class Ball:
             else:  # If it's a new one
                 self.ice_contact_timer = time.time()  # New timer
                 self.last_ice_tile = tile            # Set the new tiler
-        else:  # Si ce n'est pas un bloc de glace
+        else:  # If its not an ice block
             self.ice_contact_timer = None  # Reset timer
             self.last_ice_tile = None     # Reset tile
 

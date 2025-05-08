@@ -23,9 +23,9 @@ class GameState:
         self.center_y = None
 
         # Paths to background sprites, doing it here because we need it later
-
         self.sprite_path = None
         self.level_path = None
+        self.tile_path = None
 
         # UI images and resources
         self.fade_away = None
@@ -130,13 +130,6 @@ class GameState:
         # Level data (position of buttons)
         self.levels = {}
 
-        # Sprite sheet columns
-        self.tile_columns = {
-            'grass': 9,
-            'sand': 9,
-            'ice': 11
-        }
-
         # Scene to world mapping
         self.scene_to_world = {
             'Forest': 'grass',
@@ -179,12 +172,8 @@ def init_game():
     game.sprite_path = os.path.abspath(os.path.join("./main.py", os.pardir))
     game.sprite_path = str(game.sprite_path)[:-10] + "Sprites png\\"
 
-    # Resource paths for spritesheets
-    game.tile_paths = {
-        'grass': game.sprite_path + "groundtiles.png",
-        'sand': game.sprite_path + "sandtiles.png",
-        'ice': game.sprite_path + "icetiles.png"
-    }
+    # Resource paths for spritesheet
+    game.tile_path = game.sprite_path + "alltiles.png"
 
     # Load all images
     game.fade_away = pygame.image.load(game.sprite_path + "ballintro.png")
@@ -448,8 +437,8 @@ def handle_events():
 
                 # Create appropriate spritesheet for the world
                 spritesheet = Spritesheet(
-                    os.path.join(game.tile_paths[world]),
-                    tile_size=32, columns=game.tile_columns[world]
+                    os.path.join(game.tile_path),
+                    tile_size=32, columns=9
                 )
 
                 # Create appropriate ball for the world
