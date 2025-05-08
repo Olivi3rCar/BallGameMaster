@@ -119,7 +119,9 @@ class Tile(pygame.sprite.Sprite):
             30: grow_hitbox([(x + 32, y), (x + 32, y + 15),
                             (x, y + 15), (x, y)], 0.9),
             31: grow_hitbox([(x + 32, y), (x + 32, y + 15),
-                            (x, y + 15), (x, y)], 0.9)
+                            (x, y + 15), (x, y)], 0.9),
+            32: grow_hitbox([(x + 32, y), (x + 32, y + 32),
+                            (x, y + 32), (x, y)], 0.9)
         }
 
         # Assign the vertices
@@ -152,7 +154,7 @@ class Tilemap:
             x = 0
             for tile in row:
                 tile_index = int(tile)
-                if tile_index != -1 and tile_index < 27:
+                if tile_index != -1 and tile_index < 34:
                     tiles.append(Tile(tile_index, x * self.tile_size, y * self.tile_size, spritesheet))
                 x += 1
             y += 1

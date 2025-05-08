@@ -42,6 +42,9 @@ class GameState:
         self.reactions = None
         self.names = None
 
+        #Game data used for player feedback
+        self.feedback=None
+
         # Button dimensions
         self.button_rects = {
             'play': {
@@ -264,7 +267,7 @@ def time_to_string(elapsed : int):
     """
     return str(elapsed // 60) + ":" + '0'*(int(elapsed%60 <=10) + int(elapsed%60 == 0)) + str(elapsed % 60)
 
-def draw_lvl_end_screen(w : str, lvl : int, time : int, strokes : int):
+def draw_lvl_end_screen(w : str, lvl : int, strokes : int, time : int):
     """
     Displays the level end screen
     :param w: world ID (as 'wi', where i is the world ID)
@@ -273,6 +276,9 @@ def draw_lvl_end_screen(w : str, lvl : int, time : int, strokes : int):
     :param strokes: strokes
     """
     global game
+
+    while not pygame.event.get(MOUSEBUTTONUP):
+        pass
 
     # Display the 'level beat' background
     game.screen.blit(game.endlevel,
@@ -285,6 +291,9 @@ def draw_lvl_end_screen(w : str, lvl : int, time : int, strokes : int):
     draw_nbr_string(time_to_string(time), (290, 270))
     # Display a funny message for the player's enjoyment
     game.screen.blit(game.reactions, (335,313), game.reaction_rects[(lvl+time+strokes)%4])
+
+    while not pygame.event.get(MOUSEBUTTONDOWN) and game.disable_back==True:
+        return
 
 def draw_lvl_name(w : int, l : int):
     """
@@ -302,9 +311,12 @@ def draw_fadeaway():
         game.screen.blit(game.fade_away,
                          game.fade_away.get_rect(center=(game.center_x+10240, game.center_y)),
                          (i*640,0,640,480))
-        sleep(0.05)
+        sleep(0.1)
+        if 28<i<32:
+            sleep(0.3)
         pygame.display.flip()
-        print("raaah ", i)
+    game.screen.fill((0,0,0))
+    sleep(0.7)
     game.scene = "Title"
 
 def draw_title_screen(x):
@@ -452,13 +464,17 @@ def handle_events():
                             (position[0] + 48, position[1] + 48)
                     ):
                         # Start gameplay for that level
-                        gameplay(
+                        game.feedback=gameplay(
                             game.screen,
                             ball,
                             Tilemap(game.level_files[world][level], spritesheet),
                             game.backgrounds[world][level]
                         )
                         game.scene = game.world_to_level_scene[world]
+
+                        # When the gameplay loop is exited by touching the flag, give the player some feedback
+                        # if game.feedback[2]:
+                        #     draw_lvl_end_screen(game.world_button_map[world],level,game.feedback[0],game.feedback[1])
                         break
 
             # Back button logic
