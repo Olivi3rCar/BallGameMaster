@@ -178,6 +178,7 @@ class Ball:
                 if self.sticky and tile_key.broken: #désactive sticky si la tile est cassé
                     self.sticky = False
                 if tile_key.broken == 0:
+                    self.water_contact(tile_key)
                     self.ice_contact(tile_key)
                     self.normal_vector = collision_info[tile_key][0]
                     self.is_normal_good(tile_key)
@@ -241,6 +242,14 @@ class Ball:
         else:  # If its not an ice block
             self.ice_contact_timer = None  # Reset timer
             self.last_ice_tile = None     # Reset tile
+
+    def water_contact(self, tile):
+        if tile.index in [87,91]:
+            print("up the rah !!!")
+            self.reset_position()
+            for tile in tilemap.tiles:
+                if tile.broken:
+                    tile.broken = 0
 
     def repositioning(self, penetration):
         """Gets the ball out of the touching tile by replacing it a little further so the ball is not stuck"""
@@ -379,6 +388,7 @@ def gameplay(screen,ball,tilemap,background_image):
                     ball.toggle_bouncy()
                 if event.key == pygame.K_r: #If you press R, all broken tiles will respawn and ball will respawn
                     ball.reset_position()
+                    print("down")
                     for tile in tilemap.tiles:
                         if tile.broken:
                             tile.broken = 0
