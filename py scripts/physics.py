@@ -178,7 +178,7 @@ class Ball:
                 if self.sticky and tile_key.broken: #désactive sticky si la tile est cassé
                     self.sticky = False
                 if tile_key.broken == 0:
-                    self.water_contact(tile_key)
+                    self.water_contact(tile_key, tilemap)
                     self.ice_contact(tile_key)
                     self.normal_vector = collision_info[tile_key][0]
                     self.is_normal_good(tile_key)
@@ -243,9 +243,8 @@ class Ball:
             self.ice_contact_timer = None  # Reset timer
             self.last_ice_tile = None     # Reset tile
 
-    def water_contact(self, tile):
+    def water_contact(self, tile, tilemap):
         if tile.index in [87,91]:
-            print("up the rah !!!")
             self.reset_position()
             for tile in tilemap.tiles:
                 if tile.broken:

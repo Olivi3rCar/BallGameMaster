@@ -290,4 +290,5 @@ class Tilemap:
     def draw(self, surface):
         """Drawing the tilemap"""
         for tile in self.tiles:
-            surface.blit(tile.image, (tile.rect.x, tile.rect.y))
+            if tile.broken==0:
+                surface.blit(tile.image, (tile.rect.x, tile.rect.y))
