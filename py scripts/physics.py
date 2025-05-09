@@ -59,6 +59,7 @@ class Ball:
         self.can_be_selected = True
         self.ice_contact_timer = None  # Timer pour le contact avec la glace
         self.last_ice_tile = None  # Référence au dernier bloc de glace touché
+        self.hit = 0 #Number of strikes
 
         """Attributs de powerups"""
         self.sticky = False  # init du sticky
@@ -135,9 +136,14 @@ class Ball:
 
     def weight(self):
         """Calculate the weight"""
-        gravity = pygame.Vector2(0, 0.4)  # gravity
+        gravity_strength = 0.4
+        if self.fast_fall:
+            gravity_strength = 2.0  # boosted gravity when fast fall is on
+        gravity = pygame.Vector2(0, gravity_strength)
         return gravity * self.mass
 
+
+        
     def is_on_valid_surface(self):
         """Check if the touched tile is a slope (degree with the ground must not be between 100 and 80)"""
         slope_angle = self.getting_slope_angle()
@@ -172,6 +178,7 @@ class Ball:
                 if self.sticky and tile_key.broken: #désactive sticky si la tile est cassé
                     self.sticky = False
                 if tile_key.broken == 0:
+                    self.water_contact(tile_key)
                     self.ice_contact(tile_key)
                     self.normal_vector = collision_info[tile_key][0]
                     self.is_normal_good(tile_key)
@@ -219,7 +226,7 @@ class Ball:
 
     def ice_contact(self, tile):
         """Check if the ball is on a breakable tile and set the timer to destroy it"""
-        if tile.index in [27, 28, 29, 30, 31]:  #Check if it's a breakable one
+        if tile.index in [81, 82, 83, 84, 85]:  #Check if it's a breakable one
             if tile == self.last_ice_tile:  # If it's the same tile as the previous one
                 if self.ice_contact_timer is None:
                     self.ice_contact_timer = time.time()  # Set timer if not already done
@@ -232,9 +239,17 @@ class Ball:
             else:  # If it's a new one
                 self.ice_contact_timer = time.time()  # New timer
                 self.last_ice_tile = tile            # Set the new tiler
-        else:  # Si ce n'est pas un bloc de glace
+        else:  # If its not an ice block
             self.ice_contact_timer = None  # Reset timer
             self.last_ice_tile = None     # Reset tile
+
+    def water_contact(self, tile):
+        if tile.index in [87,91]:
+            print("up the rah !!!")
+            self.reset_position()
+            for tile in tilemap.tiles:
+                if tile.broken:
+                    tile.broken = 0
 
     def repositioning(self, penetration):
         """Gets the ball out of the touching tile by replacing it a little further so the ball is not stuck"""
@@ -278,6 +293,7 @@ class Ball:
         self.velocity = force / self.mass
         self.is_shooting = True # Set the flag to True when shooting
         self.can_be_selected = False
+        self.hit += 1
 
     def get_trajectory_angle(self):
         """Get the angle between mouse position and ground"""
@@ -332,6 +348,7 @@ def gameplay(screen,ball,tilemap,background_image):
     """Important function that does the loop for a level"""
     game = True
     active_select = False
+    start = pygame.time.get_ticks()
     previous_time = time.time()
     # ---------------------------
     # Load the background image
@@ -371,6 +388,7 @@ def gameplay(screen,ball,tilemap,background_image):
                     ball.toggle_bouncy()
                 if event.key == pygame.K_r: #If you press R, all broken tiles will respawn and ball will respawn
                     ball.reset_position()
+                    print("down")
                     for tile in tilemap.tiles:
                         if tile.broken:
                             tile.broken = 0
@@ -394,7 +412,8 @@ def gameplay(screen,ball,tilemap,background_image):
         ball.moving(tilemap, dt)
         ball.draw()
         pygame.display.flip()
-    return False # Indicate that the game loop has ended
+    #NEED to return ball.hit and (pygame.get.ticks() - start) which is the timer     
+    return ball.hit,(pygame.time.get_ticks() - start)/1000  # Indicate that the game loop has ended
 
 # running = True
 # while running :

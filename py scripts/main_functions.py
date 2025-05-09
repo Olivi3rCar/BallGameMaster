@@ -3,7 +3,6 @@ from pygame.locals import *
 from math import *
 from tiles import *
 from physics import gameplay, Ball, on_button
-from random import randint
 from time import sleep
 
 
@@ -23,9 +22,9 @@ class GameState:
         self.center_y = None
 
         # Paths to background sprites, doing it here because we need it later
-
         self.sprite_path = None
         self.level_path = None
+        self.tile_path = None
 
         # UI images and resources
         self.fade_away = None
@@ -41,6 +40,13 @@ class GameState:
         self.numbers = None
         self.reactions = None
         self.names = None
+
+        # Music and sounds "dimensions" so to speak
+        self.music = None
+        self.music_path = None
+
+        #Game data used for player feedback
+        self.feedback=None
 
         # Button dimensions
         self.button_rects = {
@@ -127,13 +133,6 @@ class GameState:
         # Level data (position of buttons)
         self.levels = {}
 
-        # Sprite sheet columns
-        self.tile_columns = {
-            'grass': 9,
-            'sand': 9,
-            'ice': 11
-        }
-
         # Scene to world mapping
         self.scene_to_world = {
             'Forest': 'grass',
@@ -176,12 +175,8 @@ def init_game():
     game.sprite_path = os.path.abspath(os.path.join("./main.py", os.pardir))
     game.sprite_path = str(game.sprite_path)[:-10] + "Sprites png\\"
 
-    # Resource paths for spritesheets
-    game.tile_paths = {
-        'grass': game.sprite_path + "groundtiles.png",
-        'sand': game.sprite_path + "sandtiles.png",
-        'ice': game.sprite_path + "icetiles.png"
-    }
+    # Resource paths for spritesheet
+    game.tile_path = game.sprite_path + "alltiles.png"
 
     # Load all images
     game.fade_away = pygame.image.load(game.sprite_path + "ballintro.png")
@@ -246,6 +241,16 @@ def init_game():
     game.center_x = game.screen.get_rect().centerx
     game.center_y = game.screen.get_rect().centery
 
+    # Music files Path Information
+    game.music_path = os.path.abspath(os.path.join("./main.py", os.pardir))
+    game.music_path = str(game.music_path)[:-10] + "Sound\\"
+    game.music = {
+        "intro": game.music_path + "Ambiance.ogg",
+        "grass": game.music_path + "GRASS.ogg",
+        "sand" : game.music_path + "SAND.ogg",
+        "ice"  : game.music_path + "ICE.ogg"
+    }
+
 def draw_nbr_string(nbr : str, pos : tuple):
     """
     Displays a string of numbers using sprites
@@ -264,7 +269,7 @@ def time_to_string(elapsed : int):
     """
     return str(elapsed // 60) + ":" + '0'*(int(elapsed%60 <=10) + int(elapsed%60 == 0)) + str(elapsed % 60)
 
-def draw_lvl_end_screen(w : str, lvl : int, time : int, strokes : int):
+def draw_lvl_end_screen(w : str, lvl : int, strokes : int, time : int):
     """
     Displays the level end screen
     :param w: world ID (as 'wi', where i is the world ID)
@@ -273,6 +278,9 @@ def draw_lvl_end_screen(w : str, lvl : int, time : int, strokes : int):
     :param strokes: strokes
     """
     global game
+
+    while not pygame.event.get(MOUSEBUTTONUP):
+        pass
 
     # Display the 'level beat' background
     game.screen.blit(game.endlevel,
@@ -286,6 +294,9 @@ def draw_lvl_end_screen(w : str, lvl : int, time : int, strokes : int):
     # Display a funny message for the player's enjoyment
     game.screen.blit(game.reactions, (335,313), game.reaction_rects[(lvl+time+strokes)%4])
 
+    while not pygame.event.get(MOUSEBUTTONDOWN) and game.disable_back==True:
+        return
+
 def draw_lvl_name(w : int, l : int):
     """
     Displays the level name in the upper left corner of the screen
@@ -298,13 +309,25 @@ def draw_lvl_name(w : int, l : int):
 
 def draw_fadeaway():
     global game
-    """for i in range(33):
+    for i in range(33):
         game.screen.blit(game.fade_away,
                          game.fade_away.get_rect(center=(game.center_x+10240, game.center_y)),
                          (i*640,0,640,480))
-        sleep(0.05)
-        pygame.display.flip()"""
+        sleep(0.1)
+        if 28<i<32:
+            sleep(0.3)
+        pygame.display.flip()
+    game.screen.fill((0,0,0))
+    sleep(0.7)
     game.scene = "Title"
+
+def pc_music(world):
+    """
+    Change they play the loaded music
+    :param world: Current world, to locate music file
+    """
+    pygame.mixer.music.load(game.music[world])
+    pygame.mixer.music.play(loops=-1)
 
 def draw_title_screen(x):
     """
@@ -435,8 +458,8 @@ def handle_events():
 
                 # Create appropriate spritesheet for the world
                 spritesheet = Spritesheet(
-                    os.path.join(game.tile_paths[world]),
-                    tile_size=32, columns=game.tile_columns[world]
+                    os.path.join(game.tile_path),
+                    tile_size=32, columns=9
                 )
 
                 # Create appropriate ball for the world
@@ -451,13 +474,17 @@ def handle_events():
                             (position[0] + 48, position[1] + 48)
                     ):
                         # Start gameplay for that level
-                        gameplay(
+                        game.feedback=gameplay(
                             game.screen,
                             ball,
                             Tilemap(game.level_files[world][level], spritesheet),
                             game.backgrounds[world][level]
                         )
                         game.scene = game.world_to_level_scene[world]
+
+                        # When the gameplay loop is exited by touching the flag, give the player some feedback
+                        # if game.feedback[2]:
+                        #     draw_lvl_end_screen(game.world_button_map[world],level,game.feedback[0],game.feedback[1])
                         break
 
             # Back button logic
@@ -492,26 +519,45 @@ def game_loop():
     global game
     # Animation counter for title screen
     x = 0
+    last_scene = None
+    pygame.mixer.music.set_volume(0.5)
 
     while True:
         # Cap fps to 120
         game.clock.tick(120)
 
+        # Scene change function to handle music
+        scene_change = game.scene != last_scene
+
         # Draw the appropriate scene
         if game.scene == "FadeAway":
             draw_fadeaway()
+            pc_music('intro')
+
         elif game.scene == "Title":
             draw_title_screen(x)
+            # Set music for Title Screen
             # Update animation counter
             x += 1 / 40
+
         elif game.scene == "World Selection":
             draw_world_selection()
+            # Set music for Title and Lvl selection Screen
+            if scene_change and last_scene != "Title" : pc_music('intro')
+
         elif game.scene == "Forest":
             game.first_frame = draw_level_selection('grass')
+            if scene_change : pc_music('grass')
+
         elif game.scene == "Desert":
             game.first_frame = draw_level_selection('sand')
+            if scene_change : pc_music('sand')
+
         elif game.scene == "Ice":
             game.first_frame = draw_level_selection('ice')
+            if scene_change : pc_music('ice')
+
+        last_scene = game.scene
 
         # Draw back button for all scenes except title
         if game.scene != "Title":
