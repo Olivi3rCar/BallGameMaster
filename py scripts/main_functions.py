@@ -1,4 +1,6 @@
 import sys
+
+import pygame.mouse
 from pygame.locals import *
 from math import *
 from tiles import *

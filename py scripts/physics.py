@@ -353,6 +353,8 @@ def gameplay(screen,ball,tilemap,background_image):
     # Load the background image
     # ---------------------------
     while game:
+        print(pygame.mouse.get_pos())
+
         clock.tick(FPS)
         dt = time.time() - previous_time  # Convert to seconds for physics frame-rate independence
         previous_time = time.time()
