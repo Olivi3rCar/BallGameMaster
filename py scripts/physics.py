@@ -336,6 +336,9 @@ class Ball:
             self.t0 = 0  # Reset the chronometer
         return active_select
 
+    def is_won(self,flag):
+        return collision_check(flag.vertices,(self.pos.x,self.pos.y),self.radius)
+
 # ---------------------------
 # Charging the items
 # ---------------------------
