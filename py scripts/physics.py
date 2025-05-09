@@ -65,6 +65,7 @@ class Ball:
         self.sticky = False  # init du sticky
         self.fast_fall = False  # init du ff
         self.bouncy = False  # init du bouncy
+
         self.impact_flash_time = 0
         self.default_retention = retention
         self.initial_pos = pos.copy()  # retient la position d'origine pour le reset (r)
@@ -283,6 +284,8 @@ class Ball:
             return False
 
     def shoot(self):
+        if self.sticky:
+            self.sticky=False
         """Moves the ball in a parabolic trajectory"""
         angle = self.get_trajectory_angle() #Angle between mouse position and ground
         self.pos += self.normal_vector*2 #Raise the ball so it doesn't touch any tiles, so moving does not interfere

@@ -83,6 +83,19 @@ class GameState:
             }
         }
 
+        self.initial_position={
+            'grass':{
+                1:(46,409),2:(14,206),3:(368,340),
+                4:(27,370),5:(25,340)
+            },
+            'sand':
+                {1:(14,169),2:(14,398),3:(16,358),
+                 4:(610,263),5:(43,396)
+                    },
+            'ice':{
+                1:(623,96),2:(52,395),3:(12,198),
+                4:(334,10),5:(12,101)}}
+
         # Button positions for all levels
         self.level_positions = {
             'grass': {
@@ -464,10 +477,6 @@ def handle_events():
                     tile_size=32, columns=9
                 )
 
-                # Create appropriate ball for the world
-                ball = Ball(pygame.math.Vector2(400, 150), 7, 0.5, 0.6,
-                            pygame.math.Vector2(0, 0), world)
-
                 # Check if any level button was clicked
                 for level in range(1, 6):
                     position = game.level_positions[world][level]
@@ -475,6 +484,9 @@ def handle_events():
                             position,
                             (position[0] + 48, position[1] + 48)
                     ):
+                        # Create appropriate ball for the world
+                        ball = Ball(pygame.Vector2(game.initial_position[world][level]), 7, 0.5, 0.6,
+                                    pygame.math.Vector2(0, 0), world)
                         # Start gameplay for that level
                         game.feedback=gameplay(
                             game.screen,
