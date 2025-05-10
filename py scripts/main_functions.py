@@ -286,7 +286,6 @@ def time_to_string(elapsed : int):
     :param elapsed: time elapsed (in seconds)
     :return: readable "min:sec" string
     """
-    print(elapsed)
     displayed=str(elapsed // 60) + ":" + '0' * (int(elapsed % 60 <= 10) + int(elapsed % 60 == 0)) + str(elapsed % 60)
     i=0
     while (displayed[i] == "0") or (displayed[i] == ".") or (displayed[i] == ":"):
@@ -295,7 +294,6 @@ def time_to_string(elapsed : int):
     displayed = displayed[i:]
     if len(displayed) > 6:
         displayed = '0'+displayed[:6]
-    print(displayed)
     return displayed
 
 def draw_lvl_end_screen(w : str, lvl : int, strokes : int, time : int):
@@ -586,15 +584,15 @@ def game_loop():
 
         elif game.scene == "Forest":
             game.first_frame = draw_level_selection('grass')
-            if scene_change : pc_music('grass')
+            if scene_change and last_scene != "GrassLevel" : pc_music('grass')
 
         elif game.scene == "Desert":
             game.first_frame = draw_level_selection('sand')
-            if scene_change : pc_music('sand')
+            if scene_change and last_scene != "SandLevel" : pc_music('sand')
 
         elif game.scene == "Ice":
             game.first_frame = draw_level_selection('ice')
-            if scene_change : pc_music('ice')
+            if scene_change and last_scene != "IceLevel" : pc_music('ice')
 
         last_scene = game.scene
 
