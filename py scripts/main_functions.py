@@ -41,7 +41,7 @@ class GameState:
         self.endlevel = None
         self.numbers = None
         self.reactions = None
-        self.names = None
+        self.tutorial = None
 
         # Music and sounds "dimensions" so to speak
         self.music = None
@@ -59,6 +59,10 @@ class GameState:
             'back': {
                 'off': (0, 0, 48, 48),
                 'on': (48, 0, 48, 48)
+            },
+            'comm' : {
+                'off': (96, 0, 48, 48),
+                'on': (144, 0, 48, 48)
             },
             'w1': {
                 'lvl1': {'off': (0, 96, 48, 48), 'on': (48, 96, 48, 48)},
@@ -93,7 +97,7 @@ class GameState:
                  4:(610,263),5:(43,396)
                     },
             'ice':{
-                1:(623,96),2:(52,395),3:(12,198),
+                1:(14,370),2:(52,395),3:(12,198),
                 4:(334,10),5:(12,101)}}
 
         # Button positions for all levels
@@ -135,8 +139,6 @@ class GameState:
         self.reaction_rects = [(139 * i * 2, 0, 139 * 2, 30 * 2) for i in range(4)]
         self.endlevel_rects = {f"w{i}" : (640 * (i-1), 0, 640, 480) for i in range(1,4)}
 
-        # Dimentions for level Names
-        self.names_rect = [[(541*j, 31 * i, 541, 31) for j in range(5)] for i in range(3)]
 
         # Level files
         self.level_files = {
@@ -221,7 +223,7 @@ def init_game():
                                               (2 * game.reactions.get_width(),
                                                2 * game.reactions.get_height()))
 
-    game.names = pygame.image.load(game.sprite_path + "lvlnames.png")
+    game.tutorial = pygame.image.load(game.sprite_path + "tutorial.png")
 
     # Set up background images for levels
     backgrounds_data = {
@@ -312,15 +314,6 @@ def draw_lvl_end_screen(w : str, lvl : int, strokes : int, time : int):
     while not pygame.event.get(MOUSEBUTTONDOWN) and game.disable_back==True:
         return
 
-def draw_lvl_name(w : int, l : int):
-    """
-    Displays the level name in the upper left corner of the screen
-    :param w: world ID in int
-    :param l: level ID in int
-    """
-    global game
-    w = max(0, w-1); l = max(0, l-1)
-    game.screen.blit(game.names, (8, 8), game.names_rect[w][l])
 
 def draw_fadeaway():
     global game
@@ -428,17 +421,25 @@ def draw_level_selection(world):
     return game.first_frame
 
 
-def draw_back_button():
-    """Draw the back button for navigation"""
+def draw_back_button(id = 0):
+    """Draw the back button for navigation or comm button for tutorial"""
     global game
 
-    game.screen.blit(game.buttons, (0, 0), game.button_rects['back']['off'])
+    name = ['back', 'comm'][id]
+
+    game.screen.blit(game.buttons, (0, 0), game.button_rects[name]['off'])
 
     if on_button((0, 0), (48, 48)):
-        game.screen.blit(game.buttons, (0, 0), game.button_rects['back']['on'])
+        game.screen.blit(game.buttons, (0, 0), game.button_rects[name]['on'])
     else:
-        game.screen.blit(game.buttons, (0, 0), game.button_rects['back']['off'])
+        game.screen.blit(game.buttons, (0, 0), game.button_rects[name]['off'])
 
+
+def draw_tutorial():
+    """Draw the tutorial screen"""
+    global game
+    game.screen.blit(game.tutorial,
+                     game.worldselect.get_rect(center=(game.center_x, game.center_y)))
 
 def handle_events():
     """Handle all pygame events and return the updated scene"""
@@ -451,9 +452,19 @@ def handle_events():
 
         elif event.type == MOUSEBUTTONDOWN:
             # Title screen button
-            if (game.scene == "Title") and on_button((200, 380), (440, 440)):
-                game.scene = "World Selection"
-                game.first_frame = True
+            if (game.scene == "Title"):
+                if on_button((200, 380), (440, 440)):
+                    game.scene = "World Selection"
+                    game.first_frame = True
+                elif on_button((0, 0), (48, 48)):
+                    game.scene = "Tutorial"
+                    game.first_frame = True
+
+            # Tutorial screen button
+            elif game.scene == "Tutorial":
+                if on_button((0, 0), (48, 48)) :
+                    game.scene = "Title"
+                    game.first_frame = True
 
             # World selection buttons
             elif game.scene == "World Selection":
@@ -492,10 +503,10 @@ def handle_events():
                             game.screen,
                             ball,
                             Tilemap(game.level_files[world][level], spritesheet),
-                            game.backgrounds[world][level]
+                            game.backgrounds[world][level],
+                            (world, level)
                         )
                         game.scene = game.world_to_level_scene[world]
-
                         # When the gameplay loop is exited by touching the flag, give the player some feedback
                         # if game.feedback[2]:
                         #     draw_lvl_end_screen(game.world_button_map[world],level,game.feedback[0],game.feedback[1])
@@ -554,6 +565,9 @@ def game_loop():
             # Update animation counter
             x += 1 / 40
 
+        elif game.scene == "Tutorial":
+            draw_tutorial()
+
         elif game.scene == "World Selection":
             draw_world_selection()
             # Set music for Title and Lvl selection Screen
@@ -576,6 +590,9 @@ def game_loop():
         # Draw back button for all scenes except title
         if game.scene != "Title":
             draw_back_button()
+        else :
+            # Draw it as a comm otherwise
+            draw_back_button(1)
 
         # Handle events (input, buttons, etc.)
         game.scene = handle_events()

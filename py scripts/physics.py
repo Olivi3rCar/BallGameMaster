@@ -17,11 +17,13 @@ pygame.display.set_icon(icon)
 clock = pygame.time.Clock()
 running = True
 
+
 """Getting the path to the sprites folder"""
 path=os.path.abspath(os.path.join("./main.py", os.pardir))
 path=str(path)[:-10]+"Sprites png\\"
 buttons=pygame.image.load(path+"Buttons.png")
 buttons = pygame.transform.scale(buttons, (3 * buttons.get_width(), 3 * buttons.get_height()))
+names = pygame.image.load(path + "lvlnames.png")
 gobackbuttonoff=(0,0,48,48)
 gobackbuttonon=(48,0,48,48)
 disable_back=False
@@ -318,7 +320,7 @@ class Ball:
         angle_rad = math.radians(angle_deg)
         """Here we run a simulation of the positions"""
         pos_x = [v0 * math.cos(angle_rad) * t + self.pos.x for t in range(0, 20, 2)]
-        pos_y = [0.5 * 0.5 * t ** 2 - v0 * math.sin(angle_rad) * t + self.pos.y for t in range(0, 20, 2)]
+        pos_y = [0.5 * 0.4 * t ** 2 - v0 * math.sin(angle_rad) * t + self.pos.y for t in range(0, 20, 2)]
         #We draw then the points at coordinates (x,y)
         for i in range(len(pos_x)):
             pygame.draw.circle(screen, "red", (int(pos_x[i]), int(pos_y[i])), 4)
@@ -332,14 +334,17 @@ class Ball:
 
         elif event.type == pygame.KEYUP and event.key == pygame.K_SPACE and self.t0 != 0 and active_select and not self.is_shooting:
             duration = pygame.time.get_ticks() - self.t0  # Duration of the pressing of the space bar
-            self.v0 = min(duration * rate_v0, 15)  # Capping of the initial velocity
+            self.v0 = min(duration * rate_v0, 20)  # Capping of the initial velocity
             self.shoot()  # Shoots the ball
             active_select = False # Deactivate selection after shooting
             self.t0 = 0  # Reset the chronometer
         return active_select
 
-    def is_won(self,flag):
-        return collision_check(flag.vertices,(self.pos.x,self.pos.y),self.radius)
+    def is_won(self,flag): #flag must be an array of the two tiles making the flag, extracted from the tilemap
+        for tile in flag :
+            if collision_check(tile.vertices,(self.pos.x, self.pos.y),self.radius):
+                return True
+        return False
 
 # ---------------------------
 # Charging the items
@@ -349,19 +354,33 @@ tilemap = Tilemap("..\\tiles_maps\\test_map.csv", spritesheet)
 ball=Ball(pygame.math.Vector2(400, 150), 7, 0.5, 0.6, pygame.math.Vector2(0, 0),"forest")
 image = "C:/Users/victo/PycharmProjects/BallGameMaster/Sprites png/bckgroundsand.png"
 
-def gameplay(screen,ball,tilemap,background_image):
+
+def draw_lvl_name(screen, world : int, level : int):
+    """
+    Displays the level name in the upper left corner of the screen
+    :param w: world ID in int
+    :param l: level ID in int
+    """
+    global names
+    w = max(0, {'grass':0,'sand':1,'ice':2}[world]); l = max(0, level-1)
+    names_rect = [[(541 * j, 31 * i, 541, 31) for j in range(5)] for i in range(3)]
+    screen.blit(names, (50, 8), names_rect[w][l])
+
+def gameplay(screen,ball,tilemap,background_image, lvl_id):
     """Important function that does the loop for a level"""
     game = True
     won = False
     active_select = False
     start = pygame.time.get_ticks()
     previous_time = time.time()
+    flag = []
+    for tile in tilemap.tiles : #Creating the flag list
+        if tile.index in [93,94] :
+            flag.append(tile)
     # ---------------------------
     # Load the background image
     # ---------------------------
-    while game:
-        print(pygame.mouse.get_pos())
-
+    while game and not ball.is_won(flag):
         clock.tick(FPS)
         dt = time.time() - previous_time  # Convert to seconds for physics frame-rate independence
         previous_time = time.time()
@@ -381,6 +400,7 @@ def gameplay(screen,ball,tilemap,background_image):
         else:
             screen.blit(buttons, (0,0), gobackbuttonoff)
 
+        draw_lvl_name(screen, lvl_id[0], lvl_id[1])
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -396,7 +416,6 @@ def gameplay(screen,ball,tilemap,background_image):
                     ball.toggle_bouncy()
                 if event.key == pygame.K_r: #If you press R, all broken tiles will respawn and ball will respawn
                     ball.reset_position()
-                    print("down")
                     for tile in tilemap.tiles:
                         if tile.broken:
                             tile.broken = 0
@@ -415,12 +434,12 @@ def gameplay(screen,ball,tilemap,background_image):
                 screen.blit(chargebar, (128,432), chargebar_rect[0])
                 ball.draw_trajectory(10)
             else :
-                screen.blit(chargebar, (128,432), chargebar_rect[min((pygame.time.get_ticks() - ball.t0)//50, 16)])
-                ball.draw_trajectory(min((pygame.time.get_ticks() - ball.t0) * 0.02, 20))
+                screen.blit(chargebar, (128,432), chargebar_rect[min((pygame.time.get_ticks() - ball.t0)//20, 16)])
+                ball.draw_trajectory(min((pygame.time.get_ticks() - ball.t0) * 0.05, 20))
         ball.moving(tilemap, dt)
         ball.draw()
         pygame.display.flip()
-    #NEED to return ball.hit and (pygame.get.ticks() - start) which is the timer     
+    #NEED to return ball.hit and (pygame.get.ticks() - start) which is the timer
     return ball.hit,(pygame.time.get_ticks() - start)/1000  # Indicate that the game loop has ended
 
 # running = True
