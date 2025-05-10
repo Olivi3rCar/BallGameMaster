@@ -380,7 +380,7 @@ def gameplay(screen,ball,tilemap,background_image, lvl_id):
     # ---------------------------
     # Load the background image
     # ---------------------------
-    while game and not ball.is_won(flag):
+    while game and not won:
         clock.tick(FPS)
         dt = time.time() - previous_time  # Convert to seconds for physics frame-rate independence
         previous_time = time.time()
@@ -439,8 +439,11 @@ def gameplay(screen,ball,tilemap,background_image, lvl_id):
         ball.moving(tilemap, dt)
         ball.draw()
         pygame.display.flip()
+        if ball.is_won(flag) :
+            won = True
+            break
     #NEED to return ball.hit and (pygame.get.ticks() - start) which is the timer
-    return ball.hit,(pygame.time.get_ticks() - start)/1000  # Indicate that the game loop has ended
+    return ball.hit,(pygame.time.get_ticks() - start)/1000 , won  # Indicate that the game loop has ended
 
 # running = True
 # while running :
