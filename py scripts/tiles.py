@@ -249,9 +249,9 @@ class Tile(pygame.sprite.Sprite):
                              (x + 32, y + 32), (x + 32, y)], 0.9),
             92: grow_hitbox([(x, y), (x, y + 32),
                              (x + 32, y + 32), (x + 32, y)], 0.9),
-            93 : [],
+            93 : [(x+16,y),(x+17,y),(x+16,y+32),(x+17,y+32)],
 
-            94 : [],
+            94 : [(x+16,y+3),(x+17,y+3),(x+16,y+32),(x+17,y+32)],
         }
 
         # Assign the vertices
