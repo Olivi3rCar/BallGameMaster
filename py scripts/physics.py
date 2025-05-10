@@ -318,7 +318,7 @@ class Ball:
         angle_rad = math.radians(angle_deg)
         """Here we run a simulation of the positions"""
         pos_x = [v0 * math.cos(angle_rad) * t + self.pos.x for t in range(0, 20, 2)]
-        pos_y = [0.5 * 0.5 * t ** 2 - v0 * math.sin(angle_rad) * t + self.pos.y for t in range(0, 20, 2)]
+        pos_y = [0.5 * 0.4 * t ** 2 - v0 * math.sin(angle_rad) * t + self.pos.y for t in range(0, 20, 2)]
         #We draw then the points at coordinates (x,y)
         for i in range(len(pos_x)):
             pygame.draw.circle(screen, "red", (int(pos_x[i]), int(pos_y[i])), 4)
