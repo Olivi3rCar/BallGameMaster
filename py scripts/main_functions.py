@@ -548,6 +548,7 @@ def game_loop():
     pygame.mixer.music.set_volume(0.5)
 
     while True:
+        print(last_scene)
         # Cap fps to 120
         game.clock.tick(120)
 
@@ -575,15 +576,15 @@ def game_loop():
 
         elif game.scene == "Forest":
             game.first_frame = draw_level_selection('grass')
-            if scene_change : pc_music('grass')
+            if scene_change and last_scene != "GrassLevel" : pc_music('grass')
 
         elif game.scene == "Desert":
             game.first_frame = draw_level_selection('sand')
-            if scene_change : pc_music('sand')
+            if scene_change and last_scene != "SandLevel" : pc_music('sand')
 
         elif game.scene == "Ice":
             game.first_frame = draw_level_selection('ice')
-            if scene_change : pc_music('ice')
+            if scene_change and last_scene != "IceLevel" : pc_music('ice')
 
         last_scene = game.scene
 
