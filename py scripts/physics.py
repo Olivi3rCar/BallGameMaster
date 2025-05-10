@@ -441,8 +441,3 @@ def gameplay(screen,ball,tilemap,background_image, lvl_id):
         pygame.display.flip()
     #NEED to return ball.hit and (pygame.get.ticks() - start) which is the timer
     return ball.hit,(pygame.time.get_ticks() - start)/1000  # Indicate that the game loop has ended
-
-# running = True
-# while running :
-#     running = gameplay(screen,ball, tilemap,image)
-# pygame.quit()

@@ -508,8 +508,8 @@ def handle_events():
                         )
                         game.scene = game.world_to_level_scene[world]
                         # When the gameplay loop is exited by touching the flag, give the player some feedback
-                        # if game.feedback[2]:
-                        #     draw_lvl_end_screen(game.world_button_map[world],level,game.feedback[0],game.feedback[1])
+                        if game.feedback[2]:
+                            draw_lvl_end_screen(game.world_button_map[world],level,game.feedback[0],game.feedback[1])
                         break
 
             # Back button logic
