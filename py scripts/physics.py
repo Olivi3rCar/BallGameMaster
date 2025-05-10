@@ -17,11 +17,13 @@ pygame.display.set_icon(icon)
 clock = pygame.time.Clock()
 running = True
 
+
 """Getting the path to the sprites folder"""
 path=os.path.abspath(os.path.join("./main.py", os.pardir))
 path=str(path)[:-10]+"Sprites png\\"
 buttons=pygame.image.load(path+"Buttons.png")
 buttons = pygame.transform.scale(buttons, (3 * buttons.get_width(), 3 * buttons.get_height()))
+names = pygame.image.load(path + "lvlnames.png")
 gobackbuttonoff=(0,0,48,48)
 gobackbuttonon=(48,0,48,48)
 disable_back=False
@@ -349,7 +351,19 @@ tilemap = Tilemap("..\\tiles_maps\\test_map.csv", spritesheet)
 ball=Ball(pygame.math.Vector2(400, 150), 7, 0.5, 0.6, pygame.math.Vector2(0, 0),"forest")
 image = "C:/Users/victo/PycharmProjects/BallGameMaster/Sprites png/bckgroundsand.png"
 
-def gameplay(screen,ball,tilemap,background_image):
+
+def draw_lvl_name(screen, world : int, level : int):
+    """
+    Displays the level name in the upper left corner of the screen
+    :param w: world ID in int
+    :param l: level ID in int
+    """
+    global names
+    w = max(0, {'grass':0,'sand':1,'ice':2}[world]); l = max(0, level-1)
+    names_rect = [[(541 * j, 31 * i, 541, 31) for j in range(5)] for i in range(3)]
+    screen.blit(names, (50, 8), names_rect[w][l])
+
+def gameplay(screen,ball,tilemap,background_image, lvl_id):
     """Important function that does the loop for a level"""
     game = True
     active_select = False
@@ -380,6 +394,7 @@ def gameplay(screen,ball,tilemap,background_image):
         else:
             screen.blit(buttons, (0,0), gobackbuttonoff)
 
+        draw_lvl_name(screen, lvl_id[0], lvl_id[1])
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
