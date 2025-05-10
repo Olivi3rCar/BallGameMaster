@@ -1,3 +1,4 @@
+import random
 import sys
 
 import pygame.mouse
@@ -275,6 +276,7 @@ def draw_nbr_string(nbr : str, pos : tuple):
     :param pos: tuple of position for the upper left of the string
     """
     global game
+    nbr=nbr.replace(".", ":")
     for i in range(len(nbr)):
         game.screen.blit(game.numbers, (pos[0]+ i*15, pos[1]), game.number_rects[nbr[i]])
 
@@ -284,7 +286,15 @@ def time_to_string(elapsed : int):
     :param elapsed: time elapsed (in seconds)
     :return: readable "min:sec" string
     """
-    return str(elapsed // 60) + ":" + '0'*(int(elapsed%60 <=10) + int(elapsed%60 == 0)) + str(elapsed % 60)
+    print(elapsed)
+    displayed=str(elapsed // 60) + ":" + '0' * (int(elapsed % 60 <= 10) + int(elapsed % 60 == 0)) + str(elapsed % 60)
+    i=0
+    while displayed[i] == "0" or displayed[i] == ":":
+        i+=1
+
+    displayed = displayed[i:]
+    print(displayed)
+    return displayed
 
 def draw_lvl_end_screen(w : str, lvl : int, strokes : int, time : int):
     """
@@ -309,7 +319,8 @@ def draw_lvl_end_screen(w : str, lvl : int, strokes : int, time : int):
     # Display the time took to finish the level
     draw_nbr_string(time_to_string(time), (290, 270))
     # Display a funny message for the player's enjoyment
-    game.screen.blit(game.reactions, (335,313), game.reaction_rects[(lvl+time+strokes)%4])
+    rand=random.randint(0,3)
+    game.screen.blit(game.reactions, (335,313), game.reaction_rects[rand])
 
     while not pygame.event.get(MOUSEBUTTONDOWN) and game.disable_back==True:
         return
@@ -506,6 +517,7 @@ def handle_events():
                             game.backgrounds[world][level],
                             (world, level)
                         )
+                        first_frame=True
                         game.scene = game.world_to_level_scene[world]
                         # When the gameplay loop is exited by touching the flag, give the player some feedback
                         if game.feedback[2]:

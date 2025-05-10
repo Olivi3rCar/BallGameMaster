@@ -327,7 +327,7 @@ class Ball:
 
     def handle_shooting(self, event, active_select):
         """Manage the shooting by taking in account the space bar"""
-        rate_v0 = 0.02  # Increase rate of the initial velocity
+        rate_v0 = 0.035  # Increase rate of the initial velocity
         if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE and active_select and not self.is_shooting:
             self.t0 = pygame.time.get_ticks()  # Start of the chronometer
             self.v0 = 0  # Reset of initial velocity
@@ -335,7 +335,7 @@ class Ball:
         elif event.type == pygame.KEYUP and event.key == pygame.K_SPACE and self.t0 != 0 and active_select and not self.is_shooting:
 
             duration = pygame.time.get_ticks() - self.t0  # Duration of the pressing of the space bar
-            self.v0 = min(duration * rate_v0, 20)  # Capping of the initial velocity
+            self.v0 = min(duration * rate_v0, 15)  # Capping of the initial velocity
             self.shoot()  # Shoots the ball
             active_select = False # Deactivate selection after shooting
             self.t0 = 0  # Reset the chronometer
@@ -440,4 +440,4 @@ def gameplay(screen,ball,tilemap,background_image, lvl_id):
         ball.draw()
         pygame.display.flip()
     #NEED to return ball.hit and (pygame.get.ticks() - start) which is the timer
-    return ball.hit,(pygame.time.get_ticks() - start)/1000  # Indicate that the game loop has ended
+    return ball.hit,(pygame.time.get_ticks() - start)/1000, ball.is_won(flag)  # Indicate that the game loop has ended
