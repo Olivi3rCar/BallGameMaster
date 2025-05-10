@@ -359,7 +359,7 @@ def gameplay(screen,ball,tilemap,background_image):
     start = pygame.time.get_ticks()
     previous_time = time.time()
     flag = []
-    for tile in tilemap : #Creating the flag list
+    for tile in tilemap.tiles : #Creating the flag list
         if tile.index in [93,94] :
             flag.append(tile)
     # ---------------------------
