@@ -338,8 +338,11 @@ class Ball:
             self.t0 = 0  # Reset the chronometer
         return active_select
 
-    def is_won(self,flag):
-        return collision_check(flag.vertices,(self.pos.x,self.pos.y),self.radius)
+    def is_won(self,flag): #flag must be an array of the two tiles making the flag, extracted from the tilemap
+        for tile in flag :
+            if collision_check(tile.vertices,(self.pos.x, self.pos.y),self.radius):
+                return True
+        return False
 
 # ---------------------------
 # Charging the items
@@ -355,6 +358,10 @@ def gameplay(screen,ball,tilemap,background_image):
     active_select = False
     start = pygame.time.get_ticks()
     previous_time = time.time()
+    flag = []
+    for tile in tilemap : #Creating the flag list
+        if tile.index in [93,94] :
+            flag.append(tile)
     # ---------------------------
     # Load the background image
     # ---------------------------
