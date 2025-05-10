@@ -1,0 +1,74 @@
+the hardest difficulty was to get the formulas right
+By choice, I decided not to include acceleration variables, but only keep speed and positions
+after finding our classic equations :
+-x = v0 * cos(angle)*t + x0
+-y = -0.5*g*t**2 + v0*sin(angle)*t + y0
+The biggest problem by far was that the origin (0,0) is situated at the left top corner of the screen, thus
+throwing out the window our formula for y
+luckily, after some research, this problem can be fixed by multiplying by -1 our formula
+(in our movement function, we use the formula of vx and vy as we also alter those with gravity and function)
+As for gravity and frictions, we set basic conditions that influence vx and vy:
+-Is the ball in air
+-Is the ball on the ground and does it move?
+
+17/02 SAT algorithm to detect collisions finished
+-22/02  frictions on the ground are good and we can "choose v0" by pressing the space bar for a certain amount of time
+
+Now the biggest difficulty by far, is to make all of this work with tiles, including slopes
+We want to be able to distinguish between rectangular tiles, triangular tiles, or other shapes, moreover there will be differentiation
+with the angle with the floor, the material and things like that
+
+Solution : Give a unique ID for each tile, with condition at the creation
+
+if tile_index in [0,1,2,3,4] angle = 0    and vertices = [(x,y),(x+32,y+32),(x+32,y),(x,y+32)]
+if tile_index == 5 angle = 45             and vertices = [(x+32,y+32),(x,y+32),(x+32,y)]
+if tile_index in [6,7] angle = 22.5           if 6 : vertices = [(x+32,y+32),(x,y+32),(x+32,y+17)]
+                                            if 7 : vertices = [(x+32,y+32),(x+32,y),(x,y+32),(x,y+16)]
+
+if tile_index in [8,9,10] angle = 11.25      if 8 : vertices = [(x+32,y+32),(x,y+32),(x+32,y+23)]
+                                          if 9 : vertices = [(x+32,y+32),(x+32,y+26),(x,y+32),(x,y+12)]
+                                          if 10 : vertices = [(x+32,y+32),(x+32,y),(x,y+32),(x,y+11)]
+
+if tile_index in [11,12,13,14,15]           if in [11,12] : angle = 63.4
+                                            if in [13,14,15] : angle = 72.6
+                                            if 11 : vertices = [(x+32,y+32),(x+32,y),(x+17,y+32)]
+                                            if 12 : vertices = [(x+32,y+32),(x+32,y),(x,y+32),(x+15,y)]
+                                            if 13 : vertices = [(x+32,y+32),(x+32,y),(x+23,y+32)]
+                                            if 14 : vertices = [(x+32,y+32),(x+32,y),(x+12,y+32),(x+22,y)]
+                                            if 15 : vertices = [(x+32,y+32),(x+32,y),(x+10,y),(x,y+32)]
+
+if tile_index == 16 angle = 135            and vertices = [(x+32,y+32),(x,y),(x,y+32)]
+if tile_index in [17,18] angle = 157.5       if 17 : vertices = [(x+32,y+32),(x,y+32),(x,y+17)]
+                                            if 18 : vertices = [(x+32,y+32),(x,y),(x,y+32),(x+32,y+16)]
+
+
+if tile_index in [19,20,21] angle = 101.25
+                                          if 19 : vertices = [(x+32,y+32),(x,y+32),(x+32,y+23)]
+                                          if 20 : vertices = [(x+32,y+32),(x+32,y+12),(x,y+32),(x,y+22)]
+                                          if 21 : vertices = [(x+32,y+32),(x,y),(x,y+32),(x+32,y+11)]
+
+
+if tile_index in [22,23,24,25,26]        if in [22,23] : angle = 116.6
+                                         if in [24,25,26] : angle = 107.4
+                                         if 22 : vertices = [(x,y),(x,y+32),(x+15,y+32)]
+                                         if 23 : vertices = [(x+32,y+32),(x,y),(x,y+32),(x+17,y)]
+                                         if 24 : vertices = [(x,y+32),(x,y),(x+10,y+32)]
+                                         if 25 : vertices = [(x,y),(x,y+32),(x+11,y),(x+21,y+32)]
+                                         if 26 : vertices = [(x+32,y+32),(x,y),(x+10,y),(x+23,y)]
+
+for the 4 last tiles, they were updated later
+
+
+26/03 : We're finally seeing the light in the tunnel, while the physics is still wacky, it mostly works
+                    print("Collision detected",tile_key.index,self.normal_vector, "Current speed :",self.velocity,tangent_vector)
+03/04 : finally we can shoot without much problem
+
+10/04 : frictions are finished, we just need to comment the code and tidy it up
+
+14/04 : loading the image background, and putting the whole code in a function for a better merge
+
+function used in debug : def draw_hitbox(ball, tile):
+    if collision_check(tile.vertices, (ball.pos.x, ball.pos.y), ball.radius):
+        pygame.draw.polygon(screen, "green", tile.vertices)
+
+
