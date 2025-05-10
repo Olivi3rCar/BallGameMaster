@@ -365,7 +365,7 @@ def gameplay(screen,ball,tilemap,background_image):
     # ---------------------------
     # Load the background image
     # ---------------------------
-    while game:
+    while game and not ball.is_won(flag):
         print(pygame.mouse.get_pos())
 
         clock.tick(FPS)
