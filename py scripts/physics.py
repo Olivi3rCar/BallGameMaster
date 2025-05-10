@@ -355,11 +355,6 @@ class Ball:
 # ---------------------------
 # Charging the items
 # ---------------------------
-spritesheet = Spritesheet(path + "\\sandtiles.png", tile_size=32, columns=9)
-tilemap = Tilemap("..\\tiles_maps\\test_map.csv", spritesheet)
-ball=Ball(pygame.math.Vector2(400, 150), 7, 0.5, 0.6, pygame.math.Vector2(0, 0),"forest")
-image = "C:/Users/victo/PycharmProjects/BallGameMaster/Sprites png/bckgroundsand.png"
-
 
 def draw_lvl_name(screen, world : int, level : int):
     """

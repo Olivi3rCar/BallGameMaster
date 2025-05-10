@@ -5,9 +5,46 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ac5f406b-0a04-4a01-b25f-aed207a5ce76" name="Changes" comment="tqt">
-      <change beforePath="$PROJECT_DIR$/.idea/BallGameMaster.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/BallGameMaster.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SAT_algorithm_collision.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sprites png/Effects.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sprites png/TitleExpanded.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sprites png/extratiles.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sprites png/flaganim.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sprites png/golfball.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sprites png/groundtiles.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sprites png/icetiles.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sprites png/sandtiles.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sprites/Buttons.aseprite" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sprites/Chargebar.aseprite" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sprites/Effects.aseprite" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sprites/Let'sPlayButton.aseprite" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sprites/Putt it in.aseprite" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sprites/Title.aseprite" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sprites/alltiles.aseprite" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sprites/ballintro.aseprite" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sprites/bckgroundgrass.aseprite" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sprites/bckgroundice.aseprite" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sprites/bckgroundsand.aseprite" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sprites/buttonspalette.aseprite" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sprites/endlevel.aseprite" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sprites/extratiles.aseprite" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sprites/flaganim.aseprite" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sprites/golf_icon.aseprite" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sprites/golfball.aseprite" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sprites/grassgrows.aseprite" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sprites/groundtiles.aseprite" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sprites/icetiles.aseprite" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sprites/lvlnames.aseprite" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sprites/numbers.aseprite" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sprites/reactions.aseprite" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sprites/sandtiles.aseprite" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sprites/stageselect.aseprite" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sprites/tutorial.aseprite" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/game.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/py scripts/physics.py" beforeDir="false" afterPath="$PROJECT_DIR$/py scripts/physics.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tiles.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -113,6 +150,7 @@
       <workItem from="1746732882461" duration="2985000" />
       <workItem from="1746866631804" duration="399000" />
       <workItem from="1746885065491" duration="2119000" />
+      <workItem from="1746888319689" duration="319000" />
     </task>
     <task id="LOCAL-00001" summary="Fixed tile respawn when touching water">
       <option name="closed" value="true" />
@@ -166,7 +204,7 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/main_functions_py$main.coverage" NAME="main Coverage Results" MODIFIED="1746792591427" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/py scripts" />
-    <SUITE FILE_PATH="coverage/main_py$main.coverage" NAME="main Coverage Results" MODIFIED="1746017466907" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/py scripts" />
+    <SUITE FILE_PATH="coverage/main_py$main.coverage" NAME="main Coverage Results" MODIFIED="1746888433306" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/py scripts" />
     <SUITE FILE_PATH="coverage/main_py$physics.coverage" NAME="physics Coverage Results" MODIFIED="1746016637233" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/py scripts" />
     <SUITE FILE_PATH="coverage/workspace_xml$main.coverage" NAME="main Coverage Results" MODIFIED="1746886735116" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/py scripts" />
     <SUITE FILE_PATH="coverage/BallGameMaster$main.coverage" NAME="main Coverage Results" MODIFIED="1746866162437" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/py scripts" />
