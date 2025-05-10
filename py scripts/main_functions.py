@@ -289,10 +289,12 @@ def time_to_string(elapsed : int):
     print(elapsed)
     displayed=str(elapsed // 60) + ":" + '0' * (int(elapsed % 60 <= 10) + int(elapsed % 60 == 0)) + str(elapsed % 60)
     i=0
-    while displayed[i] == "0" or displayed[i] == ":":
+    while (displayed[i] == "0") or (displayed[i] == ".") or (displayed[i] == ":"):
         i+=1
 
     displayed = displayed[i:]
+    if len(displayed) > 6:
+        displayed = '0'+displayed[:6]
     print(displayed)
     return displayed
 
@@ -305,9 +307,6 @@ def draw_lvl_end_screen(w : str, lvl : int, strokes : int, time : int):
     :param strokes: strokes
     """
     global game
-
-    while not pygame.event.get(MOUSEBUTTONUP):
-        pass
 
     # Display the 'level beat' background
     game.screen.blit(game.endlevel,
