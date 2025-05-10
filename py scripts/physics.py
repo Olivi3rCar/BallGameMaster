@@ -264,6 +264,11 @@ class Ball:
             return 90 if self.normal_vector.y > 0 else -90 #To avoid the division by 0
         return math.degrees(math.atan2(self.normal_vector.y, self.normal_vector.x))
 
+    def is_outside_screen(self):
+        """Checks if the ball is outside the screen"""
+        if self.pos.x < 0 or self.pos.y < -200 or self.pos.x > 640 or self.pos.y > 480 : #if the ball exits the screen it respawns
+            self.reset_position()
+
 
     def handle_collision(self, tilemap):
         """Creates the dictionary of the touching tiles"""
@@ -438,6 +443,7 @@ def gameplay(screen,ball,tilemap,background_image, lvl_id):
                 ball.draw_trajectory(min((pygame.time.get_ticks() - ball.t0) * 0.05, 20))
         ball.moving(tilemap, dt)
         ball.draw()
+        ball.is_outside_screen()
         pygame.display.flip()
     #NEED to return ball.hit and (pygame.get.ticks() - start) which is the timer
     return ball.hit,(pygame.time.get_ticks() - start)/1000, ball.is_won(flag)  # Indicate that the game loop has ended
