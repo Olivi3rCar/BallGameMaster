@@ -352,6 +352,7 @@ image = "C:/Users/victo/PycharmProjects/BallGameMaster/Sprites png/bckgroundsand
 def gameplay(screen,ball,tilemap,background_image):
     """Important function that does the loop for a level"""
     game = True
+    won = False
     active_select = False
     start = pygame.time.get_ticks()
     previous_time = time.time()
