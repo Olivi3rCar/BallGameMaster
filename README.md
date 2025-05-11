@@ -1,5 +1,7 @@
 # BallGameMaster
 Development repository for transversal school project : Ball Game
 
-# Logbook 
-3/02 : Distribution of the roles and beginning of the project
+Find all the logs in the Full_log.pdf file
+
+Lauch the game by launching main.py
+installation of python and pygame might be necessary
