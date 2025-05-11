@@ -279,6 +279,7 @@ class Ball:
         """Checks if the ball is outside the screen"""
         if self.pos.x < 0 or self.pos.y < -200 or self.pos.x > 640 or self.pos.y > 480 : #if the ball exits the screen it respawns (small tolerance for height)
             self.reset_position()
+            self.reset_powers()
 
 
     def handle_collision(self, tilemap):
