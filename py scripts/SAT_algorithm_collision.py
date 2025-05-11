@@ -1,6 +1,7 @@
 import math
 """This is my version of the Separation Axis Theorem,
-modified to work only with a circle and a polygon, we do not need anything else"""
+modified to work only with a circle and a polygon, we do not need anything else but the vertices of the polygon, the center of the circle and its radius
+Done by Jalil Bellahcen"""
 
 def Axis(A, B):
     """Returns a normalized normal vector of the segment AB"""
