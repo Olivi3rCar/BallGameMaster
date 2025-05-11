@@ -2,8 +2,15 @@ import pygame
 import csv
 import os
 
+"""Everything tile-related is here, tilemaps were made on Tiled, and levels are stored as csv tables
+Implementation done by Jalil Bellahcen
+Levels designed and created by Frederci Pacreau
+Spritesheets created by Mathias Carvalho"""
+
+
+
 def grow_hitbox(vertices, factor=1.0):
-    """Artificially grows or shrinks the hitbox of the tiles"""
+    """Artificially grows or shrinks the hitbox of the tiles of a certain factor (1 by default)"""
     center_x = sum(v[0] for v in vertices) / len(vertices)
     center_y = sum(v[1] for v in vertices) / len(vertices)
     new_vertices = []
@@ -85,8 +92,6 @@ class Tile(pygame.sprite.Sprite):
                             (x, y + 32), (x, y)], 0.9),
             58: grow_hitbox([(x + 32, y), (x + 32, y + 32),
                             (x, y + 32), (x, y)], 0.9),
-
-            # À partir de 5, on applique un facteur > 1.0 pour grossir la hitbox
             5: grow_hitbox([(x + 32, y + 32), (x, y + 32),
                              (x + 34, y)], 1.1),
             32: grow_hitbox([(x + 32, y + 32), (x, y + 32),
@@ -293,5 +298,5 @@ class Tilemap:
     def draw(self, surface):
         """Drawing the tilemap"""
         for tile in self.tiles:
-            if tile.broken==0:
+            if tile.broken==0: #We do not draw the broken tiles
                 surface.blit(tile.image, (tile.rect.x, tile.rect.y))
