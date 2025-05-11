@@ -3,6 +3,16 @@ import time
 import os
 from SAT_algorithm_collision import *
 from tiles import *
+
+"""This module handles everything related to the gameplay, but mostly the ball and its
+interactions with the tiles 
+Collisions are detected with the SAT algorithm for circle-polygon only
+Done by Jalil Bellahcen,
+
+Power ups coded and implemented by Taha ezzahraoui
+Link with main_functions done by Victor Hafliger
+"""
+
 # ---------------------------
 # Initialization of Pygame window parameters
 # ---------------------------
@@ -90,7 +100,7 @@ class Ball:
             self.fast_fall = False
             
     def draw(self):
-        """Changement de couleur selon powerup"""
+        """Change of color according to the power-up"""
         if self.sticky:
             color = (0, 255, 0)
         elif self.bouncy:
@@ -100,7 +110,7 @@ class Ball:
         else:
             color = (255, 255, 255)
         pygame.draw.circle(screen, color, (int(self.pos.x), int(self.pos.y)), self.radius)
-        if self.fast_fall and pygame.time.get_ticks() - self.impact_flash_time < 100: #effet visu du ff
+        if self.fast_fall and pygame.time.get_ticks() - self.impact_flash_time < 100: #visual effect for fast fall
             pygame.draw.circle(screen, (255, 255, 255), (int(self.pos.x), int(self.pos.y + self.radius + 4)), 6, 1)
 
     def bounce(self):
@@ -144,8 +154,6 @@ class Ball:
             gravity_strength = 2.0  # boosted gravity when fast fall is on
         gravity = pygame.Vector2(0, gravity_strength)
         return gravity * self.mass
-
-
         
     def is_on_valid_surface(self):
         """Check if the touched tile is a slope (degree with the ground must not be between 100 and 80)"""
@@ -172,15 +180,16 @@ class Ball:
                 self.velocity -= tangent_vector * self.velocity.dot(tangent_vector)
 
     def moving(self, tilemap, dt):
+        """The one function that handles all movements and coordinates every other functions"""
         weight = self.weight()
         collision_info = self.handle_collision(tilemap)
         tangent_vector = pygame.Vector2(0, 1)
 
-        if collision_info:
+        if collision_info: #If we touch a tile
             for tile_key in collision_info.keys():
-                if self.sticky and tile_key.broken: #désactive sticky si la tile est cassé
+                if self.sticky and tile_key.broken: #If the tile breaks, we disable sticky
                     self.sticky = False
-                if tile_key.broken == 0:
+                if tile_key.broken == 0: #If the tile is not broken, we apply all physics functions
                     self.water_contact(tile_key, tilemap)
                     self.ice_contact(tile_key)
                     self.normal_vector = collision_info[tile_key][0]
@@ -198,10 +207,10 @@ class Ball:
                     self.is_shooting = False
                     self.can_be_selected = True
                 else:
-                    self.velocity += weight
+                    self.velocity += weight #If the tile is broken, we just pass through
                     self.normal_vector *= 0
         else:
-            self.velocity += weight
+            self.velocity += weight #Normal gravity 
             self.normal_vector *= 0
 
         if not self.is_on_valid_surface() and collision_info:
@@ -218,10 +227,10 @@ class Ball:
         if abs(self.velocity.x) < 0.01 and abs(self.velocity.y) < 0.1:
             self.velocity = pygame.Vector2(0, 0)
 
-        if self.sticky and collision_info: #figer la balle lors de collisioon
+        if self.sticky and collision_info: #stop the ball when colliding
             self.velocity = pygame.Vector2(0, 0)
 
-        if self.fast_fall and collision_info: #petit effet pour fast fall
+        if self.fast_fall and collision_info: #fast fall effect
             self.impact_flash_time = pygame.time.get_ticks()
 
         self.pos += self.velocity * dt * 30
@@ -247,8 +256,10 @@ class Ball:
             self.last_ice_tile = None     # Reset tile
 
     def water_contact(self, tile, tilemap):
+        """If the ball touches the water, you respawn at the start and tiles and powers are reset"""
         if tile.index in [87,91]:
             self.reset_position()
+            self.reset_powers()
             for tile in tilemap.tiles:
                 if tile.broken:
                     tile.broken = 0
@@ -266,7 +277,7 @@ class Ball:
 
     def is_outside_screen(self):
         """Checks if the ball is outside the screen"""
-        if self.pos.x < 0 or self.pos.y < -200 or self.pos.x > 640 or self.pos.y > 480 : #if the ball exits the screen it respawns
+        if self.pos.x < 0 or self.pos.y < -200 or self.pos.x > 640 or self.pos.y > 480 : #if the ball exits the screen it respawns (small tolerance for height)
             self.reset_position()
 
 
@@ -288,11 +299,11 @@ class Ball:
         if closest_collision:
             return {closest_collision[0]: (closest_collision[1], closest_collision[2])}
         else:
-            return False
+            return False #No touching tiles
 
     def shoot(self):
         if self.sticky:
-            self.sticky=False
+            self.sticky=False #Disable the sticky when shot
         """Moves the ball in a parabolic trajectory"""
         angle = self.get_trajectory_angle() #Angle between mouse position and ground
         self.pos += self.normal_vector*2 #Raise the ball so it doesn't touch any tiles, so moving does not interfere
